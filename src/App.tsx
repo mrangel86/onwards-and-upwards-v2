@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,8 @@ import NotFound from "./pages/NotFound";
 import AboutUs from "./pages/AboutUs";
 import PhotoGallery from "./pages/PhotoGallery";
 import VideoGallery from "./pages/VideoGallery";
+import BlogIndex from "./pages/BlogIndex";
+// BlogPostTemplate is not routed for now, as requested
 
 const queryClient = new QueryClient();
 
@@ -22,6 +25,7 @@ const App = () => (
           <Route path="/about" element={<AboutUs />} />
           <Route path="/gallery/photos" element={<PhotoGallery />} />
           <Route path="/gallery/videos" element={<VideoGallery />} />
+          <Route path="/blog" element={<BlogIndex />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
