@@ -9,7 +9,7 @@ const navLinks = [
     { name: "Videography", url: "#" },
   ]},
   { name: "Blog", url: "#" },
-  { name: "About Us", url: "#" },
+  { name: "About Us", url: "/about" },
 ];
 
 const Navbar = () => {
