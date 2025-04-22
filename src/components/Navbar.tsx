@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { name: "Gallery", dropdown: true, items: [
-    { name: "Photography", url: "#" },
-    { name: "Videography", url: "#" },
+    { name: "Photography", url: "/gallery/photos" },
+    { name: "Videography", url: "/gallery/videos" },
   ]},
   { name: "Blog", url: "#" },
   { name: "About Us", url: "/about" },
