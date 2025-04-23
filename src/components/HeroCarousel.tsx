@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -43,10 +42,15 @@ const HeroCarousel = () => {
             background: `linear-gradient(0deg,rgba(30,22,23,.26),rgba(40,28,29,.18)),url(${slide.image}) center center/cover no-repeat`
           }}
         >
-          <div className="w-full h-full flex flex-col items-center justify-center text-white bg-black/30 md:bg-black/20 bg-blend-multiply">
-            <div className="max-w-2xl mx-auto px-4 py-8">
-              <h1 className="font-playfair text-3xl lg:text-5xl font-bold mb-4 drop-shadow-lg animate-fade-in">{slide.title}</h1>
-              <p className="text-lg lg:text-2xl mb-6 drop-shadow animate-fade-in">{slide.subtitle}</p>
+          <div className="w-full h-full flex items-center justify-center text-white bg-black/30 md:bg-black/20 bg-blend-multiply">
+            <div className="max-w-2xl mx-auto text-center px-4">
+              <h1 className="font-playfair text-3xl lg:text-5xl font-bold mb-4 drop-shadow-lg animate-fade-in">
+                {slide.title}
+              </h1>
+              <div className="w-16 h-px bg-white/60 mx-auto mb-4" />
+              <p className="text-lg lg:text-2xl mb-6 drop-shadow animate-fade-in">
+                {slide.subtitle}
+              </p>
               <a href={slide.button.url} className="inline-block">
                 <button className="bg-accent hover:bg-primary text-white font-semibold px-6 py-3 rounded-full shadow-lg transition animate-fade-in">
                   {slide.button.text}
@@ -56,7 +60,6 @@ const HeroCarousel = () => {
           </div>
         </div>
       ))}
-      {/* Navigation arrows */}
       <button
         onClick={prev}
         className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-primary rounded-full p-2 shadow transition z-20"
@@ -71,7 +74,6 @@ const HeroCarousel = () => {
       >
         <ChevronRight size={28} />
       </button>
-      {/* Dots */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
         {slides.map((_, i) => (
           <button

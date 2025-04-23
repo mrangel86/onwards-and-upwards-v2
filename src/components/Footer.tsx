@@ -1,36 +1,57 @@
 
 import React from "react";
-
-const footerLinks = [
-  { label: "Home", url: "/" },
-  { label: "Gallery", url: "#" },
-  { label: "Blog", url: "#" },
-  { label: "About Us", url: "#" },
-  { label: "Newsletter", url: "#newsletter" },
-];
+import { Link } from "react-router-dom";
 
 const Footer = () => (
   <footer className="bg-white border-t pt-10 pb-6 px-4">
-    <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-20">
+    <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-start gap-8 md:gap-20">
       <div className="flex-shrink-0 mb-4 md:mb-0">
-        <a href="/" className="flex items-center font-playfair text-xl font-bold tracking-tight text-primary hover:text-accent transition">
+        <Link to="/" className="flex items-center font-playfair text-xl font-bold tracking-tight text-primary hover:text-accent transition">
           Onwards&nbsp;&amp;&nbsp;Upwards
-        </a>
+        </Link>
       </div>
+      
       <div className="flex-1 mb-4 md:mb-0">
-        <p className="text-gray-700 text-sm max-w-xl">Onwards & Upwards is a family journal chronicling our journey through Europe—written for ourselves, our daughter, and anyone who wants to follow along.</p>
+        <p className="text-gray-700 text-sm max-w-xl">
+          Onwards & Upwards is a family journal chronicling our journey through Europe—written for ourselves, our daughter, and anyone who wants to follow along.
+        </p>
       </div>
-      <nav className="flex flex-col sm:flex-row gap-2 sm:gap-5 items-center">
-        {footerLinks.map((link) => (
-          <a
-            key={link.label}
-            href={link.url}
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-10 gap-y-6">
+        {/* Quick Links */}
+        <div className="flex flex-col gap-2">
+          <Link to="/" className="text-gray-600 hover:text-accent text-sm font-semibold transition">
+            Home
+          </Link>
+          <Link to="/blog" className="text-gray-600 hover:text-accent text-sm font-semibold transition">
+            Blog
+          </Link>
+          <Link to="/about" className="text-gray-600 hover:text-accent text-sm font-semibold transition">
+            About Us
+          </Link>
+        </div>
+
+        {/* Gallery Section */}
+        <div className="flex flex-col gap-2">
+          <span className="text-primary text-sm font-bold">Gallery</span>
+          <Link to="/gallery/photos" className="text-gray-600 hover:text-accent text-sm transition">
+            Photography
+          </Link>
+          <Link to="/gallery/videos" className="text-gray-600 hover:text-accent text-sm transition">
+            Videography
+          </Link>
+        </div>
+
+        {/* Newsletter */}
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => document.dispatchEvent(new CustomEvent("open-newsletter"))}
             className="text-gray-600 hover:text-accent text-sm font-semibold transition"
           >
-            {link.label}
-          </a>
-        ))}
-      </nav>
+            Newsletter
+          </button>
+        </div>
+      </div>
     </div>
     <div className="text-gray-400 text-xs mt-8 text-center">
       © 2025 Onwards & Upwards
