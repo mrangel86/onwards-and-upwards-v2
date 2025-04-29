@@ -6,6 +6,7 @@ type BlogCardProps = {
   author: string;
   image: string;
   excerpt: string;
+  date?: string;
   onClick?: () => void;
 };
 
@@ -14,6 +15,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
   author,
   image,
   excerpt,
+  date,
   onClick,
 }) => (
   <div
@@ -29,7 +31,10 @@ const BlogCard: React.FC<BlogCardProps> = ({
     />
     <div className="flex flex-col gap-1 py-4 px-5 flex-1">
       <h3 className="font-playfair font-bold text-lg text-primary mb-1">{title}</h3>
-      <span className="text-xs text-accent mb-1">by {author}</span>
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs text-accent">by {author}</span>
+        {date && <span className="text-xs text-gray-500">{date}</span>}
+      </div>
       <p className="text-gray-700 text-sm leading-snug line-clamp-3">{excerpt}</p>
     </div>
   </div>

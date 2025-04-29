@@ -252,7 +252,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      post_type_enum: "essay" | "journal" | "reflection" | "gallery" | "video"
+      post_type_enum:
+        | "essay"
+        | "journal"
+        | "reflection"
+        | "gallery"
+        | "video"
+        | "legacy"
       tag_type_enum: "post" | "photo" | "video" | "all"
     }
     CompositeTypes: {
@@ -369,7 +375,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      post_type_enum: ["essay", "journal", "reflection", "gallery", "video"],
+      post_type_enum: [
+        "essay",
+        "journal",
+        "reflection",
+        "gallery",
+        "video",
+        "legacy",
+      ],
       tag_type_enum: ["post", "photo", "video", "all"],
     },
   },

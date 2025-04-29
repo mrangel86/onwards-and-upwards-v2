@@ -10,7 +10,8 @@ import AboutUs from "./pages/AboutUs";
 import PhotoGallery from "./pages/PhotoGallery";
 import VideoGallery from "./pages/VideoGallery";
 import BlogIndex from "./pages/BlogIndex";
-// BlogPostTemplate is not routed for now, as requested
+import BlogPost from "./pages/BlogPost";
+import BlogPostPreview from "./pages/BlogPostPreview";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,8 @@ const App = () => (
           <Route path="/gallery/photos" element={<PhotoGallery />} />
           <Route path="/gallery/videos" element={<VideoGallery />} />
           <Route path="/blog" element={<BlogIndex />} />
+          <Route path="/posts/:slug" element={<BlogPost />} />
+          <Route path="/preview/:slug" element={<BlogPostPreview />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

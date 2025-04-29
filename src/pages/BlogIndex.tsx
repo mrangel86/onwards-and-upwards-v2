@@ -1,53 +1,46 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FilterBar from "@/components/FilterBar";
 import BlogCard from "@/components/BlogCard";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
 
-// Placeholder posts, newest first.
-const posts = [
-  {
-    title: "Spring in Provence",
-    author: "Michael",
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=700&q=80",
-    excerpt: "Lavender fields, breezy mornings, and tiny feet running down cobblestone lanes. Spring brought new colors—and new memories—for our family.",
-  },
-  {
-    title: "Rainy Days in Porto",
-    author: "Gesy",
-    image: "https://images.unsplash.com/photo-1615729947596-a598e5de0ab3?w=700&q=80",
-    excerpt: "Grey skies and golden pastries. Sometimes, a rainy day is the best excuse for board games, baby giggles, and slow sips by the window.",
-  },
-  {
-    title: "Baby’s First Snowfall",
-    author: "Michael & Gesy",
-    image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=700&q=80",
-    excerpt: "Tucked into wool, cheeks pink from cold—Victoria's first snow: wide eyes and laughter we're still replaying in our hearts.",
-  },
-  {
-    title: "Market Days in Florence",
-    author: "Gesy",
-    image: "https://images.unsplash.com/photo-1466721591366-2d5fba72006d?w=700&q=80",
-    excerpt: "The sounds, the colors, the flavors—market mornings are pure joy for Victoria (and her grown-up entourage).",
-  },
-  {
-    title: "Finding Stillness in Vienna",
-    author: "Michael",
-    image: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=700&q=80",
-    excerpt: "Grand cafes, velvet evenings, and stolen hours in art museums. Vienna taught us patience, one blissful day at a time.",
-  },
-];
+const PAGE_SIZE = 6;
 
-const PAGE_SIZE = 3;
 const BlogIndex = () => {
-  // In future, fetch more posts from CMS/database as user scrolls
   const [visiblePosts, setVisiblePosts] = useState(PAGE_SIZE);
+
+  // Fetch published posts from Supabase
+  const { data: posts, isLoading, error } = useQuery({
+    queryKey: ['publishedPosts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('id, title, excerpt, hero_image_url, created_at, author, slug')
+        .eq('published', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
 
   const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
-    if (el.scrollTop + el.clientHeight + 50 >= el.scrollHeight && visiblePosts < posts.length) {
+    if (posts && el.scrollTop + el.clientHeight + 50 >= el.scrollHeight && visiblePosts < posts.length) {
       setVisiblePosts((v) => Math.min(posts.length, v + PAGE_SIZE));
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    try {
+      return format(new Date(dateString), 'MMMM d, yyyy');
+    } catch (e) {
+      return '';
     }
   };
 
@@ -67,13 +60,42 @@ const BlogIndex = () => {
         </header>
         {/* Filter Bar */}
         <FilterBar />
+
         {/* Blog grid */}
         <section>
-          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-7 md:gap-10">
-            {posts.slice(0, visiblePosts).map((post, idx) => (
-              <BlogCard key={idx} {...post} />
-            ))}
-          </div>
+          {isLoading && (
+            <div className="text-center py-12">
+              <p className="text-gray-500">Loading posts...</p>
+            </div>
+          )}
+          
+          {error && (
+            <div className="text-center py-12">
+              <p className="text-red-500">Error loading posts. Please try again later.</p>
+            </div>
+          )}
+          
+          {posts && posts.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-gray-500">No posts found.</p>
+            </div>
+          )}
+          
+          {posts && posts.length > 0 && (
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-7 md:gap-10">
+              {posts.slice(0, visiblePosts).map((post) => (
+                <Link to={`/posts/${post.slug}`} key={post.id} className="no-underline">
+                  <BlogCard 
+                    title={post.title}
+                    author={post.author || "Anonymous"}
+                    image={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=700&q=80"}
+                    excerpt={post.excerpt || "Read more about this travel adventure..."}
+                    date={formatDate(post.created_at)}
+                  />
+                </Link>
+              ))}
+            </div>
+          )}
         </section>
       </main>
       <Footer />
