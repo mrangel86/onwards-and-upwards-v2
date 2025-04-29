@@ -51,6 +51,37 @@ const blog = {
   ],
 };
 
+// Mock related posts data
+const relatedPosts = [
+  {
+    id: "1",
+    title: "Summer in Barcelona",
+    author: "Gesy",
+    hero_image_url: "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=700&q=80",
+    excerpt: "The warm Mediterranean breeze, narrow streets of the Gothic Quarter, and endless tapas...",
+    created_at: "2024-03-15T10:00:00.000Z",
+    slug: "summer-barcelona"
+  },
+  {
+    id: "2",
+    title: "Winter in Switzerland",
+    author: "Michael",
+    hero_image_url: "https://images.unsplash.com/photo-1528214170403-d48e1087980d?w=700&q=80",
+    excerpt: "Snow-capped peaks, cozy chalets, and the most delicious hot chocolate you've ever tasted...",
+    created_at: "2024-02-20T10:00:00.000Z",
+    slug: "winter-switzerland"
+  },
+  {
+    id: "3",
+    title: "Autumn in New England",
+    author: "Michael & Gesy",
+    hero_image_url: "https://images.unsplash.com/photo-1476820865390-c52aeebb9891?w=700&q=80",
+    excerpt: "Vibrant red and orange leaves, pumpkin patches, and road trips through charming towns...",
+    created_at: "2024-01-10T10:00:00.000Z",
+    slug: "autumn-new-england"
+  }
+];
+
 const SectionDivider = () => (
   <div className="my-14 flex justify-center">
     <span className="block w-32 h-1 rounded-full bg-gradient-to-r from-accent via-peach to-accent opacity-65"></span>
@@ -82,7 +113,7 @@ const BlogPostTemplate = () => (
       {/* Optional Map Block */}
       <section className="flex flex-col md:flex-row items-center gap-8 mb-12">
         <div className="flex-1 text-center md:text-left text-lg text-gray-700">
-          The winding roads led us to places maps hadn’t even named. Every turn was a new discovery—and a fresh story.
+          The winding roads led us to places maps hadn't even named. Every turn was a new discovery—and a fresh story.
         </div>
         <div className="flex-1 max-w-md">
           <img src={blog.mapImg} alt="Map placeholder" className="w-full h-56 object-cover rounded-lg bg-gray-100 border" />
@@ -104,8 +135,8 @@ const BlogPostTemplate = () => (
       })}
       {/* Section Divider */}
       <SectionDivider />
-      {/* Other Posts */}
-      <OtherPostsGrid />
+      {/* Other Posts - Now properly providing the required posts prop */}
+      <OtherPostsGrid posts={relatedPosts} />
     </main>
     <NewsletterSignup />
     <Footer />
