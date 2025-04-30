@@ -40,7 +40,7 @@ const VideoGallery = () => {
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 px-4 pb-12 pt-6 max-w-5xl mx-auto w-full">
+      <main className="flex-1 px-4 pb-12 pt-6 max-w-5xl md:max-w-6xl mx-auto w-full">
         {/* Header */}
         <header className="mb-5 md:mb-8">
           <h1 className="font-playfair text-3xl md:text-4xl font-bold mb-2 text-primary">Video Gallery</h1>

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -13,6 +13,8 @@ const PAGE_SIZE = 6;
 
 const BlogIndex = () => {
   const [visiblePosts, setVisiblePosts] = useState(PAGE_SIZE);
+  const [loading, setLoading] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Fetch published posts from Supabase
   const { data: posts, isLoading, error } = useQuery({
@@ -29,12 +31,36 @@ const BlogIndex = () => {
     }
   });
 
-  const onScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    if (posts && el.scrollTop + el.clientHeight + 50 >= el.scrollHeight && visiblePosts < posts.length) {
-      setVisiblePosts((v) => Math.min(posts.length, v + PAGE_SIZE));
+  const handleScroll = () => {
+    if (!containerRef.current || loading || !posts || visiblePosts >= posts.length) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
+    
+    // When user has scrolled to the bottom (with a small buffer)
+    if (scrollTop + clientHeight >= scrollHeight - 100) {
+      loadMorePosts();
     }
   };
+  
+  const loadMorePosts = () => {
+    if (loading || !posts) return;
+    setLoading(true);
+    
+    // Simulate a slight delay for better UX
+    setTimeout(() => {
+      setVisiblePosts(prev => Math.min(posts.length, prev + PAGE_SIZE));
+      setLoading(false);
+    }, 300);
+  };
+
+  // Attach scroll listener
+  useEffect(() => {
+    const currentContainer = containerRef.current;
+    if (currentContainer) {
+      currentContainer.addEventListener('scroll', handleScroll);
+      return () => currentContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, [visiblePosts, loading, posts]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -48,9 +74,9 @@ const BlogIndex = () => {
     <div className="font-inter bg-background min-h-screen flex flex-col">
       <Navbar />
       <main
-        className="flex-1 max-w-6xl mx-auto w-full px-4 pb-16 pt-10 overflow-y-auto"
+        ref={containerRef}
+        className="flex-1 max-w-6xl md:max-w-7xl mx-auto w-full px-4 pb-16 pt-10 overflow-y-auto"
         style={{ minHeight: "80vh" }}
-        onScroll={onScroll}
         tabIndex={0}
       >
         {/* Header */}
@@ -94,6 +120,20 @@ const BlogIndex = () => {
                   />
                 </Link>
               ))}
+            </div>
+          )}
+          
+          {/* Loading indicator */}
+          {loading && (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Loading more posts...</p>
+            </div>
+          )}
+          
+          {/* End of posts message */}
+          {posts && visiblePosts >= posts.length && posts.length > 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500">You've reached the end of our posts.</p>
             </div>
           )}
         </section>

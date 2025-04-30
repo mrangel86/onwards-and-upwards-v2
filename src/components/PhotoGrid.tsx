@@ -27,7 +27,7 @@ const PhotoGrid: React.FC<{
         <img
           src={photo.src}
           alt={photo.title}
-          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
+          className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200 cursor-pointer"
           loading="lazy"
         />
         {/* Overlay */}
