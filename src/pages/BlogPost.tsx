@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -16,8 +16,10 @@ const SectionDivider = () => <div className="my-14 flex justify-center">
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [lightboxOpen, setLightboxOpen] = React.useState(false);
-  const [lightboxImageUrl, setLightboxImageUrl] = React.useState("");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImageUrl, setLightboxImageUrl] = useState("");
+  const [contentImages, setContentImages] = useState<string[]>([]);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   
   const {
     data: post,
@@ -51,7 +53,7 @@ const BlogPost = () => {
       const {
         data,
         error
-      } = await supabase.from('posts').select('id, title, excerpt, hero_image_url, created_at, author, slug').eq('published', true).neq('id', post.id).order('created_at', {
+      } = await supabase.from('posts').select('id, title, excerpt, hero_image_url, created_at, author, slug, content').eq('published', true).neq('id', post.id).order('created_at', {
         ascending: false
       }).limit(3);
       if (error) throw error;
@@ -69,29 +71,53 @@ const BlogPost = () => {
     }
   };
 
-  // Function to handle image clicks for lightbox
+  // Extract all images from post content
+  useEffect(() => {
+    if (!post || !post.content) return;
+    
+    const extractImages = () => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(post.content, 'text/html');
+      const imageElements = doc.querySelectorAll('img');
+      const images = Array.from(imageElements).map(img => img.src);
+      
+      // Add hero image if it exists
+      if (post.hero_image_url) {
+        images.unshift(post.hero_image_url);
+      }
+      
+      setContentImages(images);
+    };
+    
+    extractImages();
+  }, [post]);
+
+  // Handle image click to open lightbox
   const handleImageClick = (imageUrl: string) => {
+    const imageIndex = contentImages.indexOf(imageUrl);
+    setActiveImageIndex(imageIndex >= 0 ? imageIndex : 0);
     setLightboxImageUrl(imageUrl);
     setLightboxOpen(true);
   };
 
-  // This function will be used by a MutationObserver to add click handlers to images
-  React.useEffect(() => {
+  // Add click handlers to content images
+  useEffect(() => {
     if (!post) return;
     
     const contentElement = document.querySelector('.prose');
     if (!contentElement) return;
     
-    // Add click handlers to all images in the content
+    // Add click handlers to all images in content
     const images = contentElement.querySelectorAll('img');
     images.forEach(img => {
       img.classList.add('cursor-pointer', 'hover:opacity-90', 'transition');
       img.addEventListener('click', () => handleImageClick(img.src));
     });
     
-    // Also add click handler to hero image
+    // Add click handler to hero image
     const heroImage = document.querySelector('.hero-image');
     if (heroImage) {
+      heroImage.classList.add('cursor-pointer');
       heroImage.addEventListener('click', () => {
         const img = heroImage as HTMLImageElement;
         handleImageClick(img.src);
@@ -102,7 +128,7 @@ const BlogPost = () => {
   if (isLoading) {
     return <div className="font-inter bg-background min-h-screen flex flex-col">
         <Navbar />
-        <main className="flex-1 max-w-4xl md:max-w-5xl mx-auto w-full px-4 pb-10 pt-16">
+        <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10 pt-16">
           <p className="text-center">Loading post...</p>
         </main>
         <Footer />
@@ -115,7 +141,7 @@ const BlogPost = () => {
 
   return <div className="font-inter bg-background min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 max-w-4xl md:max-w-5xl mx-auto w-full px-4 pb-10">
+      <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10">
         {/* Header */}
         <section className="pt-10 pb-6">
           <h1 className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-2">{post.title}</h1>
@@ -126,8 +152,7 @@ const BlogPost = () => {
           <img 
             src={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"} 
             alt={post.title} 
-            className="w-full h-60 md:h-96 object-cover cursor-pointer hero-image rounded-xl shadow mb-6" 
-            onClick={() => handleImageClick(post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80")}
+            className="w-full h-60 md:h-96 object-cover hero-image rounded-xl shadow mb-6 cursor-pointer" 
           />
         </section>
 
@@ -138,15 +163,17 @@ const BlogPost = () => {
         <SectionDivider />
 
         {/* Other Posts */}
-        <OtherPostsGrid posts={relatedPosts || []} />
+        <div className="max-w-6xl mx-auto">
+          <OtherPostsGrid posts={relatedPosts || []} />
+        </div>
       </main>
       
       {/* Image Lightbox Modal */}
       <LightboxModal
         open={lightboxOpen}
         onClose={() => setLightboxOpen(false)}
-        images={[lightboxImageUrl]}
-        initialIdx={0}
+        images={contentImages}
+        initialIdx={activeImageIndex}
       />
       
       <NewsletterSignup />

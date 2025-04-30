@@ -24,6 +24,7 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   useEffect(() => {
     if (open) setIdx(initialIdx);
   }, [open, initialIdx]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (!open) return;
@@ -38,33 +39,45 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-2 animate-fade-in" onClick={onClose}>
-      <div className="relative max-w-lg w-full rounded-xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
-        <img src={images[idx]} alt={titles?.[idx] || ""} className="w-full max-h-[70vh] object-contain rounded-t-xl" />
-        <div className="bg-white px-6 py-4 rounded-b-xl">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-playfair font-semibold text-lg">{titles?.[idx]}</h3>
-              <p className="text-gray-600 text-sm">{descs?.[idx]}</p>
-            </div>
-            <button className="text-sm text-accent hover:text-primary font-semibold" onClick={onClose}>Close</button>
+      <div className="relative max-w-5xl w-full rounded-xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <img 
+          src={images[idx]} 
+          alt={titles?.[idx] || ""} 
+          className="w-full max-h-[80vh] object-contain mx-auto"
+        />
+        
+        {titles?.[idx] && (
+          <div className="absolute bottom-0 left-0 right-0 bg-black/60 px-6 py-4 text-white">
+            <h3 className="font-playfair font-semibold text-lg">{titles?.[idx]}</h3>
+            {descs?.[idx] && <p className="text-white/80 text-sm">{descs?.[idx]}</p>}
           </div>
-          <div className="flex justify-between mt-3">
+        )}
+
+        {/* Navigation arrows - semi-transparent and vertically centered */}
+        {images.length > 1 && (
+          <>
             <button
-              className="p-2 bg-gray-100 rounded-full hover:bg-accent hover:text-white"
-              onClick={() => setIdx((i) => (i - 1 + images.length) % images.length)}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIdx((i) => (i - 1 + images.length) % images.length);
+              }}
               aria-label="Previous"
             >
-              <ChevronLeft />
+              <ChevronLeft size={24} />
             </button>
             <button
-              className="p-2 bg-gray-100 rounded-full hover:bg-accent hover:text-white"
-              onClick={() => setIdx((i) => (i + 1) % images.length)}
+              className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 bg-black/30 hover:bg-black/50 text-white rounded-full transition-all"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIdx((i) => (i + 1) % images.length);
+              }}
               aria-label="Next"
             >
-              <ChevronRight />
+              <ChevronRight size={24} />
             </button>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );

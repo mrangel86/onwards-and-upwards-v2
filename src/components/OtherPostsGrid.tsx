@@ -10,6 +10,7 @@ type Post = {
   author: string | null;
   hero_image_url: string | null;
   excerpt: string | null;
+  content?: string | null;
   created_at: string;
   slug: string;
   published?: boolean;
@@ -28,12 +29,27 @@ const OtherPostsGrid: React.FC<OtherPostsGridProps> = ({ posts = [] }) => {
     }
   };
 
+  // Function to create excerpt from post content
+  const createExcerpt = (post: Post) => {
+    if (post.excerpt) return post.excerpt;
+    
+    if (post.content) {
+      // Strip HTML tags and limit to ~120 chars
+      const strippedContent = post.content.replace(/<[^>]*>/g, '');
+      return strippedContent.length > 120 
+        ? `${strippedContent.substring(0, 120)}...` 
+        : strippedContent;
+    }
+    
+    return "Click to see more about this adventure...";
+  };
+
   if (posts.length === 0) {
     return null;
   }
 
   return (
-    <section className="max-w-5xl md:max-w-6xl mx-auto px-4 py-10">
+    <section className="max-w-6xl mx-auto px-4 py-10">
       <h2 className="font-playfair text-2xl font-bold mb-8 text-primary">Other Posts</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {posts.map((post) => (
@@ -42,7 +58,7 @@ const OtherPostsGrid: React.FC<OtherPostsGridProps> = ({ posts = [] }) => {
               title={post.title}
               author={post.author || "Anonymous"}
               image={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=700&q=80"}
-              excerpt={post.excerpt || "Read more about this travel adventure..."}
+              excerpt={createExcerpt(post)}
               date={formatDate(post.created_at)}
             />
           </Link>

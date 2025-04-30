@@ -12,7 +12,7 @@ const PhotoGrid: React.FC<{
   onPhotoClick: (idx: number) => void;
 }> = ({ photos, onPhotoClick }) => (
   <div
-    className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 animate-fade-in"
+    className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 animate-fade-in mx-auto max-w-6xl"
     aria-label="Photo Gallery"
   >
     {photos.map((photo, idx) => (

@@ -1,11 +1,12 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -18,6 +19,20 @@ const Navbar = () => {
   const handleGalleryMouseLeave = () => {
     setIsGalleryOpen(false);
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsGalleryOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="bg-white shadow-sm">
@@ -36,11 +51,15 @@ const Navbar = () => {
             
             {/* Gallery Dropdown */}
             <div 
+              ref={dropdownRef}
               className="relative dropdown"
               onMouseEnter={handleGalleryMouseEnter}
               onMouseLeave={handleGalleryMouseLeave}
             >
-              <button className="text-gray-600 hover:text-accent inline-flex items-center">
+              <button 
+                className="text-gray-600 hover:text-accent inline-flex items-center"
+                onClick={() => setIsGalleryOpen(!isGalleryOpen)}
+              >
                 Gallery
                 <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
@@ -49,14 +68,14 @@ const Navbar = () => {
               
               {/* Dropdown Content */}
               <div 
-                className={`absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-10 dropdown-content ${
+                className={`absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50 dropdown-content ${
                   isGalleryOpen ? "block" : "hidden"
                 }`}
               >
-                <Link to="/photos" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                <Link to="/gallery/photos" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                   Photography
                 </Link>
-                <Link to="/videos" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                <Link to="/gallery/videos" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                   Videography
                 </Link>
               </div>
@@ -96,10 +115,10 @@ const Navbar = () => {
               <div className="py-2">
                 <div className="font-medium text-gray-600 mb-1">Gallery</div>
                 <div className="pl-4 flex flex-col space-y-2">
-                  <Link to="/photos" className="text-gray-600 hover:text-accent">
+                  <Link to="/gallery/photos" className="text-gray-600 hover:text-accent">
                     Photography
                   </Link>
-                  <Link to="/videos" className="text-gray-600 hover:text-accent">
+                  <Link to="/gallery/videos" className="text-gray-600 hover:text-accent">
                     Videography
                   </Link>
                 </div>

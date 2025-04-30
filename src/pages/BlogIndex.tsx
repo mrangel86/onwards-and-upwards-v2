@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -14,6 +14,8 @@ const PAGE_SIZE = 6;
 const BlogIndex = () => {
   const [visiblePosts, setVisiblePosts] = useState(PAGE_SIZE);
   const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const loaderRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Fetch published posts from Supabase
@@ -22,7 +24,7 @@ const BlogIndex = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('posts')
-        .select('id, title, excerpt, hero_image_url, created_at, author, slug')
+        .select('id, title, excerpt, hero_image_url, created_at, author, slug, content')
         .eq('published', true)
         .order('created_at', { ascending: false });
       
@@ -31,36 +33,50 @@ const BlogIndex = () => {
     }
   });
 
-  const handleScroll = () => {
-    if (!containerRef.current || loading || !posts || visiblePosts >= posts.length) return;
+  const loadMorePosts = useCallback(() => {
+    if (loading || !posts || !hasMore) return;
     
-    const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-    
-    // When user has scrolled to the bottom (with a small buffer)
-    if (scrollTop + clientHeight >= scrollHeight - 100) {
-      loadMorePosts();
-    }
-  };
-  
-  const loadMorePosts = () => {
-    if (loading || !posts) return;
     setLoading(true);
     
     // Simulate a slight delay for better UX
     setTimeout(() => {
-      setVisiblePosts(prev => Math.min(posts.length, prev + PAGE_SIZE));
+      if (posts.length > visiblePosts) {
+        setVisiblePosts(prev => Math.min(posts.length, prev + PAGE_SIZE));
+      } else {
+        setHasMore(false);
+      }
       setLoading(false);
     }, 300);
-  };
+  }, [visiblePosts, loading, posts, hasMore]);
 
-  // Attach scroll listener
+  // Set up intersection observer for infinite scroll
   useEffect(() => {
-    const currentContainer = containerRef.current;
-    if (currentContainer) {
-      currentContainer.addEventListener('scroll', handleScroll);
-      return () => currentContainer.removeEventListener('scroll', handleScroll);
+    if (!loaderRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadMorePosts();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(loaderRef.current);
+    
+    return () => {
+      if (loaderRef.current) {
+        observer.unobserve(loaderRef.current);
+      }
+    };
+  }, [loaderRef, loadMorePosts, hasMore]);
+
+  // Update hasMore when posts data changes
+  useEffect(() => {
+    if (posts) {
+      setHasMore(visiblePosts < posts.length);
     }
-  }, [visiblePosts, loading, posts]);
+  }, [posts, visiblePosts]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -68,6 +84,21 @@ const BlogIndex = () => {
     } catch (e) {
       return '';
     }
+  };
+
+  // Function to create excerpt from post content
+  const createExcerpt = (post: any) => {
+    if (post.excerpt) return post.excerpt;
+    
+    if (post.content) {
+      // Strip HTML tags and limit to ~120 chars
+      const strippedContent = post.content.replace(/<[^>]*>/g, '');
+      return strippedContent.length > 120 
+        ? `${strippedContent.substring(0, 120)}...` 
+        : strippedContent;
+    }
+    
+    return "Click to see more about this adventure...";
   };
 
   return (
@@ -115,7 +146,7 @@ const BlogIndex = () => {
                     title={post.title}
                     author={post.author || "Anonymous"}
                     image={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=700&q=80"}
-                    excerpt={post.excerpt || "Read more about this travel adventure..."}
+                    excerpt={createExcerpt(post)}
                     date={formatDate(post.created_at)}
                   />
                 </Link>
@@ -123,16 +154,21 @@ const BlogIndex = () => {
             </div>
           )}
           
-          {/* Loading indicator */}
-          {loading && (
-            <div className="text-center py-8">
-              <p className="text-gray-500">Loading more posts...</p>
-            </div>
-          )}
+          {/* Loader reference element - when visible, load more posts */}
+          <div 
+            ref={loaderRef} 
+            className="h-10 w-full flex justify-center items-center my-8"
+          >
+            {loading && (
+              <div className="text-center">
+                <p className="text-gray-500">Loading more posts...</p>
+              </div>
+            )}
+          </div>
           
           {/* End of posts message */}
-          {posts && visiblePosts >= posts.length && posts.length > 0 && (
-            <div className="text-center py-8">
+          {posts && !hasMore && posts.length > 0 && (
+            <div className="text-center pb-8">
               <p className="text-gray-500">You've reached the end of our posts.</p>
             </div>
           )}
