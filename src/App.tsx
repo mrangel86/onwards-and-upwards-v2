@@ -12,6 +12,7 @@ import VideoGallery from "./pages/VideoGallery";
 import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
 import BlogPostPreview from "./pages/BlogPostPreview";
+import TestPostPreview from "./pages/TestPostPreview";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/blog" element={<BlogIndex />} />
           <Route path="/posts/:slug" element={<BlogPost />} />
           <Route path="/preview/:slug" element={<BlogPostPreview />} />
+          <Route path="/test-posts" element={<TestPostPreview />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
