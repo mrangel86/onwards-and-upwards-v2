@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import LightboxModal from "./LightboxModal";
+import { Separator } from "@/components/ui/separator";
 
 type MediaItem = {
   id: string;
@@ -56,15 +57,19 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
   }
 
   return (
-    <div className="py-6">
-      {/* Gallery description if available - now using dangerouslySetInnerHTML */}
+    <div className="py-10">
+      {/* Gallery description if available - with separators and improved spacing */}
       {galleryDescription && (
-        <div className="max-w-3xl mx-auto mb-10 text-center">
-          <div 
-            className="text-muted-foreground text-lg italic"
-            dangerouslySetInnerHTML={{ __html: galleryDescription }}
-          />
-        </div>
+        <>
+          <Separator className="max-w-3xl mx-auto my-8 bg-gray-200" />
+          <div className="max-w-3xl mx-auto mb-8 text-center">
+            <div 
+              className="text-muted-foreground text-lg"
+              dangerouslySetInnerHTML={{ __html: galleryDescription }}
+            />
+          </div>
+          <Separator className="max-w-3xl mx-auto my-8 bg-gray-200" />
+        </>
       )}
       
       {/* Masonry-style gallery */}

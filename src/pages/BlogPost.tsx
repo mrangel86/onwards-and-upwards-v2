@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -155,7 +156,7 @@ const BlogPost = () => {
           <img 
             src={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"} 
             alt={post.title} 
-            className="w-full h-60 md:h-96 object-cover hero-image rounded-xl shadow mb-6 cursor-pointer" 
+            className="w-full h-auto object-contain hero-image rounded-xl shadow mb-6 cursor-pointer" 
           />
         </section>
 

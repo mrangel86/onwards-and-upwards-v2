@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -170,8 +171,8 @@ const BlogPostPreview = () => {
           </div>
           <img 
             src={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"} 
-            alt={post.title} 
-            className="w-full h-60 md:h-96 object-cover cursor-pointer hero-image" 
+            alt={post.title}
+            className="w-full h-auto object-contain cursor-pointer hero-image rounded-xl shadow mb-6" 
             onClick={() => handleImageClick(post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80")}
           />
         </section>
