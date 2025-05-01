@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -6,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import OtherPostsGrid from "@/components/OtherPostsGrid";
+import PostImageGallery from "@/components/PostImageGallery";
 import { supabase } from "@/integrations/supabase/client";
 import NotFound from "./NotFound";
 import LightboxModal from "@/components/LightboxModal";
@@ -90,7 +92,7 @@ const BlogPostPreview = () => {
 
   // This function will be used by a MutationObserver to add click handlers to images
   React.useEffect(() => {
-    if (!post) return;
+    if (!post || slug === 'japan-highlights') return;
     
     const contentElement = document.querySelector('.prose');
     if (!contentElement) return;
@@ -110,7 +112,7 @@ const BlogPostPreview = () => {
         handleImageClick(img.src);
       });
     }
-  }, [post]);
+  }, [post, slug]);
 
   if (isLoading) {
     return (
@@ -149,7 +151,7 @@ const BlogPostPreview = () => {
         </section>
 
         {/* Optional Map Block */}
-        {post.location && (
+        {post.location && slug !== 'japan-highlights' && (
           <section className="flex flex-col md:flex-row items-center gap-8 mb-12">
             <div className="flex-1 text-center md:text-left text-lg text-gray-700">
               The winding roads led us to {post.location}. Every turn was a new discovery—and a fresh story.
@@ -165,10 +167,14 @@ const BlogPostPreview = () => {
         )}
 
         {/* Content body */}
-        <section 
-          className="prose prose-lg max-w-none" 
-          dangerouslySetInnerHTML={{ __html: post.content || "" }} 
-        />
+        {slug === 'japan-highlights' ? (
+          <PostImageGallery postId={post.id} />
+        ) : (
+          <section 
+            className="prose prose-lg max-w-none" 
+            dangerouslySetInnerHTML={{ __html: post.content || "" }} 
+          />
+        )}
 
         {/* Section Divider */}
         <SectionDivider />

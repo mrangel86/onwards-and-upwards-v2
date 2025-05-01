@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -6,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import OtherPostsGrid from "@/components/OtherPostsGrid";
+import PostImageGallery from "@/components/PostImageGallery";
 import { supabase } from "@/integrations/supabase/client";
 import NotFound from "./NotFound";
 import LightboxModal from "@/components/LightboxModal";
@@ -73,7 +75,7 @@ const BlogPost = () => {
 
   // Extract all images from post content
   useEffect(() => {
-    if (!post || !post.content) return;
+    if (!post || !post.content || slug === 'japan-highlights') return;
     
     const extractImages = () => {
       const parser = new DOMParser();
@@ -90,7 +92,7 @@ const BlogPost = () => {
     };
     
     extractImages();
-  }, [post]);
+  }, [post, slug]);
 
   // Handle image click to open lightbox
   const handleImageClick = (imageUrl: string) => {
@@ -102,7 +104,7 @@ const BlogPost = () => {
 
   // Add click handlers to content images
   useEffect(() => {
-    if (!post) return;
+    if (!post || slug === 'japan-highlights') return;
     
     const contentElement = document.querySelector('.prose');
     if (!contentElement) return;
@@ -123,7 +125,7 @@ const BlogPost = () => {
         handleImageClick(img.src);
       });
     }
-  }, [post]);
+  }, [post, slug]);
 
   if (isLoading) {
     return <div className="font-inter bg-background min-h-screen flex flex-col">
@@ -157,7 +159,11 @@ const BlogPost = () => {
         </section>
 
         {/* Content body */}
-        <section className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
+        {slug === 'japan-highlights' ? (
+          <PostImageGallery postId={post.id} />
+        ) : (
+          <section className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
+        )}
 
         {/* Section Divider */}
         <SectionDivider />

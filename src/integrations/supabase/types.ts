@@ -56,6 +56,59 @@ export type Database = {
           },
         ]
       }
+      media: {
+        Row: {
+          caption: string
+          created_at: string
+          featured_sort_order: number | null
+          id: string
+          is_featured: boolean | null
+          is_hero_image: boolean | null
+          location: string | null
+          media_type: string
+          post_id: string
+          sort_order: number | null
+          title: string
+          url: string
+        }
+        Insert: {
+          caption: string
+          created_at?: string
+          featured_sort_order?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_hero_image?: boolean | null
+          location?: string | null
+          media_type: string
+          post_id: string
+          sort_order?: number | null
+          title: string
+          url: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          featured_sort_order?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_hero_image?: boolean | null
+          location?: string | null
+          media_type?: string
+          post_id?: string
+          sort_order?: number | null
+          title?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       photo_tags: {
         Row: {
           photo_id: string
