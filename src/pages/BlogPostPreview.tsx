@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -87,7 +88,7 @@ const BlogPostPreview = () => {
   
   // Extract all images from post content - only for regular posts
   React.useEffect(() => {
-    if (!post || !post.content || slug === 'japan-highlights') return;
+    if (!post || !post.content || slug === 'japan-highlights' || (post.type === 'gallery' && post.gallery_description)) return;
     
     const extractImages = () => {
       const parser = new DOMParser();
@@ -116,7 +117,7 @@ const BlogPostPreview = () => {
 
   // Add click handlers to content images (for regular posts)
   React.useEffect(() => {
-    if (!post || slug === 'japan-highlights') return;
+    if (!post || slug === 'japan-highlights' || (post.type === 'gallery' && post.gallery_description)) return;
     
     const contentElement = document.querySelector('.prose');
     if (!contentElement) return;
@@ -154,6 +155,8 @@ const BlogPostPreview = () => {
     return <NotFound />;
   }
 
+  const isGalleryPost = post.type === 'gallery' && post.gallery_description;
+
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
       <PreviewBanner isPublished={post.published} />
@@ -175,7 +178,7 @@ const BlogPostPreview = () => {
         </section>
 
         {/* Optional Map Block */}
-        {post.location && slug !== 'japan-highlights' && (
+        {post.location && slug !== 'japan-highlights' && !isGalleryPost && (
           <section className="flex flex-col md:flex-row items-center gap-8 mb-12">
             <div className="flex-1 text-center md:text-left text-lg text-gray-700">
               The winding roads led us to {post.location}. Every turn was a new discovery—and a fresh story.
@@ -191,8 +194,11 @@ const BlogPostPreview = () => {
         )}
 
         {/* Content body */}
-        {slug === 'japan-highlights' ? (
-          <PostImageGallery postId={post.id} />
+        {slug === 'japan-highlights' || isGalleryPost ? (
+          <PostImageGallery 
+            postId={post.id}
+            galleryDescription={isGalleryPost ? post.gallery_description : undefined} 
+          />
         ) : (
           <section 
             className="prose prose-lg max-w-none" 
@@ -210,7 +216,7 @@ const BlogPostPreview = () => {
       </main>
       
       {/* Image Lightbox Modal - only for regular posts */}
-      {slug !== 'japan-highlights' ? (
+      {slug !== 'japan-highlights' && !isGalleryPost ? (
         <LightboxModal
           open={lightboxOpen}
           onClose={() => setLightboxOpen(false)}

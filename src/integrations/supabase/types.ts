@@ -215,6 +215,7 @@ export type Database = {
           created_at: string
           excerpt: string | null
           featuredhero: boolean | null
+          gallery_description: string | null
           hero_image_url: string | null
           id: string
           location: string | null
@@ -230,6 +231,7 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           featuredhero?: boolean | null
+          gallery_description?: string | null
           hero_image_url?: string | null
           id?: string
           location?: string | null
@@ -245,6 +247,7 @@ export type Database = {
           created_at?: string
           excerpt?: string | null
           featuredhero?: boolean | null
+          gallery_description?: string | null
           hero_image_url?: string | null
           id?: string
           location?: string | null

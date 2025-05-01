@@ -15,9 +15,10 @@ type MediaItem = {
 
 type PostImageGalleryProps = {
   postId: string;
+  galleryDescription?: string;
 };
 
-const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId }) => {
+const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDescription }) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -56,6 +57,13 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId }) => {
 
   return (
     <div className="py-6">
+      {/* Gallery description if available */}
+      {galleryDescription && (
+        <div className="max-w-3xl mx-auto mb-10 text-center">
+          <p className="text-muted-foreground text-lg italic">{galleryDescription}</p>
+        </div>
+      )}
+      
       {/* Masonry-style gallery */}
       <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
         {mediaItems.map((item: MediaItem, index: number) => (

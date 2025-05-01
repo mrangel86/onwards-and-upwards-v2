@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -140,6 +141,8 @@ const BlogPost = () => {
     return <NotFound />;
   }
 
+  const isGalleryPost = post.type === 'gallery' && post.gallery_description;
+
   return <div className="font-inter bg-background min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10">
@@ -158,8 +161,11 @@ const BlogPost = () => {
         </section>
 
         {/* Content body */}
-        {slug === 'japan-highlights' ? (
-          <PostImageGallery postId={post.id} />
+        {slug === 'japan-highlights' || isGalleryPost ? (
+          <PostImageGallery 
+            postId={post.id} 
+            galleryDescription={isGalleryPost ? post.gallery_description : undefined}
+          />
         ) : (
           <section className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
         )}
@@ -174,7 +180,7 @@ const BlogPost = () => {
       </main>
       
       {/* Image Lightbox Modal - only for regular posts */}
-      {slug !== 'japan-highlights' && (
+      {slug !== 'japan-highlights' && !isGalleryPost && (
         <LightboxModal
           open={lightboxOpen}
           onClose={() => setLightboxOpen(false)}
