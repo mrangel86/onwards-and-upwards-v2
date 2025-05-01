@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import LightboxModal from "./LightboxModal";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 type FeaturedPhoto = {
   media_url: string;
@@ -14,6 +15,7 @@ const FeaturedPhotos = () => {
   const [photoIdx, setPhotoIdx] = useState(0);
   const [featuredPhotos, setFeaturedPhotos] = useState<FeaturedPhoto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchFeaturedPhotos = async () => {
@@ -28,6 +30,7 @@ const FeaturedPhotos = () => {
 
         if (error) {
           console.error('Error fetching featured photos:', error);
+          toast.error("Failed to load featured photos");
           return;
         }
 
@@ -73,6 +76,7 @@ const FeaturedPhotos = () => {
         setLoading(false);
       } catch (err) {
         console.error('Unexpected error fetching featured photos:', err);
+        toast.error("Failed to load featured photos");
         setLoading(false);
       }
     };
@@ -83,6 +87,24 @@ const FeaturedPhotos = () => {
   const openLightbox = (idx: number) => {
     setPhotoIdx(idx);
     setOpen(true);
+  };
+
+  // Handle image load errors
+  const handleImageError = (index: number) => {
+    console.error(`Failed to load image at index ${index}:`, featuredPhotos[index]?.media_url);
+    setImageErrors(prev => ({ ...prev, [index]: true }));
+    
+    // Update the media_url for the errored image to use a fallback
+    setFeaturedPhotos(photos => 
+      photos.map((photo, i) => 
+        i === index ? 
+          { 
+            ...photo, 
+            media_url: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=600&q=80",
+            title: photo.title ? `${photo.title} (Fallback Image)` : "Featured photo (Fallback)",
+          } : photo
+      )
+    );
   };
 
   return (
@@ -110,6 +132,7 @@ const FeaturedPhotos = () => {
                 alt={photo.title || 'Featured photo'}
                 className="w-full h-56 object-cover transition duration-300 group-hover:scale-105"
                 loading="lazy"
+                onError={() => handleImageError(i)}
               />
               <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
                 <div className="text-center px-4">

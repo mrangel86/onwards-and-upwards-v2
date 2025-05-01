@@ -20,10 +20,14 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   descs = [],
 }) => {
   const [currentIdx, setCurrentIdx] = useState(initialIdx);
+  const [imageError, setImageError] = useState(false);
 
   // Reset to initial index when modal opens
   useEffect(() => {
-    if (open) setCurrentIdx(initialIdx);
+    if (open) {
+      setCurrentIdx(initialIdx);
+      setImageError(false);
+    }
   }, [open, initialIdx]);
 
   if (!open) return null;
@@ -31,11 +35,13 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   const handlePrev = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentIdx((prev) => (prev - 1 + images.length) % images.length);
+    setImageError(false);
   };
 
   const handleNext = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentIdx((prev) => (prev + 1) % images.length);
+    setImageError(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -43,6 +49,13 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
     if (e.key === "ArrowRight") handleNext(e as unknown as React.MouseEvent);
     if (e.key === "Escape") onClose();
   };
+
+  const handleImageError = () => {
+    console.error(`Failed to load image in lightbox:`, images[currentIdx]);
+    setImageError(true);
+  };
+
+  const fallbackImageUrl = "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=600&q=80";
 
   return (
     <div
@@ -61,16 +74,19 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
         {/* Image Container */}
         <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
           <img
-            src={images[currentIdx]}
+            src={imageError ? fallbackImageUrl : images[currentIdx]}
             alt={titles[currentIdx] || `Image ${currentIdx + 1}`}
             className="max-w-full max-h-full object-contain"
+            onError={handleImageError}
           />
           
           {/* Caption */}
           {(titles[currentIdx] || descs[currentIdx]) && (
             <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3 text-center">
               {titles[currentIdx] && (
-                <h3 className="text-lg font-semibold">{titles[currentIdx]}</h3>
+                <h3 className="text-lg font-semibold">
+                  {imageError ? `${titles[currentIdx]} (Fallback Image)` : titles[currentIdx]}
+                </h3>
               )}
               {descs[currentIdx] && <p className="text-sm opacity-90">{descs[currentIdx]}</p>}
             </div>
