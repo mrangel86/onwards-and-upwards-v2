@@ -32,8 +32,10 @@ const FeaturedPhotos = () => {
         }
 
         if (data && data.length > 0) {
+          console.log('Fetched featured photos:', data);
           setFeaturedPhotos(data);
         } else {
+          console.log('No featured photos found, using fallbacks');
           // Fallback photos if none are found
           setFeaturedPhotos([
             {

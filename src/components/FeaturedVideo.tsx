@@ -19,13 +19,13 @@ const extractYoutubeId = (url: string) => {
 };
 
 const FeaturedVideo = () => {
-  const [open, setOpen] = useState(false);
   const [featuredVideo, setFeaturedVideo] = useState<FeaturedVideo | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFeaturedVideo = async () => {
       try {
+        console.log('Fetching featured video...');
         // First fetch the featured video
         const { data, error } = await supabase
           .from('featured_media')
@@ -37,6 +37,7 @@ const FeaturedVideo = () => {
           .single();
 
         if (error) {
+          console.error('Error fetching featured video:', error);
           if (error.code !== 'PGRST116') { // No rows returned (non-error case)
             console.error('Error fetching featured video:', error);
           }
@@ -50,6 +51,8 @@ const FeaturedVideo = () => {
           return;
         }
 
+        console.log('Featured video data:', data);
+
         // If we have a linked post, get its slug
         if (data && data.linked_post_id) {
           const { data: postData, error: postError } = await supabase
@@ -59,11 +62,13 @@ const FeaturedVideo = () => {
             .single();
 
           if (!postError && postData) {
+            console.log('Linked post found:', postData);
             setFeaturedVideo({
               ...data,
               post_slug: postData.slug
             });
           } else {
+            console.log('No linked post found or error:', postError);
             setFeaturedVideo(data);
           }
         } else if (data) {
@@ -93,6 +98,7 @@ const FeaturedVideo = () => {
   if (!featuredVideo) return null;
 
   const videoId = extractYoutubeId(featuredVideo.media_url);
+  console.log('Using video ID:', videoId);
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-14 lg:py-20">
