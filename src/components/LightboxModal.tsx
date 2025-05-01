@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface LightboxModalProps {
   open: boolean;
@@ -9,6 +11,12 @@ interface LightboxModalProps {
   initialIdx?: number;
   titles?: string[];
   descs?: string[];
+  postIds?: (string | null)[];
+}
+
+type LinkedPost = {
+  title: string;
+  slug: string;
 }
 
 const LightboxModal: React.FC<LightboxModalProps> = ({
@@ -18,17 +26,55 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   initialIdx = 0,
   titles = [],
   descs = [],
+  postIds = [],
 }) => {
   const [currentIdx, setCurrentIdx] = useState(initialIdx);
   const [imageError, setImageError] = useState(false);
+  const [linkedPost, setLinkedPost] = useState<LinkedPost | null>(null);
 
-  // Reset to initial index when modal opens
+  // Reset to initial index when modal opens and fetch linked post if available
   useEffect(() => {
     if (open) {
       setCurrentIdx(initialIdx);
       setImageError(false);
+      fetchLinkedPost(postIds[initialIdx]);
     }
-  }, [open, initialIdx]);
+  }, [open, initialIdx, postIds]);
+
+  // Fetch linked post when current index changes
+  useEffect(() => {
+    if (open && postIds[currentIdx]) {
+      fetchLinkedPost(postIds[currentIdx]);
+    } else {
+      setLinkedPost(null);
+    }
+  }, [currentIdx, open, postIds]);
+
+  const fetchLinkedPost = async (postId: string | null) => {
+    if (!postId) {
+      setLinkedPost(null);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('title, slug')
+        .eq('id', postId)
+        .single();
+
+      if (error || !data) {
+        console.error('Error fetching linked post:', error);
+        setLinkedPost(null);
+        return;
+      }
+
+      setLinkedPost(data);
+    } catch (err) {
+      console.error('Unexpected error fetching linked post:', err);
+      setLinkedPost(null);
+    }
+  };
 
   if (!open) return null;
 
@@ -72,23 +118,37 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Image Container */}
-        <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+        <div className="relative w-full h-[75%] flex items-center justify-center overflow-hidden">
           <img
             src={imageError ? fallbackImageUrl : images[currentIdx]}
             alt={titles[currentIdx] || `Image ${currentIdx + 1}`}
             className="max-w-full max-h-full object-contain"
             onError={handleImageError}
           />
+        </div>
+        
+        {/* Caption & Post Link */}
+        <div className="w-full max-w-2xl mx-auto text-center mt-4 px-4 text-white">
+          {titles[currentIdx] && (
+            <h3 className="text-xl font-semibold mb-2">
+              {imageError ? `${titles[currentIdx]} (Fallback Image)` : titles[currentIdx]}
+            </h3>
+          )}
+          {descs[currentIdx] && <p className="text-base opacity-90 mb-3">{descs[currentIdx]}</p>}
           
-          {/* Caption */}
-          {(titles[currentIdx] || descs[currentIdx]) && (
-            <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white p-3 text-center">
-              {titles[currentIdx] && (
-                <h3 className="text-lg font-semibold">
-                  {imageError ? `${titles[currentIdx]} (Fallback Image)` : titles[currentIdx]}
-                </h3>
-              )}
-              {descs[currentIdx] && <p className="text-sm opacity-90">{descs[currentIdx]}</p>}
+          {linkedPost && (
+            <Link 
+              to={`/posts/${linkedPost.slug}`} 
+              className="inline-block text-accent hover:underline my-2"
+            >
+              See more from this trip → {linkedPost.title}
+            </Link>
+          )}
+          
+          {/* Image counter */}
+          {images.length > 1 && (
+            <div className="text-white/80 mt-4 text-sm">
+              {currentIdx + 1} / {images.length}
             </div>
           )}
         </div>
@@ -111,13 +171,6 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
               <ChevronRight size={28} />
             </button>
           </>
-        )}
-
-        {/* Image counter */}
-        {images.length > 1 && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 text-white/80 bg-black/40 px-2 py-1 rounded text-sm">
-            {currentIdx + 1} / {images.length}
-          </div>
         )}
       </div>
     </div>

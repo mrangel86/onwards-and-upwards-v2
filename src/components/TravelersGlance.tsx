@@ -26,9 +26,9 @@ const TravelersGlance = () => (
       {/* Image - Right Side */}
       <div className="w-full md:w-[60%] order-1 md:order-2">
         <img
-          src="https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/images//Travelers%20at%20a%20glance%20placeholder.JPG"
+          src="https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/images//DSC00234.jpg"
           alt="Meet the travelers"
-          className="w-full h-auto object-cover shadow-lg"
+          className="w-full h-auto object-cover shadow-lg rounded-xl"
           loading="lazy"
         />
       </div>

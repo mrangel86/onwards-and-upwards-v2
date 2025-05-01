@@ -15,11 +15,13 @@ const Index = () => {
       <Navbar />
       <main className="flex-1">
         <HeroCarousel />
-        <TravelersGlance />
-        <FeaturedPhotos />
-        <FeaturedVideo />
-        <BlogPreview />
-        <NewsletterSignup />
+        <div className="space-y-0">
+          <TravelersGlance />
+          <FeaturedPhotos />
+          <FeaturedVideo />
+          <BlogPreview />
+          <NewsletterSignup />
+        </div>
       </main>
       <Footer />
     </div>

@@ -21,6 +21,8 @@ const HeroCarousel = () => {
   useEffect(() => {
     const fetchFeaturedPosts = async () => {
       try {
+        console.log('Fetching featured posts...');
+        // First fetch the featured posts
         const { data, error } = await supabase
           .from('posts')
           .select('title, excerpt, hero_image_url, slug')
@@ -52,7 +54,7 @@ const HeroCarousel = () => {
               slug: "#"
             },
             {
-              hero_image_url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80",
+              hero_image_url: "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/legacy-posts/Great-Wall-20140503-48.jpg",
               title: "Family Journeys",
               excerpt: "Traveling together, one adventure at a time.",
               slug: "#"
@@ -74,14 +76,14 @@ const HeroCarousel = () => {
 
   if (loading) {
     return (
-      <section className="relative w-full h-[55vw] max-h-[530px] min-h-[300px] flex items-center justify-center bg-gray-100">
+      <section className="relative w-full h-[70vh] flex items-center justify-center bg-gray-100">
         <p className="text-gray-500">Loading featured stories...</p>
       </section>
     );
   }
 
   return (
-    <section className="relative w-full h-[55vw] max-h-[530px] min-h-[300px] flex items-center justify-center overflow-hidden">
+    <section className="relative w-full h-[70vh] flex items-center justify-center overflow-hidden">
       {featuredPosts.map((post, i) => (
         <div
           key={i}
@@ -89,24 +91,26 @@ const HeroCarousel = () => {
             "absolute inset-0 w-full h-full transition-all duration-700 ease-in-out",
             i === current ? "opacity-100 z-10" : "opacity-0 z-0"
           )}
-          style={{
-            background: `linear-gradient(0deg,rgba(30,22,23,.26),rgba(40,28,29,.18)),url(${post.hero_image_url}) center center/cover no-repeat`
-          }}
         >
-          <div className="w-full h-full flex items-center justify-center text-white bg-black/30 md:bg-black/20 bg-blend-multiply">
-            <div className="max-w-2xl mx-auto text-center px-4">
-              <h1 className="font-playfair text-3xl lg:text-5xl font-bold mb-4 drop-shadow-lg animate-fade-in">
-                {post.title}
-              </h1>
-              <div className="w-16 h-px bg-white/60 mx-auto mb-4" />
-              <p className="text-lg lg:text-2xl mb-6 drop-shadow animate-fade-in">
-                {post.excerpt || "Read more about our journey..."}
-              </p>
-              <Link to={`/posts/${post.slug}`} className="inline-block">
-                <button className="bg-accent hover:bg-primary text-white font-semibold px-6 py-3 rounded-full shadow-lg transition animate-fade-in">
-                  Read More
-                </button>
-              </Link>
+          <div 
+            className="w-full h-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${post.hero_image_url})` }}
+          >
+            <div className="w-full h-full flex items-center justify-center text-white bg-black/40 bg-blend-multiply">
+              <div className="max-w-2xl mx-auto text-center px-4">
+                <h1 className="font-playfair text-3xl lg:text-5xl font-bold mb-4 drop-shadow-lg animate-fade-in">
+                  {post.title}
+                </h1>
+                <div className="w-16 h-px bg-white/60 mx-auto mb-4" />
+                <p className="text-lg lg:text-2xl mb-6 drop-shadow animate-fade-in">
+                  {post.excerpt || "Read more about our journey..."}
+                </p>
+                <Link to={`/posts/${post.slug}`} className="inline-block">
+                  <button className="bg-accent hover:bg-primary text-white font-semibold px-6 py-3 rounded-full shadow-lg transition animate-fade-in">
+                    Read More
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

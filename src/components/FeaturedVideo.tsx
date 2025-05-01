@@ -87,7 +87,7 @@ const FeaturedVideo = () => {
 
   if (loading) {
     return (
-      <section className="max-w-7xl mx-auto px-4 py-14 lg:py-20">
+      <section className="max-w-7xl mx-auto px-4 py-14 lg:py-16">
         <div className="text-center">
           <p className="text-gray-500">Loading featured video...</p>
         </div>
@@ -101,7 +101,7 @@ const FeaturedVideo = () => {
   console.log('Using video ID:', videoId);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-14 lg:py-20">
+    <section className="max-w-7xl mx-auto px-4 py-14 lg:py-16">
       <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
         {/* Text Content - Left Side */}
         <div className="flex-1 md:flex-[0.4] order-2 md:order-1">
@@ -112,19 +112,16 @@ const FeaturedVideo = () => {
           {featuredVideo.post_slug ? (
             <Link to={`/posts/${featuredVideo.post_slug}`}>
               <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-900 hover:text-accent transition">
-                "{featuredVideo.title || 'Featured Video'}"
+                {featuredVideo.title || 'Featured Video'}
               </h3>
             </Link>
           ) : (
             <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-900">
-              "{featuredVideo.title || 'Featured Video'}"
+              {featuredVideo.title || 'Featured Video'}
             </h3>
           )}
           
           <p className="mb-4 text-gray-600">{featuredVideo.caption || 'Watch our latest adventure.'}</p>
-          <a href="#" className="text-accent font-semibold underline hover:text-primary transition" tabIndex={0}>
-            See all videos
-          </a>
         </div>
         
         {/* Video - Right Side */}
@@ -139,6 +136,14 @@ const FeaturedVideo = () => {
             />
           </div>
         </div>
+      </div>
+
+      <div className="mt-10 text-center">
+        <Link to="/gallery/videos">
+          <button className="border-2 border-accent text-accent hover:bg-accent hover:text-white font-semibold px-8 py-3 rounded-full shadow transition">
+            See More
+          </button>
+        </Link>
       </div>
     </section>
   );
