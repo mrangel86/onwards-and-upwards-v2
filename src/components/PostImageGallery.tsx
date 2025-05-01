@@ -57,10 +57,13 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
 
   return (
     <div className="py-6">
-      {/* Gallery description if available */}
+      {/* Gallery description if available - now using dangerouslySetInnerHTML */}
       {galleryDescription && (
         <div className="max-w-3xl mx-auto mb-10 text-center">
-          <p className="text-muted-foreground text-lg italic">{galleryDescription}</p>
+          <div 
+            className="text-muted-foreground text-lg italic"
+            dangerouslySetInnerHTML={{ __html: galleryDescription }}
+          />
         </div>
       )}
       
