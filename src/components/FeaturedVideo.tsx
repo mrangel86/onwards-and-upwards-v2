@@ -1,51 +1,138 @@
 
-import React, { useState } from "react";
-import LightboxModal from "./LightboxModal";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
-const videoId = "a3ICNMQW7Ok"; // example video ID
+type FeaturedVideo = {
+  media_url: string;
+  title: string | null;
+  caption: string | null;
+  linked_post_id: string | null;
+  post_slug?: string | null;
+};
+
+const extractYoutubeId = (url: string) => {
+  // Handle various YouTube URL formats
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : url;
+};
 
 const FeaturedVideo = () => {
   const [open, setOpen] = useState(false);
+  const [featuredVideo, setFeaturedVideo] = useState<FeaturedVideo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedVideo = async () => {
+      try {
+        // First fetch the featured video
+        const { data, error } = await supabase
+          .from('featured_media')
+          .select('media_url, title, caption, linked_post_id')
+          .eq('media_type', 'video')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true })
+          .limit(1)
+          .single();
+
+        if (error) {
+          if (error.code !== 'PGRST116') { // No rows returned (non-error case)
+            console.error('Error fetching featured video:', error);
+          }
+          setFeaturedVideo({
+            media_url: "a3ICNMQW7Ok", // Default video ID
+            title: "Chasing Sunsets: Chapter 4",
+            caption: "Moments from our month crossing mountain passes, discovering hidden lakes, and meeting kindred spirits along the way.",
+            linked_post_id: null
+          });
+          setLoading(false);
+          return;
+        }
+
+        // If we have a linked post, get its slug
+        if (data && data.linked_post_id) {
+          const { data: postData, error: postError } = await supabase
+            .from('posts')
+            .select('slug')
+            .eq('id', data.linked_post_id)
+            .single();
+
+          if (!postError && postData) {
+            setFeaturedVideo({
+              ...data,
+              post_slug: postData.slug
+            });
+          } else {
+            setFeaturedVideo(data);
+          }
+        } else if (data) {
+          setFeaturedVideo(data);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Unexpected error fetching featured video:', err);
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedVideo();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="max-w-7xl mx-auto px-4 py-14 lg:py-20">
+        <div className="text-center">
+          <p className="text-gray-500">Loading featured video...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (!featuredVideo) return null;
+
+  const videoId = extractYoutubeId(featuredVideo.media_url);
 
   return (
-    <section className="max-w-6xl mx-auto px-4 py-14 lg:py-20 flex flex-col md:flex-row items-center gap-10 md:gap-16">
-      <div className="flex-1 flex justify-center">
-        <div className="relative group w-80 h-44 rounded-2xl overflow-hidden shadow cursor-pointer" onClick={() => setOpen(true)}>
-          <img
-            src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
-            alt="YouTube Video Thumbnail"
-            className="object-cover w-full h-full group-hover:scale-105 transition"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-            <div className="bg-white/80 rounded-full p-4 shadow-lg animate-fade-in">
-              <svg width="40" height="40" fill="#9b87f5" viewBox="0 0 24 24"><path d="M7 6v12l10-6z"></path></svg>
-            </div>
+    <section className="max-w-7xl mx-auto px-4 py-14 lg:py-20">
+      <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+        {/* Text Content - Left Side */}
+        <div className="flex-1 md:flex-[0.4] order-2 md:order-1">
+          <h2 className="font-playfair text-2xl md:text-3xl font-bold text-primary mb-3 animate-fade-in">
+            Featured <span className="text-accent">// Video</span>
+          </h2>
+          
+          {featuredVideo.post_slug ? (
+            <Link to={`/posts/${featuredVideo.post_slug}`}>
+              <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-900 hover:text-accent transition">
+                "{featuredVideo.title || 'Featured Video'}"
+              </h3>
+            </Link>
+          ) : (
+            <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-900">
+              "{featuredVideo.title || 'Featured Video'}"
+            </h3>
+          )}
+          
+          <p className="mb-4 text-gray-600">{featuredVideo.caption || 'Watch our latest adventure.'}</p>
+          <a href="#" className="text-accent font-semibold underline hover:text-primary transition" tabIndex={0}>
+            See all videos
+          </a>
+        </div>
+        
+        {/* Video - Right Side */}
+        <div className="flex-1 md:flex-[0.6] flex justify-center order-1 md:order-2 w-full">
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg">
+            <iframe
+              title={featuredVideo.title || 'Featured Video'}
+              src={`https://www.youtube.com/embed/${videoId}`}
+              className="absolute inset-0 w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </div>
         </div>
-        {/* Video Lightbox */}
-        {open && (
-          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-2 animate-fade-in" onClick={() => setOpen(false)}>
-            <div className="relative w-full max-w-2xl bg-white rounded-xl overflow-hidden shadow-xl" onClick={e => e.stopPropagation()}>
-              <iframe
-                title="Travel Video"
-                src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-                className="w-full aspect-video rounded-t-xl"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-              />
-              <button className="absolute top-2 right-2 text-sm text-accent hover:text-primary font-bold bg-white/80 rounded-full px-3 py-1" onClick={() => setOpen(false)}>
-                Close
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-      <div className="flex-1">
-        <h2 className="font-playfair text-2xl md:text-3xl font-bold text-primary mb-3 animate-fade-in">Featured <span className="text-accent">// Video</span></h2>
-        <h3 className="text-lg md:text-xl font-semibold mb-2 text-gray-900">“Chasing Sunsets: Chapter 4”</h3>
-        <p className="mb-4 text-gray-600">Moments from our month crossing mountain passes, discovering hidden lakes, and meeting kindred spirits along the way.</p>
-        <a href="#" className="text-accent font-semibold underline hover:text-primary transition" tabIndex={0}>See all videos</a>
       </div>
     </section>
   );

@@ -35,8 +35,13 @@ const BlogCard: React.FC<BlogCardProps> = ({
         />
       </div>
       <div className="flex flex-col gap-1 py-4 px-5 flex-1">
-        <h3 className="font-playfair font-bold text-lg text-primary mb-1 truncate">{title}</h3>
-        <div className="flex items-center justify-between mb-1">
+        <h3 
+          className="font-playfair font-bold text-lg text-primary mb-1 truncate"
+          title={title}
+        >
+          {title}
+        </h3>
+        <div className="flex items-center justify-between mb-2">
           <span className="text-xs text-accent">by {author}</span>
           {date && <span className="text-xs text-gray-500">{date}</span>}
         </div>

@@ -1,37 +1,88 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
-const slides = [
-  {
-    image: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1600&q=80",
-    title: "Stories from the Road",
-    subtitle: "Discover our favorite moments across Europe.",
-    button: { text: "Read More", url: "#" }
-  },
-  {
-    image: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=1600&q=80",
-    title: "Nature’s Grandeur",
-    subtitle: "Waves, forests, mountains & wild encounters.",
-    button: { text: "Explore Photos", url: "#" }
-  },
-  {
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80",
-    title: "Family Journeys",
-    subtitle: "Traveling together, one adventure at a time.",
-    button: { text: "Meet Us", url: "#" }
-  }
-];
+type FeaturedPost = {
+  title: string;
+  excerpt: string;
+  hero_image_url: string;
+  slug: string;
+}
 
 const HeroCarousel = () => {
   const [current, setCurrent] = useState(0);
+  const [featuredPosts, setFeaturedPosts] = useState<FeaturedPost[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const next = () => setCurrent((prev) => (prev + 1) % slides.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+  // Fetch featured posts from Supabase
+  useEffect(() => {
+    const fetchFeaturedPosts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('posts')
+          .select('title, excerpt, hero_image_url, slug')
+          .eq('featuredhero', true)
+          .eq('published', true)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (error) {
+          console.error('Error fetching featured posts:', error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          setFeaturedPosts(data);
+        } else {
+          // Fallback to default slides if no featured posts
+          setFeaturedPosts([
+            {
+              hero_image_url: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=1600&q=80",
+              title: "Stories from the Road",
+              excerpt: "Discover our favorite moments across Europe.",
+              slug: "#"
+            },
+            {
+              hero_image_url: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=1600&q=80",
+              title: "Nature's Grandeur",
+              excerpt: "Waves, forests, mountains & wild encounters.",
+              slug: "#"
+            },
+            {
+              hero_image_url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&q=80",
+              title: "Family Journeys",
+              excerpt: "Traveling together, one adventure at a time.",
+              slug: "#"
+            }
+          ]);
+        }
+        setLoading(false);
+      } catch (err) {
+        console.error('Unexpected error fetching featured posts:', err);
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedPosts();
+  }, []);
+
+  const next = () => setCurrent((prev) => (prev + 1) % featuredPosts.length);
+  const prev = () => setCurrent((prev) => (prev - 1 + featuredPosts.length) % featuredPosts.length);
+
+  if (loading) {
+    return (
+      <section className="relative w-full h-[55vw] max-h-[530px] min-h-[300px] flex items-center justify-center bg-gray-100">
+        <p className="text-gray-500">Loading featured stories...</p>
+      </section>
+    );
+  }
 
   return (
     <section className="relative w-full h-[55vw] max-h-[530px] min-h-[300px] flex items-center justify-center overflow-hidden">
-      {slides.map((slide, i) => (
+      {featuredPosts.map((post, i) => (
         <div
           key={i}
           className={cn(
@@ -39,23 +90,23 @@ const HeroCarousel = () => {
             i === current ? "opacity-100 z-10" : "opacity-0 z-0"
           )}
           style={{
-            background: `linear-gradient(0deg,rgba(30,22,23,.26),rgba(40,28,29,.18)),url(${slide.image}) center center/cover no-repeat`
+            background: `linear-gradient(0deg,rgba(30,22,23,.26),rgba(40,28,29,.18)),url(${post.hero_image_url}) center center/cover no-repeat`
           }}
         >
           <div className="w-full h-full flex items-center justify-center text-white bg-black/30 md:bg-black/20 bg-blend-multiply">
             <div className="max-w-2xl mx-auto text-center px-4">
               <h1 className="font-playfair text-3xl lg:text-5xl font-bold mb-4 drop-shadow-lg animate-fade-in">
-                {slide.title}
+                {post.title}
               </h1>
               <div className="w-16 h-px bg-white/60 mx-auto mb-4" />
               <p className="text-lg lg:text-2xl mb-6 drop-shadow animate-fade-in">
-                {slide.subtitle}
+                {post.excerpt || "Read more about our journey..."}
               </p>
-              <a href={slide.button.url} className="inline-block">
+              <Link to={`/posts/${post.slug}`} className="inline-block">
                 <button className="bg-accent hover:bg-primary text-white font-semibold px-6 py-3 rounded-full shadow-lg transition animate-fade-in">
-                  {slide.button.text}
+                  Read More
                 </button>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -75,7 +126,7 @@ const HeroCarousel = () => {
         <ChevronRight size={28} />
       </button>
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
-        {slides.map((_, i) => (
+        {featuredPosts.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrent(i)}

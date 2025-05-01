@@ -9,6 +9,53 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      featured_media: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          linked_post_id: string | null
+          media_type: string
+          media_url: string
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          linked_post_id?: string | null
+          media_type: string
+          media_url: string
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          linked_post_id?: string | null
+          media_type?: string
+          media_url?: string
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_media_linked_post_id_fkey"
+            columns: ["linked_post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       photo_tags: {
         Row: {
           photo_id: string
@@ -114,6 +161,7 @@ export type Database = {
           content_url: string | null
           created_at: string
           excerpt: string | null
+          featuredhero: boolean | null
           hero_image_url: string | null
           id: string
           location: string | null
@@ -128,6 +176,7 @@ export type Database = {
           content_url?: string | null
           created_at?: string
           excerpt?: string | null
+          featuredhero?: boolean | null
           hero_image_url?: string | null
           id?: string
           location?: string | null
@@ -142,6 +191,7 @@ export type Database = {
           content_url?: string | null
           created_at?: string
           excerpt?: string | null
+          featuredhero?: boolean | null
           hero_image_url?: string | null
           id?: string
           location?: string | null

@@ -1,25 +1,37 @@
 
 import React from "react";
+import { Link } from "react-router-dom";
 
 const TravelersGlance = () => (
-  <section className="max-w-6xl mx-auto px-4 py-14 lg:py-20 flex flex-col md:flex-row items-center gap-10 md:gap-16">
-    <div className="flex-1">
-      <h2 className="font-playfair text-2xl md:text-3xl font-bold text-primary mb-4 animate-fade-in">Travelers at a Glance</h2>
-      <p className="text-lg text-gray-700 mb-4 animate-fade-in">Meet Michael, Gesy, and VV—a curious crew of dreamers, wanderers, and snack enthusiasts with a camera (or two) always in hand.</p>
-      <p className="mb-6 text-gray-600 animate-fade-in">
-        We’re capturing an ongoing family adventure: from forest trails to piazza gelatos. We travel with open hearts, a bit of childlike awe, and a healthy appetite for both nature and good food.
-      </p>
-      <a href="#" className="inline-block">
-        <button className="bg-accent hover:bg-primary text-white font-semibold px-8 py-3 rounded-full shadow transition animate-fade-in">Learn More</button>
-      </a>
-    </div>
-    <div className="flex-1 flex justify-center md:justify-end">
-      <img
-        src="https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?w=600&q=80"
-        alt="Meet the travelers"
-        className="rounded-2xl w-72 h-72 object-cover shadow-lg border"
-        loading="lazy"
-      />
+  <section className="relative overflow-hidden py-14 lg:py-20">
+    <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center">
+      {/* Text Content - Left Side */}
+      <div className="w-full md:w-[40%] pr-0 md:pr-10 lg:pr-16 mb-10 md:mb-0 order-2 md:order-1">
+        <h2 className="font-playfair text-2xl md:text-3xl font-bold text-primary mb-4 animate-fade-in">
+          Travelers at a Glance
+        </h2>
+        <p className="text-lg text-gray-700 mb-4 animate-fade-in">
+          Meet Michael, Gesy, and VV—a curious crew of dreamers, wanderers, and snack enthusiasts with a camera (or two) always in hand.
+        </p>
+        <p className="mb-6 text-gray-600 animate-fade-in">
+          We're capturing an ongoing family adventure: from forest trails to piazza gelatos. We travel with open hearts, a bit of childlike awe, and a healthy appetite for both nature and good food.
+        </p>
+        <Link to="/about" className="inline-block">
+          <button className="border-2 border-accent text-accent hover:bg-accent hover:text-white font-semibold px-8 py-3 rounded-full shadow transition animate-fade-in">
+            Learn More
+          </button>
+        </Link>
+      </div>
+
+      {/* Image - Right Side */}
+      <div className="w-full md:w-[60%] order-1 md:order-2">
+        <img
+          src="https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/images//Travelers%20at%20a%20glance%20placeholder.JPG"
+          alt="Meet the travelers"
+          className="w-full h-auto object-cover shadow-lg"
+          loading="lazy"
+        />
+      </div>
     </div>
   </section>
 );
