@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -34,6 +33,8 @@ const BlogPostPreview = () => {
   const { slug } = useParams<{ slug: string }>();
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const [lightboxImageUrl, setLightboxImageUrl] = React.useState("");
+  const [contentImages, setContentImages] = React.useState<string[]>([]);
+  const [activeImageIndex, setActiveImageIndex] = React.useState(0);
 
   const { data: post, isLoading, error } = useQuery({
     queryKey: ['previewPost', slug],
@@ -84,27 +85,50 @@ const BlogPostPreview = () => {
     }
   };
   
+  // Extract all images from post content - only for regular posts
+  React.useEffect(() => {
+    if (!post || !post.content || slug === 'japan-highlights') return;
+    
+    const extractImages = () => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(post.content, 'text/html');
+      const imageElements = doc.querySelectorAll('img');
+      const images = Array.from(imageElements).map(img => img.src);
+      
+      // Add hero image if it exists
+      if (post.hero_image_url) {
+        images.unshift(post.hero_image_url);
+      }
+      
+      setContentImages(images);
+    };
+    
+    extractImages();
+  }, [post, slug]);
+
   // Function to handle image clicks for lightbox
   const handleImageClick = (imageUrl: string) => {
+    const imageIndex = contentImages.indexOf(imageUrl);
+    setActiveImageIndex(imageIndex >= 0 ? imageIndex : 0);
     setLightboxImageUrl(imageUrl);
     setLightboxOpen(true);
   };
 
-  // This function will be used by a MutationObserver to add click handlers to images
+  // Add click handlers to content images (for regular posts)
   React.useEffect(() => {
     if (!post || slug === 'japan-highlights') return;
     
     const contentElement = document.querySelector('.prose');
     if (!contentElement) return;
     
-    // Add click handlers to all images in the content
+    // Add click handlers to all images in content
     const images = contentElement.querySelectorAll('img');
     images.forEach(img => {
       img.classList.add('cursor-pointer', 'hover:opacity-90', 'transition');
       img.addEventListener('click', () => handleImageClick(img.src));
     });
     
-    // Also add click handler to hero image
+    // Add click handler to hero image
     const heroImage = document.querySelector('.hero-image');
     if (heroImage) {
       heroImage.addEventListener('click', () => {
@@ -185,13 +209,15 @@ const BlogPostPreview = () => {
         )}
       </main>
       
-      {/* Image Lightbox Modal */}
-      <LightboxModal
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        images={[lightboxImageUrl]}
-        initialIdx={0}
-      />
+      {/* Image Lightbox Modal - only for regular posts */}
+      {slug !== 'japan-highlights' ? (
+        <LightboxModal
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          images={contentImages.length > 0 ? contentImages : [lightboxImageUrl]}
+          initialIdx={activeImageIndex}
+        />
+      ) : null}
       
       <NewsletterSignup />
       <Footer />

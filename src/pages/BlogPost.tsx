@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -73,7 +72,7 @@ const BlogPost = () => {
     }
   };
 
-  // Extract all images from post content
+  // Extract all images from post content - only needed for regular posts
   useEffect(() => {
     if (!post || !post.content || slug === 'japan-highlights') return;
     
@@ -94,7 +93,7 @@ const BlogPost = () => {
     extractImages();
   }, [post, slug]);
 
-  // Handle image click to open lightbox
+  // Handle image click to open lightbox (for regular posts)
   const handleImageClick = (imageUrl: string) => {
     const imageIndex = contentImages.indexOf(imageUrl);
     setActiveImageIndex(imageIndex >= 0 ? imageIndex : 0);
@@ -102,7 +101,7 @@ const BlogPost = () => {
     setLightboxOpen(true);
   };
 
-  // Add click handlers to content images
+  // Add click handlers to content images (for regular posts)
   useEffect(() => {
     if (!post || slug === 'japan-highlights') return;
     
@@ -174,13 +173,15 @@ const BlogPost = () => {
         </div>
       </main>
       
-      {/* Image Lightbox Modal */}
-      <LightboxModal
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        images={contentImages}
-        initialIdx={activeImageIndex}
-      />
+      {/* Image Lightbox Modal - only for regular posts */}
+      {slug !== 'japan-highlights' && (
+        <LightboxModal
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          images={contentImages}
+          initialIdx={activeImageIndex}
+        />
+      )}
       
       <NewsletterSignup />
       <Footer />
