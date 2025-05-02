@@ -68,6 +68,7 @@ export type Database = {
           media_type: string
           post_id: string
           sort_order: number | null
+          tags: string[] | null
           title: string
           url: string
         }
@@ -82,6 +83,7 @@ export type Database = {
           media_type: string
           post_id: string
           sort_order?: number | null
+          tags?: string[] | null
           title: string
           url: string
         }
@@ -96,6 +98,7 @@ export type Database = {
           media_type?: string
           post_id?: string
           sort_order?: number | null
+          tags?: string[] | null
           title?: string
           url?: string
         }

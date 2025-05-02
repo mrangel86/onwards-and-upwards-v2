@@ -74,6 +74,17 @@ const HeroCarousel = () => {
   const next = () => setCurrent((prev) => (prev + 1) % featuredPosts.length);
   const prev = () => setCurrent((prev) => (prev - 1 + featuredPosts.length) % featuredPosts.length);
 
+  // Auto advance slides
+  useEffect(() => {
+    if (featuredPosts.length <= 1) return;
+    
+    const timer = setTimeout(() => {
+      next();
+    }, 6000);
+    
+    return () => clearTimeout(timer);
+  }, [current, featuredPosts.length]);
+
   if (loading) {
     return (
       <section className="relative w-full h-[70vh] flex items-center justify-center bg-gray-100">

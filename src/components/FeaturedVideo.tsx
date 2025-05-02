@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 type FeaturedVideo = {
@@ -21,6 +21,7 @@ const extractYoutubeId = (url: string) => {
 const FeaturedVideo = () => {
   const [featuredVideo, setFeaturedVideo] = useState<FeaturedVideo | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFeaturedVideo = async () => {
@@ -84,10 +85,16 @@ const FeaturedVideo = () => {
 
     fetchFeaturedVideo();
   }, []);
+  
+  // Navigate to video gallery and scroll to top
+  const handleSeeMoreClick = () => {
+    navigate('/gallery/videos');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   if (loading) {
     return (
-      <section className="max-w-7xl mx-auto px-4 py-14 lg:py-16">
+      <section className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center">
           <p className="text-gray-500">Loading featured video...</p>
         </div>
@@ -101,7 +108,7 @@ const FeaturedVideo = () => {
   console.log('Using video ID:', videoId);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-14 lg:py-16">
+    <section className="max-w-7xl mx-auto px-4 py-12">
       <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
         {/* Text Content - Left Side */}
         <div className="flex-1 md:flex-[0.4] order-2 md:order-1">
@@ -139,11 +146,12 @@ const FeaturedVideo = () => {
       </div>
 
       <div className="mt-10 text-center">
-        <Link to="/gallery/videos">
-          <button className="border-2 border-accent text-accent hover:bg-accent hover:text-white font-semibold px-8 py-3 rounded-full shadow transition">
-            See More
-          </button>
-        </Link>
+        <button
+          onClick={handleSeeMoreClick}
+          className="border-2 border-accent text-accent hover:bg-accent hover:text-white font-semibold px-8 py-3 rounded-full shadow transition"
+        >
+          See More
+        </button>
       </div>
     </section>
   );

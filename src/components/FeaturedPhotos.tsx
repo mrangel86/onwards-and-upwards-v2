@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LightboxModal from "./LightboxModal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -18,6 +17,7 @@ const FeaturedPhotos = () => {
   const [featuredPhotos, setFeaturedPhotos] = useState<FeaturedPhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchFeaturedPhotos = async () => {
@@ -115,8 +115,14 @@ const FeaturedPhotos = () => {
     );
   };
 
+  // Navigate to photo gallery and scroll to top
+  const handleSeeMoreClick = () => {
+    navigate('/gallery/photos');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <section className="max-w-7xl mx-auto px-4 py-14 lg:py-16">
+    <section className="max-w-7xl mx-auto px-4 py-12">
       <h2 className="font-playfair text-2xl md:text-3xl font-bold mb-8 text-primary animate-slide-in">
         Featured <span className="text-accent">// Photos</span>
       </h2>
@@ -154,11 +160,12 @@ const FeaturedPhotos = () => {
           </div>
 
           <div className="mt-10 text-center">
-            <Link to="/gallery/photos">
-              <button className="border-2 border-accent text-accent hover:bg-accent hover:text-white font-semibold px-8 py-3 rounded-full shadow transition">
-                See More
-              </button>
-            </Link>
+            <button 
+              onClick={handleSeeMoreClick}
+              className="border-2 border-accent text-accent hover:bg-accent hover:text-white font-semibold px-8 py-3 rounded-full shadow transition"
+            >
+              See More
+            </button>
           </div>
         </>
       )}
