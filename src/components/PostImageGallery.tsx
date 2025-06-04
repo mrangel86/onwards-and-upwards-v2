@@ -7,11 +7,18 @@ import { Separator } from "@/components/ui/separator";
 
 type MediaItem = {
   id: string;
-  url: string;
-  title: string;
-  caption: string;
-  sort_order?: number | null;
   created_at: string;
+  url: string;
+  media_type: string;
+  title: string | null;
+  caption: string | null;
+  location: string | null;
+  tags: string[] | null;
+  is_hero_carousel: boolean | null;
+  is_post_header_image: boolean | null;
+  is_featured_photo_section: boolean | null;
+  post_slug: string | null;
+  is_featured_video_section: boolean | null;
 };
 
 type PostImageGalleryProps = {
@@ -26,12 +33,10 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
   const { data: mediaItems, isLoading } = useQuery({
     queryKey: ['postMedia', postId],
     queryFn: async () => {
-      // Fix the build error by removing nullsLast which isn't supported
       const { data, error } = await supabase
         .from('media')
-        .select('id, url, title, caption, sort_order, created_at')
-        .eq('post_id', postId)
-        .order('sort_order', { ascending: true })
+        .select('id, url, title, caption, created_at, media_type, location, tags, is_hero_carousel, is_post_header_image, is_featured_photo_section, post_slug, is_featured_video_section')
+        .eq('post_slug', postId)
         .order('created_at', { ascending: true });
       
       if (error) {
@@ -82,15 +87,15 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
           >
             <img
               src={item.url}
-              alt={item.title}
+              alt={item.title || 'Gallery image'}
               className="w-full h-auto object-cover"
               loading="lazy"
             />
             {/* Hover overlay - only shows on hover */}
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
               <div className="text-center px-4">
-                <h3 className="text-white font-semibold text-lg mb-1">{item.title}</h3>
-                <p className="text-white/80 text-sm">{item.caption}</p>
+                <h3 className="text-white font-semibold text-lg mb-1">{item.title || 'Gallery image'}</h3>
+                <p className="text-white/80 text-sm">{item.caption || ''}</p>
               </div>
             </div>
           </div>
@@ -103,8 +108,8 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
         onClose={() => setLightboxOpen(false)}
         images={mediaItems.map((item) => item.url)}
         initialIdx={currentImageIndex}
-        titles={mediaItems.map((item) => item.title)}
-        descs={mediaItems.map((item) => item.caption)}
+        titles={mediaItems.map((item) => item.title || '')}
+        descs={mediaItems.map((item) => item.caption || '')}
       />
     </div>
   );
