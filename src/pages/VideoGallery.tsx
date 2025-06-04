@@ -1,41 +1,40 @@
-
 import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GalleryFilterBar from "@/components/GalleryFilterBar";
-import VideoList from "@/components/VideoList";
-
-const videos = [
-  // Newest to oldest
-  {
-    title: "Chasing Sunsets",
-    description: "Following golden hours from mountaintop to valley—a family tradition in the making.",
-    youtubeId: "a3ICNMQW7Ok",
-    thumb: "https://img.youtube.com/vi/a3ICNMQW7Ok/hqdefault.jpg",
-  },
-  {
-    title: "Market Day",
-    description: "Strolling local markets for produce, laughter, and candid moments.",
-    youtubeId: "L1Zb0BLCR5U",
-    thumb: "https://img.youtube.com/vi/L1Zb0BLCR5U/hqdefault.jpg",
-  },
-  {
-    title: "Trailblazers",
-    description: "Tracing old footpaths and discovering new stories together.",
-    youtubeId: "ItWvZu3Kww0",
-    thumb: "https://img.youtube.com/vi/ItWvZu3Kww0/hqdefault.jpg",
-  },
-  {
-    title: "Winter Wander",
-    description: "From snowy rooftops to cozy cafes—capturing wonder in the chill.",
-    youtubeId: "4BSn0jI5ZHY",
-    thumb: "https://img.youtube.com/vi/4BSn0jI5ZHY/hqdefault.jpg",
-  },
-];
+import InfiniteScrollVideos from "@/components/InfiniteScrollVideos";
+import { useVideos } from "@/hooks/useVideos";
+import { AlertCircle } from "lucide-react";
 
 const VideoGallery = () => {
-  // Video lightbox state
-  const [modalIdx, setModalIdx] = useState<number | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string>('all');
+
+  const { 
+    videos, 
+    loading, 
+    error, 
+    hasMore, 
+    loadMore, 
+    locations 
+  } = useVideos({ 
+    locationFilter: selectedLocation === 'all' ? undefined : selectedLocation,
+    pageSize: 30 
+  });
+
+  const handleLocationChange = (location: string) => {
+    setSelectedLocation(location);
+  };
+
+  // Prepare filter options
+  const filterOptions = locations.map(location => ({
+    label: location,
+    value: location
+  }));
+
+  const filters = [{
+    label: "Filter by location",
+    options: filterOptions
+  }];
 
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
@@ -43,20 +42,59 @@ const VideoGallery = () => {
       <main className="flex-1 px-4 pb-12 pt-6 max-w-5xl md:max-w-6xl mx-auto w-full">
         {/* Header */}
         <header className="mb-5 md:mb-8">
-          <h1 className="font-playfair text-3xl md:text-4xl font-bold mb-2 text-primary">Video Gallery</h1>
-          <p className="mb-6 text-gray-700 md:text-lg max-w-2xl">A glimpse into our journey through motion—family moments, behind-the-scenes, and scenic stories.</p>
+          <h1 className="font-playfair text-3xl md:text-4xl font-bold mb-2 text-primary">
+            Video Gallery
+          </h1>
+          <p className="mb-6 text-gray-700 md:text-lg max-w-2xl">
+            A glimpse into our journey through motion—family moments, behind-the-scenes, and scenic stories.
+          </p>
         </header>
 
         {/* Filter Bar */}
-        <GalleryFilterBar filters={[{ label: "Filter by location" }]} />
+        {filterOptions.length > 0 && (
+          <GalleryFilterBar
+            filters={filters}
+            selectedFilter={selectedLocation}
+            onFilterChange={handleLocationChange}
+          />
+        )}
 
-        {/* Video List */}
-        <VideoList
-          videos={videos}
-          onOpenLightbox={setModalIdx}
-          modalIdx={modalIdx}
-          onCloseLightbox={() => setModalIdx(null)}
-        />
+        {/* Error State */}
+        {error && (
+          <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 mb-6">
+            <AlertCircle className="w-5 h-5" />
+            <span>Failed to load videos: {error}</span>
+          </div>
+        )}
+
+        {/* Loading State for Initial Load */}
+        {loading && videos.length === 0 && (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        )}
+
+        {/* Videos List with Infinite Scroll */}
+        {videos.length > 0 && (
+          <InfiniteScrollVideos
+            videos={videos}
+            hasMore={hasMore}
+            loading={loading}
+            onLoadMore={loadMore}
+          />
+        )}
+
+        {/* Empty State */}
+        {!loading && videos.length === 0 && !error && (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">
+              {selectedLocation === 'all' 
+                ? "No videos found in the gallery." 
+                : `No videos found for ${selectedLocation}.`
+              }
+            </p>
+          </div>
+        )}
       </main>
       <Footer />
     </div>
