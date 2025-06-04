@@ -7,10 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 type FeaturedPhoto = {
-  media_url: string;
+  url: string;
   title: string | null;
   caption: string | null;
-  linked_post_id: string | null;
+  post_slug: string | null;
 };
 
 const FeaturedPhotos = () => {
@@ -25,11 +25,11 @@ const FeaturedPhotos = () => {
     const fetchFeaturedPhotos = async () => {
       try {
         const { data, error } = await supabase
-          .from('featured_media')
-          .select('media_url, title, caption, linked_post_id')
+          .from('media')
+          .select('url, title, caption, post_slug')
           .eq('media_type', 'photo')
-          .eq('is_active', true)
-          .order('display_order', { ascending: true })
+          .eq('is_featured_photo_section', true)
+          .order('created_at', { ascending: false })
           .limit(6);
 
         if (error) {
@@ -46,40 +46,40 @@ const FeaturedPhotos = () => {
           // Fallback photos if none are found
           setFeaturedPhotos([
             {
-              media_url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&q=80",
+              url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&q=80",
               title: "Foggy Summit",
               caption: "A quiet morning above the clouds.",
-              linked_post_id: null
+              post_slug: null
             },
             {
-              media_url: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=600&q=80",
+              url: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=600&q=80",
               title: "Sunlit Forest",
               caption: "Sunbeams painting the woods.",
-              linked_post_id: null
+              post_slug: null
             },
             {
-              media_url: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80",
+              url: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80",
               title: "Mountain View",
               caption: "Endless green and winding trails.",
-              linked_post_id: null
+              post_slug: null
             },
             {
-              media_url: "https://images.unsplash.com/photo-1615729947596-a598e5de0ab3?w=600&q=80",
+              url: "https://images.unsplash.com/photo-1615729947596-a598e5de0ab3?w=600&q=80",
               title: "Rocky Ascent",
               caption: "Bold steps, wild terrain.",
-              linked_post_id: null
+              post_slug: null
             },
             {
-              media_url: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=600&q=80",
+              url: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=600&q=80",
               title: "Deer Standstill",
               caption: "Unexpected wildlife encounters.",
-              linked_post_id: null
+              post_slug: null
             },
             {
-              media_url: "https://images.unsplash.com/photo-1518877593221-1f28583780b4?w=600&q=80",
+              url: "https://images.unsplash.com/photo-1518877593221-1f28583780b4?w=600&q=80",
               title: "Sea Dance",
               caption: "Waves leaping under a golden sky.",
-              linked_post_id: null
+              post_slug: null
             }
           ]);
         }
@@ -101,16 +101,16 @@ const FeaturedPhotos = () => {
 
   // Handle image load errors
   const handleImageError = (index: number) => {
-    console.error(`Failed to load image at index ${index}:`, featuredPhotos[index]?.media_url);
+    console.error(`Failed to load image at index ${index}:`, featuredPhotos[index]?.url);
     setImageErrors(prev => ({ ...prev, [index]: true }));
     
-    // Update the media_url for the errored image to use a fallback
+    // Update the url for the errored image to use a fallback
     setFeaturedPhotos(photos => 
       photos.map((photo, i) => 
         i === index ? 
           { 
             ...photo, 
-            media_url: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=600&q=80",
+            url: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=600&q=80",
             title: photo.title ? `${photo.title} (Fallback Image)` : "Featured photo (Fallback)",
           } : photo
       )
@@ -145,7 +145,7 @@ const FeaturedPhotos = () => {
                 aria-label={`Open photo: ${photo.title || 'Featured photo'}`}
               >
                 <img
-                  src={photo.media_url}
+                  src={photo.url}
                   alt={photo.title || 'Featured photo'}
                   className="w-full h-56 object-cover transition duration-300 group-hover:scale-105"
                   loading="lazy"
@@ -175,11 +175,11 @@ const FeaturedPhotos = () => {
       <LightboxModal
         open={open}
         onClose={() => setOpen(false)}
-        images={featuredPhotos.map((p) => p.media_url)}
+        images={featuredPhotos.map((p) => p.url)}
         initialIdx={photoIdx}
         titles={featuredPhotos.map((p) => p.title || '')}
         descs={featuredPhotos.map((p) => p.caption || '')}
-        postIds={featuredPhotos.map((p) => p.linked_post_id)}
+        postIds={featuredPhotos.map((p) => p.post_slug)}
       />
     </section>
   );
