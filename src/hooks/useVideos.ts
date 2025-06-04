@@ -89,7 +89,7 @@ export const useVideos = ({
         .from('media')
         .select('*')
         .eq('media_type', 'video')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: true }) // Changed to ascending for reverse chronological (oldest first, which means most recent shows at top)
         .range(currentOffset, currentOffset + pageSize - 1);
 
       // Apply location filter if provided
