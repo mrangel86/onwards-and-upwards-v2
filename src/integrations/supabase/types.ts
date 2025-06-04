@@ -9,108 +9,101 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      featured_media: {
+      media: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          is_featured_photo_section: boolean | null
+          is_featured_video_section: boolean | null
+          is_hero_carousel: boolean | null
+          is_post_header_image: boolean | null
+          location: string | null
+          media_type: string
+          post_slug: string | null
+          tags: string[] | null
+          title: string | null
+          url: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          is_featured_photo_section?: boolean | null
+          is_featured_video_section?: boolean | null
+          is_hero_carousel?: boolean | null
+          is_post_header_image?: boolean | null
+          location?: string | null
+          media_type: string
+          post_slug?: string | null
+          tags?: string[] | null
+          title?: string | null
+          url: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          is_featured_photo_section?: boolean | null
+          is_featured_video_section?: boolean | null
+          is_hero_carousel?: boolean | null
+          is_post_header_image?: boolean | null
+          location?: string | null
+          media_type?: string
+          post_slug?: string | null
+          tags?: string[] | null
+          title?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
+      media_backup: {
         Row: {
           caption: string | null
           created_at: string | null
-          display_order: number
-          id: string
-          is_active: boolean
-          linked_post_id: string | null
-          media_type: string
-          media_url: string
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          caption?: string | null
-          created_at?: string | null
-          display_order?: number
-          id?: string
-          is_active?: boolean
-          linked_post_id?: string | null
-          media_type: string
-          media_url: string
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          caption?: string | null
-          created_at?: string | null
-          display_order?: number
-          id?: string
-          is_active?: boolean
-          linked_post_id?: string | null
-          media_type?: string
-          media_url?: string
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "featured_media_linked_post_id_fkey"
-            columns: ["linked_post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      media: {
-        Row: {
-          caption: string
-          created_at: string
           featured_sort_order: number | null
-          id: string
+          id: string | null
           is_featured: boolean | null
           is_hero_image: boolean | null
           location: string | null
-          media_type: string
-          post_id: string
+          media_type: string | null
+          post_id: string | null
           sort_order: number | null
           tags: string[] | null
-          title: string
-          url: string
+          title: string | null
+          url: string | null
         }
         Insert: {
-          caption: string
-          created_at?: string
+          caption?: string | null
+          created_at?: string | null
           featured_sort_order?: number | null
-          id?: string
+          id?: string | null
           is_featured?: boolean | null
           is_hero_image?: boolean | null
           location?: string | null
-          media_type: string
-          post_id: string
+          media_type?: string | null
+          post_id?: string | null
           sort_order?: number | null
           tags?: string[] | null
-          title: string
-          url: string
+          title?: string | null
+          url?: string | null
         }
         Update: {
-          caption?: string
-          created_at?: string
+          caption?: string | null
+          created_at?: string | null
           featured_sort_order?: number | null
-          id?: string
+          id?: string | null
           is_featured?: boolean | null
           is_hero_image?: boolean | null
           location?: string | null
-          media_type?: string
-          post_id?: string
+          media_type?: string | null
+          post_id?: string | null
           sort_order?: number | null
           tags?: string[] | null
-          title?: string
-          url?: string
+          title?: string | null
+          url?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "media_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       photo_tags: {
         Row: {
