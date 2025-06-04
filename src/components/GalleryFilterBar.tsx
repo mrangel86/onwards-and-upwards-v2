@@ -1,26 +1,44 @@
+import React from 'react';
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-
-interface FilterDef {
+interface Filter {
   label: string;
+  value?: string;
+  options?: Array<{ label: string; value: string }>;
 }
 
-const GalleryFilterBar: React.FC<{ filters: FilterDef[] }> = ({ filters }) => (
-  <div className="flex items-center gap-3 mb-7 md:mb-10 w-full">
-    {filters.map((filter) => (
-      <Button
-        key={filter.label}
-        variant="outline"
-        size="sm"
-        className="rounded-full px-5 py-2 text-sm border-gray-300 text-gray-700 hover:bg-accent hover:text-white transition"
-        type="button"
-        disabled
+interface GalleryFilterBarProps {
+  filters: Filter[];
+  selectedFilter?: string;
+  onFilterChange?: (value: string) => void;
+}
+
+const GalleryFilterBar: React.FC<GalleryFilterBarProps> = ({ 
+  filters, 
+  selectedFilter = 'all',
+  onFilterChange 
+}) => {
+  const filter = filters[0]; // Assuming single filter for now
+  
+  if (!filter?.options || filter.options.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mb-6">
+      <select
+        value={selectedFilter}
+        onChange={(e) => onFilterChange?.(e.target.value)}
+        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-white text-gray-700 min-w-[200px]"
       >
-        {filter.label}
-      </Button>
-    ))}
-  </div>
-);
+        <option value="all">All Locations</option>
+        {filter.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
 export default GalleryFilterBar;
