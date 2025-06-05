@@ -11,6 +11,7 @@ import PhotoGallery from "./pages/PhotoGallery";
 import VideoGallery from "./pages/VideoGallery";
 import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
+import BlogPreview from "./pages/BlogPreview";
 import BlogPostPreview from "./pages/BlogPostPreview";
 import TestPostPreview from "./pages/TestPostPreview";
 
@@ -29,7 +30,8 @@ const App = () => (
           <Route path="/gallery/videos" element={<VideoGallery />} />
           <Route path="/blog" element={<BlogIndex />} />
           <Route path="/posts/:slug" element={<BlogPost />} />
-          <Route path="/preview/:slug" element={<BlogPostPreview />} />
+          <Route path="/preview/:slug" element={<BlogPreview />} />
+          <Route path="/post-preview/:slug" element={<BlogPostPreview />} />
           <Route path="/test-posts" element={<TestPostPreview />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
