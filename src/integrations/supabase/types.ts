@@ -173,6 +173,60 @@ export type Database = {
           },
         ]
       }
+      post_previews: {
+        Row: {
+          author: string | null
+          content: string | null
+          content_url: string | null
+          created_at: string
+          excerpt: string | null
+          featuredhero: boolean | null
+          gallery_description: string | null
+          hero_image_url: string | null
+          id: string
+          location: string | null
+          notion_id: string | null
+          published: boolean
+          slug: string
+          title: string
+          type: Database["public"]["Enums"]["post_type_enum"]
+        }
+        Insert: {
+          author?: string | null
+          content?: string | null
+          content_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featuredhero?: boolean | null
+          gallery_description?: string | null
+          hero_image_url?: string | null
+          id?: string
+          location?: string | null
+          notion_id?: string | null
+          published?: boolean
+          slug: string
+          title: string
+          type: Database["public"]["Enums"]["post_type_enum"]
+        }
+        Update: {
+          author?: string | null
+          content?: string | null
+          content_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featuredhero?: boolean | null
+          gallery_description?: string | null
+          hero_image_url?: string | null
+          id?: string
+          location?: string | null
+          notion_id?: string | null
+          published?: boolean
+          slug?: string
+          title?: string
+          type?: Database["public"]["Enums"]["post_type_enum"]
+        }
+        Relationships: []
+      }
       post_tags: {
         Row: {
           post_id: string
@@ -215,6 +269,7 @@ export type Database = {
           hero_image_url: string | null
           id: string
           location: string | null
+          notion_id: string | null
           published: boolean
           slug: string
           title: string
@@ -231,6 +286,7 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           location?: string | null
+          notion_id?: string | null
           published?: boolean
           slug: string
           title: string
@@ -247,6 +303,7 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           location?: string | null
+          notion_id?: string | null
           published?: boolean
           slug?: string
           title?: string
@@ -351,7 +408,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_old_previews: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      get_preview_status: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      publish_post_from_preview: {
+        Args: { preview_slug: string }
+        Returns: Json
+      }
+      sync_notion_to_preview: {
+        Args: {
+          p_notion_id: string
+          p_title: string
+          p_content: string
+          p_author: string
+          p_type?: string
+          p_hero_image_url?: string
+          p_excerpt?: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       post_type_enum:
