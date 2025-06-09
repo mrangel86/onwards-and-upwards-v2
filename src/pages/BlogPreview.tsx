@@ -17,42 +17,30 @@ const SectionDivider = () => (
   </div>
 );
 
-const PreviewBanner = ({ slug, source }: { slug: string; source: string }) => (
-  <div className="bg-blue-50 border-b border-blue-200 text-blue-800 p-3 text-center">
-    <p>
-      👁️ <strong>Preview Mode</strong> – Viewing {source}: <code className="bg-blue-100 px-2 py-1 rounded text-sm">{slug}</code>
-      {" "}| This is how your post will look when published
-    </p>
-  </div>
+const PreviewBanner = ({ slug }: { slug: string }) => (
+  <>
+    {/* Robots meta tag to prevent indexing */}
+    <meta name="robots" content="noindex, nofollow" />
+    <div className="bg-blue-50 border-b border-blue-200 text-blue-800 p-3 text-center shadow-sm">
+      <div className="max-w-4xl mx-auto">
+        <p className="flex items-center justify-center gap-2 text-sm sm:text-base">
+          <span className="text-lg">👁️</span>
+          <strong>Preview Mode</strong>
+          <span className="hidden sm:inline">—</span>
+          <span className="text-blue-600">
+            Not Yet Published
+          </span>
+          <span className="hidden sm:inline">•</span>
+          <code className="bg-blue-100 px-2 py-1 rounded text-xs sm:text-sm font-mono">
+            {slug}
+          </code>
+        </p>
+      </div>
+    </div>
+  </>
 );
 
-// Helper function to convert Notion rich text to HTML
-const convertNotionToHTML = (richText: any[]): string => {
-  if (!richText || richText.length === 0) return '';
-  
-  return richText.map(block => {
-    const text = block.plain_text || '';
-    const annotations = block.annotations || {};
-    
-    let html = text;
-    
-    // Apply formatting
-    if (annotations.bold) html = `<strong>${html}</strong>`;
-    if (annotations.italic) html = `<em>${html}</em>`;
-    if (annotations.code) html = `<code>${html}</code>`;
-    if (annotations.strikethrough) html = `<del>${html}</del>`;
-    if (annotations.underline) html = `<u>${html}</u>`;
-    
-    // Handle links
-    if (block.href) {
-      html = `<a href="${block.href}" target="_blank" rel="noopener noreferrer">${html}</a>`;
-    }
-    
-    return html;
-  }).join('');
-};
-
-// Helper function to format content with proper paragraphs
+// Helper function to format content with proper paragraphs and line breaks
 const formatContentToHTML = (content: string): string => {
   if (!content) return '';
   
@@ -61,7 +49,7 @@ const formatContentToHTML = (content: string): string => {
     .map(paragraph => paragraph.trim())
     .filter(paragraph => paragraph.length > 0)
     .map(paragraph => {
-      // Check if it's a list item
+      // Check if it's a list item starting with -
       if (paragraph.startsWith('- ')) {
         return `<li>${paragraph.substring(2)}</li>`;
       }
@@ -74,7 +62,7 @@ const formatContentToHTML = (content: string): string => {
     })
     .join('\n')
     // Wrap consecutive list items in ul tags
-    .replace(/(<li>.*<\/li>\n?)+/g, match => `<ul>\n${match}</ul>\n`);
+    .replace(/(<li>.*?<\/li>\s*)+/g, match => `<ul>\n${match}</ul>\n`);
 };
 
 const BlogPreview = () => {
@@ -84,41 +72,16 @@ const BlogPreview = () => {
   const [contentImages, setContentImages] = useState<string[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // First try to fetch from Notion (Status = "Editing")
-  const { data: notionPost, isLoading: notionLoading, error: notionError } = useQuery({
-    queryKey: ['notionPreview', slug],
+  // Fetch from post_previews table
+  const { data: post, isLoading, error } = useQuery({
+    queryKey: ['preview', slug],
     queryFn: async () => {
       if (!slug) return null;
 
-      try {
-        // Query Notion database for posts with Status = "Editing" and matching slug
-        const response = await fetch('/api/notion/preview', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ slug })
-        });
-        
-        if (!response.ok) return null;
-        const data = await response.json();
-        return data;
-      } catch (error) {
-        console.log('Notion fetch failed, trying Supabase fallback');
-        return null;
-      }
-    }
-  });
-
-  // Fallback: try to fetch from Supabase (published = false)
-  const { data: supabasePost, isLoading: supabaseLoading, error: supabaseError } = useQuery({
-    queryKey: ['supabasePreview', slug],
-    queryFn: async () => {
-      if (!slug || notionPost) return null; // Skip if we found a Notion post
-
       const { data, error } = await supabase
-        .from('posts')
+        .from('post_previews')
         .select('*')
         .eq('slug', slug)
-        .eq('published', false)
         .single();
 
       if (error) {
@@ -129,8 +92,7 @@ const BlogPreview = () => {
       }
       
       return data;
-    },
-    enabled: !notionPost && !notionLoading
+    }
   });
 
   // Fetch some related posts for the bottom section (from live posts)
@@ -148,10 +110,6 @@ const BlogPreview = () => {
       return data || [];
     }
   });
-
-  const post = notionPost || supabasePost;
-  const isLoading = notionLoading || supabaseLoading;
-  const source = notionPost ? "Notion draft" : "Supabase draft";
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
@@ -173,8 +131,8 @@ const BlogPreview = () => {
       const images = Array.from(imageElements).map(img => img.src);
       
       // Add hero image if it exists
-      if (post.hero_image_url || post.featured_image_url) {
-        images.unshift(post.hero_image_url || post.featured_image_url);
+      if (post.hero_image_url) {
+        images.unshift(post.hero_image_url);
       }
       
       setContentImages(images);
@@ -234,9 +192,12 @@ const BlogPreview = () => {
 
   const isGalleryPost = post.type === 'gallery' && post.gallery_description;
 
+  // Format content for display
+  const formattedContent = formatContentToHTML(post.content || '');
+
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
-      <PreviewBanner slug={slug || ''} source={source} />
+      <PreviewBanner slug={slug || ''} />
       <Navbar />
       <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10">
         {/* Header - exact same styling as BlogPost */}
@@ -246,13 +207,15 @@ const BlogPreview = () => {
           </h1>
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-accent">by {post.author || "Anonymous"}</span>
-            <span className="text-sm text-gray-500">{formatDate(post.created_at || post.publish_date)}</span>
+            <span className="text-sm text-gray-500">{formatDate(post.created_at)}</span>
           </div>
-          <img 
-            src={post.hero_image_url || post.featured_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"} 
-            alt={post.title} 
-            className="w-full h-auto object-contain hero-image rounded-xl shadow mb-6 cursor-pointer" 
-          />
+          {post.hero_image_url && (
+            <img 
+              src={post.hero_image_url} 
+              alt={post.title} 
+              className="w-full h-auto object-contain hero-image rounded-xl shadow mb-6 cursor-pointer" 
+            />
+          )}
         </section>
 
         {/* Content body - using exact same logic as BlogPost */}
@@ -262,23 +225,10 @@ const BlogPreview = () => {
             galleryDescription={isGalleryPost ? post.gallery_description : undefined}
           />
         ) : (
-          <section className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
-        )}
-
-        {/* Tags section if any */}
-        {post.tags && post.tags.length > 0 && (
-          <section className="mt-8 pt-6 border-t border-gray-200">
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag: string, index: number) => (
-                <span 
-                  key={index}
-                  className="px-3 py-1 bg-accent/10 text-accent rounded-full text-sm"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </section>
+          <section 
+            className="prose prose-lg max-w-none" 
+            dangerouslySetInnerHTML={{ __html: formattedContent }} 
+          />
         )}
 
         {/* Section Divider */}
