@@ -12,7 +12,6 @@ import VideoGallery from "./pages/VideoGallery";
 import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
 import BlogPreview from "./pages/BlogPreview";
-import DraftManager from "./pages/DraftManager";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +29,6 @@ const App = () => (
           <Route path="/blog" element={<BlogIndex />} />
           <Route path="/posts/:slug" element={<BlogPost />} />
           <Route path="/preview/:slug" element={<BlogPreview />} />
-          <Route path="/drafts" element={<DraftManager />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
