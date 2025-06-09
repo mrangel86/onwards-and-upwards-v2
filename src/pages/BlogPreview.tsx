@@ -72,27 +72,49 @@ const BlogPreview = () => {
   const [contentImages, setContentImages] = useState<string[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Fetch from post_previews table
+  // Add debug logging
+  console.log('BlogPreview: slug from params:', slug);
+
+  // Fetch from post_previews table with improved error handling
   const { data: post, isLoading, error } = useQuery({
     queryKey: ['preview', slug],
     queryFn: async () => {
-      if (!slug) return null;
-
-      const { data, error } = await supabase
-        .from('post_previews')
-        .select('*')
-        .eq('slug', slug)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          return null; // No row found
-        }
-        throw error;
-      }
+      console.log('BlogPreview: Starting query for slug:', slug);
       
-      return data;
-    }
+      if (!slug) {
+        console.log('BlogPreview: No slug provided');
+        return null;
+      }
+
+      try {
+        console.log('BlogPreview: Querying post_previews for slug:', slug);
+        
+        const { data, error } = await supabase
+          .from('post_previews')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        console.log('BlogPreview: Supabase response:', { data, error });
+
+        if (error) {
+          console.error('BlogPreview: Supabase error:', error);
+          if (error.code === 'PGRST116') {
+            console.log('BlogPreview: No row found for slug:', slug);
+            return null; // No row found
+          }
+          throw error;
+        }
+        
+        console.log('BlogPreview: Successfully fetched post:', data);
+        return data;
+      } catch (err) {
+        console.error('BlogPreview: Query error:', err);
+        throw err;
+      }
+    },
+    retry: 1,
+    retryDelay: 1000
   });
 
   // Fetch some related posts for the bottom section (from live posts)
@@ -174,12 +196,40 @@ const BlogPreview = () => {
     }
   }, [post]);
 
+  // Debug logging
+  console.log('BlogPreview: Current state:', { post, isLoading, error });
+
   if (isLoading) {
     return (
       <div className="font-inter bg-background min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10 pt-16">
           <p className="text-center">Loading preview...</p>
+          {slug && (
+            <p className="text-center text-sm text-gray-500 mt-2">
+              Looking for: <code>{slug}</code>
+            </p>
+          )}
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    console.error('BlogPreview: Rendering error state:', error);
+    return (
+      <div className="font-inter bg-background min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10 pt-16">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Preview Error</h1>
+            <p className="text-gray-600 mb-2">Failed to load preview for: <code>{slug}</code></p>
+            <p className="text-sm text-red-500">{error.message}</p>
+            <div className="mt-4 p-4 bg-gray-100 rounded text-left">
+              <pre className="text-xs overflow-auto">{JSON.stringify(error, null, 2)}</pre>
+            </div>
+          </div>
         </main>
         <Footer />
       </div>
@@ -187,13 +237,30 @@ const BlogPreview = () => {
   }
 
   if (!post) {
-    return <NotFound />;
+    console.log('BlogPreview: No post found, rendering NotFound');
+    return (
+      <div className="font-inter bg-background min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10 pt-16">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-800 mb-4">Preview Not Found</h1>
+            <p className="text-gray-600 mb-2">No preview found for: <code>{slug}</code></p>
+            <p className="text-sm text-gray-500">
+              Make sure the post is synced to the preview system.
+            </p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const isGalleryPost = post.type === 'gallery' && post.gallery_description;
 
   // Format content for display
   const formattedContent = formatContentToHTML(post.content || '');
+
+  console.log('BlogPreview: Rendering post:', post.title);
 
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
