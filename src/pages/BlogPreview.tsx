@@ -3,11 +3,14 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import type { Database } from "@/integrations/supabase/types";
+
+type PostPreview = Database['public']['Tables']['post_previews']['Row'];
 
 const BlogPreview = () => {
   const { slug } = useParams<{ slug: string }>();
   const [loading, setLoading] = useState(true);
-  const [post, setPost] = useState<any>(null);
+  const [post, setPost] = useState<PostPreview | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>({});
 
@@ -37,8 +40,8 @@ const BlogPreview = () => {
           throw new Error(`Connection test failed: ${connectionError.message}`);
         }
 
-        // Now try to fetch from post_previews
-        console.log('Fetching from post_previews...');
+        // Now try to fetch from post_previews with proper typing
+        console.log('Fetching from post_previews with slug:', slug);
         const { data, error } = await supabase
           .from('post_previews')
           .select('*')
@@ -46,16 +49,19 @@ const BlogPreview = () => {
           .single();
 
         console.log('Preview fetch result:', { data, error });
-        setDebugInfo(prev => ({ ...prev, queryResult: { data, error } }));
+        setDebugInfo(prev => ({ ...prev, queryResult: { data, error }, queryUrl: `${supabase.supabaseUrl}/rest/v1/post_previews?select=*&slug=eq.${slug}` }));
 
         if (error) {
           if (error.code === 'PGRST116') {
             setError(`No preview found for slug: ${slug}`);
           } else {
+            console.error('Supabase error details:', error);
             throw error;
           }
-        } else {
+        } else if (data) {
           setPost(data);
+        } else {
+          setError(`No data returned for slug: ${slug}`);
         }
       } catch (err: any) {
         console.error('BlogPreview error:', err);
