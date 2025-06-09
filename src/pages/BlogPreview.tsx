@@ -40,29 +40,31 @@ const BlogPreview = () => {
           throw new Error(`Connection test failed: ${connectionError.message}`);
         }
 
-        // Now try to fetch from post_previews with proper typing
-        console.log('Fetching from post_previews with slug:', slug);
-        const { data, error } = await supabase
+        // Test first without .single() to see if we get data
+        console.log('Fetching from post_previews with slug (without single):', slug);
+        const { data: listData, error: listError } = await supabase
           .from('post_previews')
           .select('*')
-          .eq('slug', slug)
-          .single();
+          .eq('slug', slug);
 
-        console.log('Preview fetch result:', { data, error });
-        setDebugInfo(prev => ({ ...prev, queryResult: { data, error }, queryUrl: `${supabase.supabaseUrl}/rest/v1/post_previews?select=*&slug=eq.${slug}` }));
+        console.log('List fetch result:', { listData, listError });
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          listResult: { data: listData, error: listError },
+          expectedUrl: `${supabase.supabaseUrl}/rest/v1/post_previews?select=*&slug=eq.${slug}`
+        }));
 
-        if (error) {
-          if (error.code === 'PGRST116') {
-            setError(`No preview found for slug: ${slug}`);
-          } else {
-            console.error('Supabase error details:', error);
-            throw error;
-          }
-        } else if (data) {
-          setPost(data);
-        } else {
-          setError(`No data returned for slug: ${slug}`);
+        if (listError) {
+          console.error('List query failed:', listError);
+          throw listError;
         }
+
+        if (listData && listData.length > 0) {
+          setPost(listData[0]); // Take first result
+        } else {
+          setError(`No preview found for slug: ${slug}`);
+        }
+
       } catch (err: any) {
         console.error('BlogPreview error:', err);
         setError(err.message || 'Unknown error occurred');
