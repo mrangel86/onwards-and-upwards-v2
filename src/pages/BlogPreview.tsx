@@ -33,16 +33,17 @@ const BlogPreview = () => {
   const [contentImages, setContentImages] = useState<string[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Fetch preview post from post_previews table
+  // Fetch draft post (published = false) from posts table
   const { data: post, isLoading, error } = useQuery({
     queryKey: ['blogPreview', slug],
     queryFn: async () => {
       if (!slug) return null;
 
       const { data, error } = await supabase
-        .from('post_previews')
+        .from('posts')
         .select('*')
-        .eq('preview_slug', slug)
+        .eq('slug', slug)
+        .eq('published', false) // Only fetch unpublished drafts for preview
         .single();
 
       if (error) {
@@ -92,8 +93,8 @@ const BlogPreview = () => {
       const images = Array.from(imageElements).map(img => img.src);
       
       // Add hero image if it exists
-      if (post.featured_image_url) {
-        images.unshift(post.featured_image_url);
+      if (post.hero_image_url) {
+        images.unshift(post.hero_image_url);
       }
       
       setContentImages(images);
@@ -135,21 +136,6 @@ const BlogPreview = () => {
     }
   }, [post]);
 
-  // Format content to handle line breaks (since preview content is plain text)
-  const formatContent = (content: string) => {
-    if (!content) return '';
-    
-    return content
-      .split('\n')
-      .map(paragraph => paragraph.trim())
-      .filter(paragraph => paragraph.length > 0)
-      .map((paragraph, index) => (
-        <p key={index} className="mb-4 leading-relaxed">
-          {paragraph}
-        </p>
-      ));
-  };
-
   if (isLoading) {
     return (
       <div className="font-inter bg-background min-h-screen flex flex-col">
@@ -166,6 +152,8 @@ const BlogPreview = () => {
     return <NotFound />;
   }
 
+  const isGalleryPost = post.type === 'gallery' && post.gallery_description;
+
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
       <PreviewBanner slug={slug || ''} />
@@ -178,54 +166,43 @@ const BlogPreview = () => {
           </h1>
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-accent">by {post.author || "Anonymous"}</span>
-            <span className="text-sm text-gray-500">{formatDate(post.publish_date)}</span>
+            <span className="text-sm text-gray-500">{formatDate(post.created_at)}</span>
           </div>
           <img 
-            src={post.featured_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"} 
+            src={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"} 
             alt={post.title} 
             className="w-full h-auto object-contain hero-image rounded-xl shadow mb-6 cursor-pointer" 
           />
         </section>
 
-        {/* Content body - using exact same prose styling */}
-        <section className="prose prose-lg max-w-none">
-          {post.content ? formatContent(post.content) : (
-            <p className="text-gray-500 italic">No content yet...</p>
-          )}
-        </section>
-
-        {/* Tags section if any */}
-        {post.tags_array && post.tags_array.length > 0 && (
-          <section className="mt-8 pt-6 border-t border-gray-200">
-            <div className="flex flex-wrap gap-2">
-              {post.tags_array.map((tag, index) => (
-                <span 
-                  key={index}
-                  className="px-3 py-1 bg-accent/10 text-accent rounded-full text-sm"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </section>
+        {/* Content body - using exact same logic as BlogPost */}
+        {slug === 'japan-highlights' || isGalleryPost ? (
+          <PostImageGallery 
+            postId={post.id} 
+            galleryDescription={isGalleryPost ? post.gallery_description : undefined}
+          />
+        ) : (
+          <section className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
         )}
 
-        {/* Section Divider - exact same as BlogPost */}
+        {/* Section Divider */}
         <SectionDivider />
 
-        {/* Other Posts - exact same as BlogPost */}
+        {/* Other Posts */}
         <div className="max-w-6xl mx-auto">
           <OtherPostsGrid posts={relatedPosts || []} />
         </div>
       </main>
       
-      {/* Image Lightbox Modal - exact same as BlogPost */}
-      <LightboxModal
-        open={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-        images={contentImages}
-        initialIdx={activeImageIndex}
-      />
+      {/* Image Lightbox Modal - only for regular posts */}
+      {slug !== 'japan-highlights' && !isGalleryPost && (
+        <LightboxModal
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          images={contentImages}
+          initialIdx={activeImageIndex}
+        />
+      )}
       
       <NewsletterSignup />
       <Footer />
