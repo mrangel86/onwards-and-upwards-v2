@@ -1,40 +1,75 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import NewsletterSignup from "@/components/NewsletterSignup";
+import OtherPostsGrid from "@/components/OtherPostsGrid";
+import PostImageGallery from "@/components/PostImageGallery";
 import { supabase } from "@/integrations/supabase/client";
+import NotFound from "./NotFound";
+import LightboxModal from "@/components/LightboxModal";
+
+const SectionDivider = () => (
+  <div className="my-14 flex justify-center">
+    <span className="block w-32 h-1 rounded-full bg-gradient-to-r from-accent via-peach to-accent opacity-65"></span>
+  </div>
+);
+
+const PreviewBanner = ({ slug }: { slug: string }) => (
+  <div className="bg-blue-50 border-b border-blue-200 text-blue-800 p-3 text-center">
+    <p>
+      👁️ <strong>Preview Mode</strong> – Viewing draft: <code className="bg-blue-100 px-2 py-1 rounded text-sm">{slug}</code>
+      {" "}| This is how your post will look when published
+    </p>
+  </div>
+);
 
 const BlogPreview = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImageUrl, setLightboxImageUrl] = useState("");
+  const [contentImages, setContentImages] = useState<string[]>([]);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Simplified: just fetch the post from post_previews table
-  const { data: post, isLoading: postLoading, error: postError } = useQuery({
+  // Fetch preview post from post_previews table
+  const { data: post, isLoading, error } = useQuery({
     queryKey: ['blogPreview', slug],
     queryFn: async () => {
       if (!slug) return null;
-      
-      try {
-        // Fetch the specific preview post
-        const { data, error } = await supabase
-          .from('post_previews')
-          .select('*')
-          .eq('preview_slug', slug)
-          .single();
-        
-        if (error) {
-          console.error('Error fetching preview:', error);
-          return null;
+
+      const { data, error } = await supabase
+        .from('post_previews')
+        .select('*')
+        .eq('preview_slug', slug)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          return null; // No row found
         }
-        
-        return data;
-      } catch (err) {
-        console.error('Error fetching preview:', err);
-        return null;
+        throw error;
       }
-    },
-    enabled: !!slug
+      
+      return data;
+    }
+  });
+
+  // Fetch some related posts for the bottom section (from live posts)
+  const { data: relatedPosts } = useQuery({
+    queryKey: ['previewRelatedPosts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('id, title, excerpt, hero_image_url, created_at, author, slug, content')
+        .eq('published', true)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      return data || [];
+    }
   });
 
   const formatDate = (dateString?: string) => {
@@ -46,7 +81,61 @@ const BlogPreview = () => {
     }
   };
 
-  // Format content to handle line breaks and basic formatting
+  // Extract all images from post content 
+  useEffect(() => {
+    if (!post || !post.content) return;
+    
+    const extractImages = () => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(post.content, 'text/html');
+      const imageElements = doc.querySelectorAll('img');
+      const images = Array.from(imageElements).map(img => img.src);
+      
+      // Add hero image if it exists
+      if (post.featured_image_url) {
+        images.unshift(post.featured_image_url);
+      }
+      
+      setContentImages(images);
+    };
+    
+    extractImages();
+  }, [post]);
+
+  // Handle image click to open lightbox
+  const handleImageClick = (imageUrl: string) => {
+    const imageIndex = contentImages.indexOf(imageUrl);
+    setActiveImageIndex(imageIndex >= 0 ? imageIndex : 0);
+    setLightboxImageUrl(imageUrl);
+    setLightboxOpen(true);
+  };
+
+  // Add click handlers to content images
+  useEffect(() => {
+    if (!post) return;
+    
+    const contentElement = document.querySelector('.prose');
+    if (!contentElement) return;
+    
+    // Add click handlers to all images in content
+    const images = contentElement.querySelectorAll('img');
+    images.forEach(img => {
+      img.classList.add('cursor-pointer', 'hover:opacity-90', 'transition');
+      img.addEventListener('click', () => handleImageClick(img.src));
+    });
+    
+    // Add click handler to hero image
+    const heroImage = document.querySelector('.hero-image');
+    if (heroImage) {
+      heroImage.classList.add('cursor-pointer');
+      heroImage.addEventListener('click', () => {
+        const img = heroImage as HTMLImageElement;
+        handleImageClick(img.src);
+      });
+    }
+  }, [post]);
+
+  // Format content to handle line breaks (since preview content is plain text)
   const formatContent = (content: string) => {
     if (!content) return '';
     
@@ -61,64 +150,29 @@ const BlogPreview = () => {
       ));
   };
 
-  // Loading state
-  if (postLoading) {
+  if (isLoading) {
     return (
       <div className="font-inter bg-background min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10 pt-16">
-          <div className="text-center">
-            <p className="text-gray-600">Loading preview...</p>
-          </div>
+          <p className="text-center">Loading preview...</p>
         </main>
         <Footer />
       </div>
     );
   }
 
-  // Error or no post found
-  if (postError || !post) {
-    return (
-      <div className="font-inter bg-background min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10 pt-16">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-primary mb-4">Preview Not Found</h1>
-            <p className="text-gray-600 mb-4">
-              No draft found with slug: <code className="bg-gray-100 px-2 py-1 rounded">{slug}</code>
-            </p>
-            <p className="text-gray-500 text-sm">
-              Make sure you have a draft post in Notion and try again.
-            </p>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
+  if (error || !post) {
+    return <NotFound />;
   }
 
-  // Display the preview
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
+      <PreviewBanner slug={slug || ''} />
       <Navbar />
       <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10">
-        {/* Preview Notice */}
-        <div className="pt-6 pb-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <div className="text-blue-600 mr-3">👁️</div>
-              <div>
-                <p className="text-blue-800 font-medium">Preview Mode</p>
-                <p className="text-blue-700 text-sm">
-                  You're viewing: <strong>{post.preview_slug}</strong> | This is a draft preview, not the live blog post.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Header */}
-        <section className="pt-4 pb-6">
+        {/* Header - exact same styling as BlogPost */}
+        <section className="pt-10 pb-6">
           <h1 className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-2">
             {post.title}
           </h1>
@@ -126,23 +180,21 @@ const BlogPreview = () => {
             <span className="text-sm text-accent">by {post.author || "Anonymous"}</span>
             <span className="text-sm text-gray-500">{formatDate(post.publish_date)}</span>
           </div>
-          {post.featured_image_url && (
-            <img 
-              src={post.featured_image_url} 
-              alt={post.title} 
-              className="w-full h-auto object-contain rounded-xl shadow mb-6" 
-            />
-          )}
+          <img 
+            src={post.featured_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"} 
+            alt={post.title} 
+            className="w-full h-auto object-contain hero-image rounded-xl shadow mb-6 cursor-pointer" 
+          />
         </section>
 
-        {/* Content */}
+        {/* Content body - using exact same prose styling */}
         <section className="prose prose-lg max-w-none">
           {post.content ? formatContent(post.content) : (
             <p className="text-gray-500 italic">No content yet...</p>
           )}
         </section>
 
-        {/* Tags */}
+        {/* Tags section if any */}
         {post.tags_array && post.tags_array.length > 0 && (
           <section className="mt-8 pt-6 border-t border-gray-200">
             <div className="flex flex-wrap gap-2">
@@ -158,18 +210,24 @@ const BlogPreview = () => {
           </section>
         )}
 
-        {/* Simple Preview Instructions */}
-        <section className="mt-8 pt-6 border-t border-gray-200">
-          <div className="bg-green-50 rounded-lg p-4">
-            <h3 className="text-green-800 font-medium mb-2">📝 Simple Preview Workflow</h3>
-            <ul className="text-green-700 text-sm space-y-1">
-              <li>• Make changes in Notion and ask Claude to update this preview</li>
-              <li>• When ready to publish: Change Status to "Published" in Notion</li>
-              <li>• Ask Claude to sync to live blog</li>
-            </ul>
-          </div>
-        </section>
+        {/* Section Divider - exact same as BlogPost */}
+        <SectionDivider />
+
+        {/* Other Posts - exact same as BlogPost */}
+        <div className="max-w-6xl mx-auto">
+          <OtherPostsGrid posts={relatedPosts || []} />
+        </div>
       </main>
+      
+      {/* Image Lightbox Modal - exact same as BlogPost */}
+      <LightboxModal
+        open={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        images={contentImages}
+        initialIdx={activeImageIndex}
+      />
+      
+      <NewsletterSignup />
       <Footer />
     </div>
   );
