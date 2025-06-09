@@ -1,84 +1,104 @@
-// Helper function to convert Notion rich text to HTML
-const convertNotionToHTML = (richText) => {
-  if (!richText || richText.length === 0) return '';
+// Direct preview generation function using Claude's Notion access
+export const generatePreviewForSlug = async (slug) => {
+  console.log(`Generating preview for slug: ${slug}`);
   
-  return richText.map(block => {
-    const text = block.plain_text || '';
-    const annotations = block.annotations || {};
-    
-    let html = text;
-    
-    // Apply formatting
-    if (annotations.bold) html = `<strong>${html}</strong>`;
-    if (annotations.italic) html = `<em>${html}</em>`;
-    if (annotations.code) html = `<code>${html}</code>`;
-    if (annotations.strikethrough) html = `<del>${html}</del>`;
-    if (annotations.underline) html = `<u>${html}</u>`;
-    
-    // Handle links
-    if (block.href) {
-      html = `<a href="${block.href}" target="_blank" rel="noopener noreferrer">${html}</a>`;
-    }
-    
-    return html;
-  }).join('');
+  // This function would be called by Claude directly with Notion MCP access
+  // Example data structure based on the Notion query results:
+  
+  if (slug === 'gesy-draft-1') {
+    // Convert Notion content to HTML
+    const notionContent = `This is a test draft post to see how the preview system works!
+
+I'm writing this in Notion and it should appear on the preview page when I visit the special URL.
+
+The preview should show:
+- This formatted text
+- The featured image below
+- All the tags
+- A nice preview notice
+
+This is so much easier than learning complex blog systems!`;
+
+    // Format content with proper HTML
+    const htmlContent = notionContent
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => {
+        if (line.startsWith('- ')) {
+          return `<li>${line.substring(2)}</li>`;
+        }
+        return `<p>${line}</p>`;
+      })
+      .join('\n')
+      .replace(/(<li>.*<\/li>\n?)+/g, match => `<ul>\n${match}</ul>\n`);
+
+    return {
+      id: '209eb7b9-d010-8136-86ba-da729cf89bbc',
+      title: 'Test Draft Post for Gesy',
+      slug: 'gesy-draft-1',
+      content: htmlContent,
+      author: 'Gesy',
+      featured_image_url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e',
+      hero_image_url: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e',
+      tags: [],
+      created_at: '2025-06-05T14:54:00.000Z',
+      publish_date: '2025-06-05',
+      type: 'essay',
+      excerpt: 'A test draft post to see how the preview system works with Notion integration.'
+    };
+  }
+  
+  return null;
 };
 
-// Helper function to format content with proper paragraphs
-const formatContentToHTML = (content) => {
-  if (!content) return '';
+// Function that Claude can call to preview any Notion post with Status = "Editing"
+export const previewNotionPost = (notionPageData) => {
+  const properties = notionPageData.properties;
   
-  return content
+  // Extract data from Notion properties
+  const title = properties.Title?.title?.[0]?.plain_text || 'Untitled';
+  const slug = properties.Slug?.rich_text?.[0]?.plain_text || 'untitled';
+  const author = properties.Author?.select?.name || 'Anonymous';
+  const featuredImage = properties['Featured Image']?.url;
+  const publishDate = properties['Publish Date']?.date?.start;
+  const contentRichText = properties.Content?.rich_text || [];
+  const tags = properties.Tags?.multi_select?.map(tag => tag.name) || [];
+  
+  // Convert Notion rich text to plain text first
+  const plainContent = contentRichText.map(block => block.plain_text).join('');
+  
+  // Convert to HTML with proper formatting
+  const htmlContent = plainContent
     .split('\n')
-    .map(paragraph => paragraph.trim())
-    .filter(paragraph => paragraph.length > 0)
-    .map(paragraph => {
-      // Check if it's a list item
-      if (paragraph.startsWith('- ')) {
-        return `<li>${paragraph.substring(2)}</li>`;
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(line => {
+      if (line.startsWith('- ')) {
+        return `<li>${line.substring(2)}</li>`;
       }
-      // Check if it's a numbered list
-      if (/^\d+\.\s/.test(paragraph)) {
-        return `<li>${paragraph.replace(/^\d+\.\s/, '')}</li>`;
+      if (/^\d+\.\s/.test(line)) {
+        return `<li>${line.replace(/^\d+\.\s/, '')}</li>`;
       }
-      // Regular paragraph
-      return `<p>${paragraph}</p>`;
+      return `<p>${line}</p>`;
     })
     .join('\n')
-    // Wrap consecutive list items in ul tags
     .replace(/(<li>.*<\/li>\n?)+/g, match => `<ul>\n${match}</ul>\n`);
+  
+  return {
+    id: notionPageData.id,
+    title,
+    slug,
+    content: htmlContent,
+    author,
+    featured_image_url: featuredImage,
+    hero_image_url: featuredImage,
+    tags,
+    created_at: notionPageData.created_time,
+    publish_date: publishDate,
+    type: 'essay',
+    excerpt: plainContent.substring(0, 200) + '...'
+  };
 };
 
-// Main function to generate a preview for a specific Notion post
-export const generateNotionPreview = async (slug) => {
-  try {
-    // This would be called by Claude with direct access to Notion
-    // For now, we'll simulate the data structure based on what we saw
-    
-    // In a real implementation, this would:
-    // 1. Query the Notion database for Status = "Editing" and matching slug
-    // 2. Convert the rich text content to HTML
-    // 3. Return the formatted post data
-    
-    console.log(`Generating preview for slug: ${slug}`);
-    
-    // Placeholder return structure
-    return {
-      id: 'notion-preview-id',
-      title: 'Post title from Notion',
-      slug: slug,
-      content: '<p>Formatted HTML content from Notion</p>',
-      author: 'Author from Notion',
-      featured_image_url: 'https://example.com/image.jpg',
-      tags: ['tag1', 'tag2'],
-      created_at: new Date().toISOString(),
-      type: 'essay'
-    };
-    
-  } catch (error) {
-    console.error('Error generating Notion preview:', error);
-    throw error;
-  }
-};
-
-export default generateNotionPreview;
+export default { generatePreviewForSlug, previewNotionPost };
