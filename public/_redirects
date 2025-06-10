@@ -1,0 +1,6 @@
+# SPA routing configuration for React Router
+# This ensures all routes are served by the React app instead of returning 404
+/*    /index.html   200
+
+# Specific redirect for preview routes (optional, but explicit)
+/preview/*    /index.html   200
