@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Deployment trigger: Fix TypeScript build error - 2025-06-10
+// Deployment trigger: TypeScript error resolved, testing slug field - 2025-06-10
 
 const BlogPreview = () => {
   const { slug } = useParams<{ slug: string }>();
