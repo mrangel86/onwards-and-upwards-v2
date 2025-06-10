@@ -37,7 +37,7 @@ const DebugInfo: React.FC<DebugInfoProps> = ({ debugInfo, cacheBuster, buildVers
           <strong>Query:</strong> <code>{debugInfo.queryAttempted}</code>
         </div>
         <div>
-          <strong>Expected Endpoint:</strong> <code className="text-xs">{debugInfo.expectedEndpoint}</code>
+          <strong>Expected Endpoint:</strong> <code className="text-xs">https://zrtgkvpbptxueetuqlmb.supabase.co/rest/v1/post_previews</code>
         </div>
         <div>
           <strong>Data Count:</strong> {debugInfo.dataCount}
