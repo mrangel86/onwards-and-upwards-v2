@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-// Deployment trigger: Force rebuild to clear cache - 2025-06-10
+// Deployment trigger: Fix TypeScript build error - 2025-06-10
 
 const BlogPreview = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -41,8 +41,7 @@ const BlogPreview = () => {
         
         const debugData = {
           queryAttempted: `slug = '${slug}'`,
-          supabaseUrl: supabase.supabaseUrl,
-          expectedEndpoint: `${supabase.supabaseUrl}/rest/v1/post_previews`,
+          expectedEndpoint: 'https://zrtgkvpbptxueetuqlmb.supabase.co/rest/v1/post_previews',
           error: error,
           dataReceived: data,
           dataCount: data?.length || 0
@@ -133,7 +132,7 @@ const BlogPreview = () => {
                   <strong>Query:</strong> <code>{debugInfo.queryAttempted}</code>
                 </div>
                 <div>
-                  <strong>Supabase URL:</strong> <code className="text-xs">{debugInfo.supabaseUrl}</code>
+                  <strong>Expected Endpoint:</strong> <code className="text-xs">{debugInfo.expectedEndpoint}</code>
                 </div>
                 <div>
                   <strong>Data Count:</strong> {debugInfo.dataCount}
