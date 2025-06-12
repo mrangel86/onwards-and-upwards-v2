@@ -1,5 +1,10 @@
 import React from 'react';
 
+// 🚀 DEPLOYMENT TRIGGER - June 12, 2025 10:15 PM
+// Force rebuild to deploy book viewer functionality
+// New dependencies: stpageflip, pdfjs-dist
+// New routes: /book-viewer, /book/:slug
+
 const TestPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center">
@@ -12,6 +17,9 @@ const TestPage: React.FC = () => {
         </p>
         <p className="text-sm text-gray-500 mt-4">
           Deployed at: {new Date().toISOString()}
+        </p>
+        <p className="text-xs text-blue-500 mt-2">
+          Build trigger: 2025-06-12-22:15
         </p>
       </div>
     </div>
