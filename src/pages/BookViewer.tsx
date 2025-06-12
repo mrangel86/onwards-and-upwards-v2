@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { PageFlip } from 'stpageflip';
 import * as pdfjsLib from 'pdfjs-dist';
 import { supabase } from '@/integrations/supabase/client';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Set up PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
@@ -31,12 +32,11 @@ const BookViewer: React.FC = () => {
   const [searchParams] = useSearchParams();
   const fileParam = searchParams.get('file');
   
-  const flipBookRef = useRef<PageFlip | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [bookData, setBookData] = useState<BookData | null>(null);
   const [pages, setPages] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
 
   // Initialize books table if it doesn't exist
   const initializeBooksTable = async () => {
@@ -137,7 +137,7 @@ const BookViewer: React.FC = () => {
     }
   };
 
-  // Convert PDF to images for flipbook
+  // Convert PDF to images for display
   const convertPdfToImages = async (pdfUrl: string) => {
     try {
       const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
@@ -169,56 +169,6 @@ const BookViewer: React.FC = () => {
     }
   };
 
-  // Initialize flipbook
-  const initializeFlipbook = () => {
-    if (!containerRef.current || pages.length === 0) return;
-
-    // Clean up existing flipbook
-    if (flipBookRef.current) {
-      flipBookRef.current.destroy();
-    }
-
-    // Clear container
-    containerRef.current.innerHTML = '';
-
-    try {
-      const flipBook = new PageFlip(containerRef.current, {
-        width: 400,
-        height: 600,
-        size: 'stretch',
-        minWidth: 315,
-        maxWidth: 1000,
-        minHeight: 420,
-        maxHeight: 1350,
-        maxShadowOpacity: 0.5,
-        showCover: true,
-        mobileScrollSupport: false,
-        clickEventForward: true,
-        usePortrait: true,
-        startZIndex: 0,
-        autoSize: true,
-        showPageCorners: true,
-        disableFlipByClick: false,
-      });
-
-      // Add pages to flipbook
-      pages.forEach((pageImage, index) => {
-        const pageElement = document.createElement('div');
-        pageElement.className = 'page';
-        pageElement.innerHTML = `
-          <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: white;">
-            <img src="${pageImage}" alt="Page ${index + 1}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-          </div>
-        `;
-        flipBook.loadFromHTML([pageElement]);
-      });
-
-      flipBookRef.current = flipBook;
-    } catch (err) {
-      setError(`Failed to initialize flipbook: ${err instanceof Error ? err.message : 'Unknown error'}`);
-    }
-  };
-
   // Main effect to load and process book
   useEffect(() => {
     const loadBook = async () => {
@@ -240,22 +190,23 @@ const BookViewer: React.FC = () => {
     loadBook();
   }, [slug, fileParam]);
 
-  // Initialize flipbook when pages are ready
-  useEffect(() => {
-    if (pages.length > 0 && !loading) {
-      // Small delay to ensure DOM is ready
-      setTimeout(initializeFlipbook, 100);
+  const nextPage = () => {
+    if (currentPage < pages.length - 1) {
+      setCurrentPage(currentPage + 1);
     }
-  }, [pages, loading]);
+  };
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (flipBookRef.current) {
-        flipBookRef.current.destroy();
-      }
-    };
-  }, []);
+  const prevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const goToPage = (pageIndex: number) => {
+    if (pageIndex >= 0 && pageIndex < pages.length) {
+      setCurrentPage(pageIndex);
+    }
+  };
 
   if (loading) {
     return (
@@ -294,31 +245,79 @@ const BookViewer: React.FC = () => {
         <div className="bg-white border-b border-gray-200 px-4 py-3">
           <div className="max-w-4xl mx-auto flex items-center justify-between">
             <h1 className="text-xl font-semibold text-gray-800">{bookData.title}</h1>
-            <button 
-              onClick={() => window.history.back()} 
-              className="text-gray-500 hover:text-gray-700 text-sm font-medium"
-            >
-              ← Back
-            </button>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-500">
+                Page {currentPage + 1} of {pages.length}
+              </span>
+              <button 
+                onClick={() => window.history.back()} 
+                className="text-gray-500 hover:text-gray-700 text-sm font-medium"
+              >
+                ← Back
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Flipbook Container */}
-      <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 80px)' }}>
-        <div 
-          ref={containerRef}
-          className="book-container"
-          style={{ 
-            maxWidth: '100%',
-            maxHeight: '100%',
-          }}
-        />
+      {/* Book Display */}
+      <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
+        <div className="relative max-w-4xl w-full">
+          {/* Navigation Arrows */}
+          <button
+            onClick={prevPage}
+            disabled={currentPage === 0}
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
+            aria-label="Previous page"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <button
+            onClick={nextPage}
+            disabled={currentPage === pages.length - 1}
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
+            aria-label="Next page"
+          >
+            <ChevronRight size={24} />
+          </button>
+
+          {/* Page Display */}
+          <div className="bg-white shadow-2xl rounded-lg overflow-hidden">
+            {pages.length > 0 && (
+              <img
+                src={pages[currentPage]}
+                alt={`Page ${currentPage + 1}`}
+                className="w-full h-auto max-h-[80vh] object-contain"
+              />
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Page Navigation Dots */}
+      {pages.length > 1 && (
+        <div className="flex justify-center pb-6">
+          <div className="flex gap-2 max-w-md overflow-x-auto">
+            {pages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToPage(index)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  index === currentPage 
+                    ? 'bg-blue-500 w-6' 
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to page ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Instructions */}
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-75 text-white px-4 py-2 rounded-lg text-sm">
-        Click corners to flip pages • Swipe on mobile
+        Use arrow buttons or click dots to navigate • Swipe on mobile
       </div>
     </div>
   );
