@@ -13,6 +13,7 @@ import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
 import BlogPreview from "./pages/BlogPreview";
 import BookViewer from "./pages/BookViewer";
+import TestPage from "./pages/TestPage";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/preview/:slug" element={<BlogPreview />} />
           <Route path="/book-viewer" element={<BookViewer />} />
           <Route path="/book/:slug" element={<BookViewer />} />
+          <Route path="/test" element={<TestPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
