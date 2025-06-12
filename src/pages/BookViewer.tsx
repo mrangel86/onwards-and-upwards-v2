@@ -38,31 +38,6 @@ const BookViewer: React.FC = () => {
   const [pages, setPages] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
 
-  // Initialize books table if it doesn't exist
-  const initializeBooksTable = async () => {
-    try {
-      // Try to create the books table
-      const { error: createError } = await supabase.rpc('exec_sql', {
-        sql: `
-          CREATE TABLE IF NOT EXISTS books (
-            id SERIAL PRIMARY KEY,
-            slug VARCHAR(255) UNIQUE NOT NULL,
-            file_url TEXT NOT NULL,
-            title VARCHAR(255) NOT NULL,
-            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-          );
-        `
-      });
-      
-      if (createError && !createError.message.includes('already exists')) {
-        console.warn('Could not create books table:', createError);
-      }
-    } catch (err) {
-      console.warn('Books table initialization failed:', err);
-    }
-  };
-
   // Load book data based on slug or file parameter
   const loadBookData = async () => {
     setLoading(true);
@@ -172,8 +147,6 @@ const BookViewer: React.FC = () => {
   // Main effect to load and process book
   useEffect(() => {
     const loadBook = async () => {
-      await initializeBooksTable();
-      
       const pdfUrl = await loadBookData();
       if (!pdfUrl) return;
 
