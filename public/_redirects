@@ -3,7 +3,8 @@
 # This ensures all routes are served by the React app instead of returning 404
 
 # Specific redirect for preview routes (high priority)
-/preview/*    /index.html   200
+/preview-posts/*    /index.html   200
+/preview/*          /index.html   200
 
 # General catch-all for all other routes
 /*    /index.html   200
