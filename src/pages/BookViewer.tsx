@@ -401,7 +401,7 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
-  // Calculate optimal dimensions for viewport
+  // Calculate optimal dimensions for viewport with SINGLE-PAGE width limiting
   const calculateDimensions = useCallback(() => {
     if (!pdfDimensions) {
       // Fallback dimensions
@@ -410,16 +410,17 @@ const BookViewer: React.FC = () => {
 
     const { aspectRatio } = pdfDimensions;
     
-    // Get viewport dimensions (80-90% usage)
-    const viewportWidth = window.innerWidth * 0.85;
+    // Get viewport dimensions
+    const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight * 0.8;
     
     let optimalWidth, optimalHeight;
     
     // Calculate optimal size while maintaining aspect ratio
     if (aspectRatio > 1) {
-      // Landscape: width-constrained
-      optimalWidth = Math.min(viewportWidth, 1200);
+      // Landscape: use conservative width percentage to prevent double-page mode
+      const maxWidthPercentage = 0.6; // 60% instead of 85% for landscape PDFs
+      optimalWidth = Math.min(viewportWidth * maxWidthPercentage, 1200);
       optimalHeight = optimalWidth / aspectRatio;
       
       // Check if height fits, adjust if needed
@@ -428,13 +429,14 @@ const BookViewer: React.FC = () => {
         optimalWidth = optimalHeight * aspectRatio;
       }
     } else {
-      // Portrait: height-constrained
+      // Portrait: can use more width since single page is expected
+      const maxWidthPercentage = 0.85; // Keep 85% for portrait PDFs
       optimalHeight = Math.min(viewportHeight, 1000);
       optimalWidth = optimalHeight * aspectRatio;
       
       // Check if width fits, adjust if needed
-      if (optimalWidth > viewportWidth) {
-        optimalWidth = viewportWidth;
+      if (optimalWidth > viewportWidth * maxWidthPercentage) {
+        optimalWidth = viewportWidth * maxWidthPercentage;
         optimalHeight = optimalWidth / aspectRatio;
       }
     }
@@ -456,6 +458,7 @@ const BookViewer: React.FC = () => {
     try {
       const dimensions = calculateDimensions();
       console.log('Initializing StPageFlip with dynamic dimensions:', dimensions);
+      console.log('PDF aspect ratio:', pdfDimensions.aspectRatio, 'usePortrait:', pdfDimensions.aspectRatio < 1);
       
       const pageFlip = new PageFlip(bookRef.current, {
         // DYNAMIC SIZING BASED ON PDF ASPECT RATIO
@@ -468,7 +471,7 @@ const BookViewer: React.FC = () => {
         maxHeight: Math.max(1400, dimensions.height),
         drawShadow: true,
         flippingTime: 800,
-        usePortrait: pdfDimensions.aspectRatio < 1,
+        usePortrait: pdfDimensions.aspectRatio < 1, // Keep original orientation logic
         startZIndex: 0,
         autoSize: false,
         maxShadowOpacity: 0.4,
