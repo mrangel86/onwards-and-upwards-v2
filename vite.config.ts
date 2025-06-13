@@ -19,4 +19,19 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Configure PDF.js worker handling for Vercel deployment
+  assetsInclude: ['**/*.worker.js', '**/*.worker.min.js'],
+  optimizeDeps: {
+    include: ['pdfjs-dist']
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        // Ensure PDF.js worker is properly chunked
+        manualChunks: {
+          pdfjs: ['pdfjs-dist']
+        }
+      }
+    }
+  }
 }));
