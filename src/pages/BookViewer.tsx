@@ -89,6 +89,8 @@ const BookViewer: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [pdfProcessing, setPdfProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animationDirection, setAnimationDirection] = useState<'next' | 'prev' | null>(null);
 
   // Use ref to track if component is mounted
   const isMountedRef = useRef(true);
@@ -374,6 +376,44 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
+  // Animated page navigation
+  const animateToPage = (newPage: number, direction: 'next' | 'prev') => {
+    if (isAnimating || newPage === currentPage) return;
+    
+    setIsAnimating(true);
+    setAnimationDirection(direction);
+    
+    // Start page turn animation
+    setTimeout(() => {
+      setCurrentPage(newPage);
+    }, 300); // Mid-animation page change
+    
+    // End animation
+    setTimeout(() => {
+      setIsAnimating(false);
+      setAnimationDirection(null);
+    }, 600); // Total animation duration
+  };
+
+  const nextPage = () => {
+    if (currentPage < pages.length - 1) {
+      animateToPage(currentPage + 1, 'next');
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 0) {
+      animateToPage(currentPage - 1, 'prev');
+    }
+  };
+
+  const goToPage = (pageIndex: number) => {
+    if (pageIndex >= 0 && pageIndex < pages.length && !isAnimating) {
+      const direction = pageIndex > currentPage ? 'next' : 'prev';
+      animateToPage(pageIndex, direction);
+    }
+  };
+
   // Main effect to load and process book
   useEffect(() => {
     let cancelled = false;
@@ -410,24 +450,6 @@ const BookViewer: React.FC = () => {
       cancelled = true;
     };
   }, [slug, fileParam]);
-
-  const nextPage = () => {
-    if (currentPage < pages.length - 1) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const goToPage = (pageIndex: number) => {
-    if (pageIndex >= 0 && pageIndex < pages.length) {
-      setCurrentPage(pageIndex);
-    }
-  };
 
   if (loading) {
     return (
@@ -513,13 +535,13 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display */}
+      {/* Book Display with 3D Page Turn Animation */}
       <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
         <div className="relative max-w-4xl w-full">
           {/* Navigation Arrows */}
           <button
             onClick={prevPage}
-            disabled={currentPage === 0}
+            disabled={currentPage === 0 || isAnimating}
             className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
             aria-label="Previous page"
           >
@@ -528,21 +550,57 @@ const BookViewer: React.FC = () => {
 
           <button
             onClick={nextPage}
-            disabled={currentPage === pages.length - 1}
+            disabled={currentPage === pages.length - 1 || isAnimating}
             className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
             aria-label="Next page"
           >
             <ChevronRight size={24} />
           </button>
 
-          {/* Page Display */}
-          <div className="bg-white shadow-2xl rounded-lg overflow-hidden">
+          {/* 3D Page Container */}
+          <div className="relative bg-white shadow-2xl rounded-lg overflow-hidden" style={{ perspective: '1000px' }}>
             {pages.length > 0 && (
-              <img
-                src={pages[currentPage]}
-                alt={`Page ${currentPage + 1}`}
-                className="w-full h-auto max-h-[80vh] object-contain"
-              />
+              <div className="relative w-full h-auto">
+                {/* Current Page */}
+                <div 
+                  className={`w-full transition-all duration-600 ease-in-out transform-gpu ${
+                    isAnimating && animationDirection === 'next' 
+                      ? 'animate-page-turn-next' 
+                      : isAnimating && animationDirection === 'prev'
+                      ? 'animate-page-turn-prev'
+                      : ''
+                  }`}
+                  style={{
+                    transformOrigin: animationDirection === 'next' ? 'right center' : 'left center',
+                    transformStyle: 'preserve-3d'
+                  }}
+                >
+                  <img
+                    src={pages[currentPage]}
+                    alt={`Page ${currentPage + 1}`}
+                    className="w-full h-auto max-h-[80vh] object-contain"
+                  />
+                </div>
+                
+                {/* Next/Previous Page (for smooth transitions) */}
+                {isAnimating && (
+                  <div 
+                    className="absolute inset-0 w-full transition-all duration-600 ease-in-out transform-gpu"
+                    style={{
+                      transformOrigin: animationDirection === 'next' ? 'left center' : 'right center',
+                      transform: `rotateY(${animationDirection === 'next' ? '180deg' : '-180deg'})`,
+                      transformStyle: 'preserve-3d',
+                      zIndex: -1
+                    }}
+                  >
+                    <img
+                      src={pages[animationDirection === 'next' ? Math.min(currentPage + 1, pages.length - 1) : Math.max(currentPage - 1, 0)]}
+                      alt={`Page ${animationDirection === 'next' ? currentPage + 2 : currentPage}`}
+                      className="w-full h-auto max-h-[80vh] object-contain"
+                    />
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -556,11 +614,12 @@ const BookViewer: React.FC = () => {
               <button
                 key={index}
                 onClick={() => goToPage(index)}
+                disabled={isAnimating}
                 className={`w-2 h-2 rounded-full transition-all ${
                   index === currentPage 
                     ? 'bg-blue-500 w-6' 
                     : 'bg-gray-300 hover:bg-gray-400'
-                }`}
+                } ${isAnimating ? 'cursor-not-allowed opacity-50' : ''}`}
                 aria-label={`Go to page ${index + 1}`}
               />
             ))}
@@ -572,6 +631,47 @@ const BookViewer: React.FC = () => {
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-75 text-white px-4 py-2 rounded-lg text-sm">
         Use arrow buttons or click dots to navigate • Swipe on mobile
       </div>
+
+      {/* CSS for 3D Page Turn Animation */}
+      <style jsx>{`
+        @keyframes page-turn-next {
+          0% {
+            transform: rotateY(0deg);
+            z-index: 2;
+          }
+          50% {
+            transform: rotateY(-90deg);
+            z-index: 2;
+          }
+          100% {
+            transform: rotateY(-180deg);
+            z-index: 1;
+          }
+        }
+        
+        @keyframes page-turn-prev {
+          0% {
+            transform: rotateY(0deg);
+            z-index: 2;
+          }
+          50% {
+            transform: rotateY(90deg);
+            z-index: 2;
+          }
+          100% {
+            transform: rotateY(180deg);
+            z-index: 1;
+          }
+        }
+        
+        .animate-page-turn-next {
+          animation: page-turn-next 0.6s ease-in-out;
+        }
+        
+        .animate-page-turn-prev {
+          animation: page-turn-prev 0.6s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 };
