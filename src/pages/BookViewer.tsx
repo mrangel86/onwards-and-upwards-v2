@@ -401,16 +401,15 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
-  // Calculate dimensions for SINGLE-PAGE landscape mode - MUCH NARROWER
+  // Calculate dimensions for landscape single-page mode
   const calculateDimensions = useCallback(() => {
     // Get viewport dimensions
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight * 0.85; // Leave some space for header
+    const viewportHeight = window.innerHeight * 0.85;
     
-    // AGGRESSIVE width limitation to force single-page mode
-    // Make it barely wider than tall to trigger landscape but prevent double-page
-    const maxWidth = Math.min(viewportWidth * 0.45, 700); // MUCH NARROWER - 45% instead of 65%
-    const containerHeight = maxWidth * 0.65; // Closer to square but still landscape
+    // Use reasonable fixed dimensions since we now have data-density="hard" forcing single pages
+    const maxWidth = Math.min(viewportWidth * 0.7, 900); // Back to more reasonable size
+    const containerHeight = maxWidth * 0.65; // Landscape ratio
     
     // Ensure it fits in viewport height
     let finalWidth = maxWidth;
@@ -418,10 +417,10 @@ const BookViewer: React.FC = () => {
     
     if (containerHeight > viewportHeight) {
       finalHeight = viewportHeight;
-      finalWidth = finalHeight * 1.4; // Maintain slight landscape ratio
+      finalWidth = finalHeight * 1.5; // Maintain landscape ratio
     }
 
-    console.log('NARROW Landscape container - Width:', finalWidth, 'Height:', finalHeight, 'Ratio:', finalWidth / finalHeight);
+    console.log('Landscape container with data-density=hard - Width:', finalWidth, 'Height:', finalHeight);
 
     return {
       width: Math.round(finalWidth),
@@ -431,7 +430,7 @@ const BookViewer: React.FC = () => {
     };
   }, []);
 
-  // Initialize StPageFlip for SINGLE-PAGE landscape mode
+  // Initialize StPageFlip with data-density="hard" for single-page mode
   const initializePageFlip = useCallback(() => {
     if (!bookRef.current || !pages.length || pageFlipRef.current) {
       return;
@@ -439,17 +438,16 @@ const BookViewer: React.FC = () => {
 
     try {
       const dimensions = calculateDimensions();
-      console.log('Initializing StPageFlip with NARROW landscape container:', dimensions);
+      console.log('Initializing StPageFlip with data-density="hard" for single-page mode:', dimensions);
       
       const pageFlip = new PageFlip(bookRef.current, {
-        // VERY NARROW LANDSCAPE CONTAINER
         width: dimensions.width,
         height: dimensions.height,
         size: 'fixed',
-        minWidth: Math.min(300, dimensions.width),
-        maxWidth: Math.max(700, dimensions.width),
-        minHeight: Math.min(200, dimensions.height),
-        maxHeight: Math.max(500, dimensions.height),
+        minWidth: Math.min(400, dimensions.width),
+        maxWidth: Math.max(900, dimensions.width),
+        minHeight: Math.min(250, dimensions.height),
+        maxHeight: Math.max(600, dimensions.height),
         drawShadow: true,
         flippingTime: 800,
         usePortrait: false, // LANDSCAPE MODE
@@ -466,12 +464,13 @@ const BookViewer: React.FC = () => {
         disableFlipByClick: false
       });
 
-      // Create HTML elements for each page
+      // Create HTML elements for each page with data-density="hard" for SINGLE-PAGE MODE
       const pageElements: HTMLElement[] = [];
       
       pages.forEach((pageImage, index) => {
         const pageDiv = document.createElement('div');
         pageDiv.className = 'page';
+        pageDiv.setAttribute('data-density', 'hard'); // FORCE SINGLE-PAGE MODE
         pageDiv.style.backgroundColor = '#fff';
         pageDiv.style.display = 'flex';
         pageDiv.style.alignItems = 'center';
@@ -508,7 +507,7 @@ const BookViewer: React.FC = () => {
       });
 
       pageFlipRef.current = pageFlip;
-      console.log('StPageFlip initialized successfully - should be single-page landscape mode');
+      console.log('StPageFlip initialized successfully with data-density="hard" for single-page mode');
       
     } catch (error) {
       console.error('Failed to initialize StPageFlip:', error);
@@ -670,7 +669,7 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display - NARROW landscape container to force single-page */}
+      {/* Book Display - landscape with data-density="hard" for single pages */}
       <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
         <div className="relative">
           {/* Navigation Arrows */}
@@ -692,20 +691,20 @@ const BookViewer: React.FC = () => {
             <ChevronRight size={28} />
           </button>
 
-          {/* StPageFlip Container - NARROW landscape to force single-page */}
+          {/* StPageFlip Container - using data-density="hard" for single-page mode */}
           <div 
             ref={bookRef}
             className="relative bg-white shadow-2xl rounded-lg overflow-hidden"
             style={{ 
               width: containerDimensions.containerWidth,
               height: containerDimensions.containerHeight,
-              minWidth: '300px',
-              minHeight: '200px'
+              minWidth: '400px',
+              minHeight: '250px'
             }}
           >
-            {/* Fallback content while StPageFlip initializes - FIXED TEXT */}
+            {/* FIXED: Loading state that properly disappears when StPageFlip loads */}
             {pages.length > 0 && !pageFlipRef.current && (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="absolute inset-0 bg-white flex items-center justify-center z-10">
                 <div className="text-center px-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
                   <p className="text-sm text-gray-600">
