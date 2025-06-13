@@ -605,7 +605,7 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display with 3D Page Turn Animation */}
+      {/* Book Display with StPageFlip - REPLACED SECTION */}
       <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
         <div className="relative max-w-4xl w-full">
           {/* Navigation Arrows */}
@@ -627,49 +627,19 @@ const BookViewer: React.FC = () => {
             <ChevronRight size={24} />
           </button>
 
-          {/* 3D Page Container */}
-          <div className="relative bg-white shadow-2xl rounded-lg overflow-hidden" style={{ perspective: '1000px' }}>
-            {pages.length > 0 && (
-              <div className="relative w-full h-auto">
-                {/* Current Page */}
-                <div 
-                  className={`w-full transition-all duration-600 ease-in-out transform-gpu ${
-                    isAnimating && animationDirection === 'next' 
-                      ? 'animate-page-turn-next' 
-                      : isAnimating && animationDirection === 'prev'
-                      ? 'animate-page-turn-prev'
-                      : ''
-                  }`}
-                  style={{
-                    transformOrigin: animationDirection === 'next' ? 'right center' : 'left center',
-                    transformStyle: 'preserve-3d'
-                  }}
-                >
-                  <img
-                    src={pages[currentPage]}
-                    alt={`Page ${currentPage + 1}`}
-                    className="w-full h-auto max-h-[80vh] object-contain"
-                  />
+          {/* StPageFlip Container - THIS REPLACES THE OLD 3D CSS ANIMATION */}
+          <div 
+            ref={bookRef}
+            className="relative bg-white shadow-2xl rounded-lg overflow-hidden mx-auto"
+            style={{ maxWidth: '800px', minHeight: '600px' }}
+          >
+            {/* Fallback content while StPageFlip initializes */}
+            {pages.length > 0 && !pageFlipRef.current && (
+              <div className="w-full h-full flex items-center justify-center">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
+                  <p className="text-sm text-gray-600">Initializing page flip...</p>
                 </div>
-                
-                {/* Next/Previous Page (for smooth transitions) */}
-                {isAnimating && (
-                  <div 
-                    className="absolute inset-0 w-full transition-all duration-600 ease-in-out transform-gpu"
-                    style={{
-                      transformOrigin: animationDirection === 'next' ? 'left center' : 'right center',
-                      transform: `rotateY(${animationDirection === 'next' ? '180deg' : '-180deg'})`,
-                      transformStyle: 'preserve-3d',
-                      zIndex: -1
-                    }}
-                  >
-                    <img
-                      src={pages[animationDirection === 'next' ? Math.min(currentPage + 1, pages.length - 1) : Math.max(currentPage - 1, 0)]}
-                      alt={`Page ${animationDirection === 'next' ? currentPage + 2 : currentPage}`}
-                      className="w-full h-auto max-h-[80vh] object-contain"
-                    />
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -684,12 +654,11 @@ const BookViewer: React.FC = () => {
               <button
                 key={index}
                 onClick={() => goToPage(index)}
-                disabled={isAnimating}
                 className={`w-2 h-2 rounded-full transition-all ${
                   index === currentPage 
                     ? 'bg-blue-500 w-6' 
                     : 'bg-gray-300 hover:bg-gray-400'
-                } ${isAnimating ? 'cursor-not-allowed opacity-50' : ''}`}
+                }`}
                 aria-label={`Go to page ${index + 1}`}
               />
             ))}
@@ -697,51 +666,10 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Instructions */}
+      {/* Updated Instructions */}
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-75 text-white px-4 py-2 rounded-lg text-sm">
-        Use arrow buttons or click dots to navigate • Swipe on mobile
+        Click page corners, use arrows, or swipe to turn pages
       </div>
-
-      {/* CSS for 3D Page Turn Animation */}
-      <style jsx>{`
-        @keyframes page-turn-next {
-          0% {
-            transform: rotateY(0deg);
-            z-index: 2;
-          }
-          50% {
-            transform: rotateY(-90deg);
-            z-index: 2;
-          }
-          100% {
-            transform: rotateY(-180deg);
-            z-index: 1;
-          }
-        }
-        
-        @keyframes page-turn-prev {
-          0% {
-            transform: rotateY(0deg);
-            z-index: 2;
-          }
-          50% {
-            transform: rotateY(90deg);
-            z-index: 2;
-          }
-          100% {
-            transform: rotateY(180deg);
-            z-index: 1;
-          }
-        }
-        
-        .animate-page-turn-next {
-          animation: page-turn-next 0.6s ease-in-out;
-        }
-        
-        .animate-page-turn-prev {
-          animation: page-turn-prev 0.6s ease-in-out;
-        }
-      `}</style>
     </div>
   );
 };
