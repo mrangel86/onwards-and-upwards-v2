@@ -1,7 +1,7 @@
-// Blog Preview System Implementation Guide
+# Blog Preview System v3.0 - Implementation Guide
 
 ## Overview
-This document outlines how to use the Blog Preview System for onwardsandupwards.co
+This document outlines how to use the **NEW Blog Preview System v3.0** for onwardsandupwards.co
 
 ## How It Works
 
@@ -19,19 +19,19 @@ When your post is in "Editing" status, ask Claude to sync it:
 Claude will:
 - Extract the post from Notion
 - Generate a preview-safe slug (title + "-preview")
-- Push content to Supabase `post_previews` table
+- Push content to Supabase `preview_posts` table (**NEW**)
 - Update the Last Synced date in Notion
 
 ### 3. Viewing the Preview
-Visit: `onwardsandupwards.co/preview/[slug]`
+Visit: `onwardsandupwards.co/preview-posts/[slug]` (**NEW ROUTE**)
 
-Example: `/preview/test-draft-post-for-gesy-preview`
+Example: `/preview-posts/test-draft-post-for-gesy-preview`
 
 Features:
 - Identical formatting to live posts
-- Clear "Preview Mode" banner
+- Clear "Preview Mode" banner with pastel red background
 - SEO protection (noindex robots tag)
-- Same components and styling as `/post/[slug]`
+- Same components and styling as `/posts/[slug]`
 
 ### 4. Publishing Flow
 When ready to publish:
@@ -39,7 +39,7 @@ When ready to publish:
 2. Ask Claude to publish: "Please publish my post '[TITLE]'"
 
 Claude will:
-- Move content from `post_previews` → `posts`
+- Move content from `preview_posts` → `posts`
 - Set published=true
 - Delete the preview version
 - Update slug to remove "-preview" suffix
@@ -57,7 +57,7 @@ Claude will:
 - ✅ Collaborative editing in Notion
 - ✅ Full SEO protection for drafts
 
-## Technical Implementation
+## Technical Implementation - **PREVIEW SYSTEM v3.0**
 
 ### Notion Fields Required:
 - Title (title)
@@ -72,15 +72,22 @@ Claude will:
 
 ### Supabase Tables:
 - `posts` - Live published content
-- `post_previews` - Draft content for preview
+- `preview_posts` - **NEW**: Draft content for preview (replaces deprecated `post_previews`)
 
 ### Routes:
-- `/post/[slug]` - Live posts (from posts table)
-- `/preview/[slug]` - Preview posts (from post_previews table)
+- `/posts/[slug]` - Live posts (from posts table)
+- `/preview-posts/[slug]` - **NEW**: Preview posts (from preview_posts table)
+
+### Key Changes in v3.0:
+- ✅ **Table**: Uses `preview_posts` (not `post_previews`)
+- ✅ **Field**: Uses `slug` (not `preview_slug`)
+- ✅ **Route**: Uses `/preview-posts/` (not `/preview/`)
+- ✅ **Component**: Uses `BlogPreview.tsx` (not `BlogPostPreview.tsx`)
+- ✅ **Banner**: Pastel red background for draft status
 
 ### Sync Functions:
-- Notion → `post_previews` (for editing status)
-- `post_previews` → `posts` (for publishing)
+- Notion → `preview_posts` (for editing status)
+- `preview_posts` → `posts` (for publishing)
 - Cleanup old previews (30+ days)
 
 ## Usage Examples
@@ -101,3 +108,11 @@ What posts do I currently have in preview mode?
 ```
 
 This system allows for a seamless content creation workflow while maintaining full control over what gets published publicly.
+
+---
+
+## Migration Notes (v2.0 → v3.0)
+- **DEPRECATED**: `/preview/[slug]` routes (no longer supported)
+- **DEPRECATED**: `post_previews` table (deleted)
+- **DEPRECATED**: `preview_slug` field references (removed)
+- **NEW**: All preview functionality now uses the cleaned-up system described above
