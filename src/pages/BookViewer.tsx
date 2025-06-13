@@ -90,10 +90,10 @@ const BookViewer: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [pdfProcessing, setPdfProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [animationDirection, setAnimationDirection] = useState<'next' | 'prev' | null>(null);
 
-  // Use ref to track if component is mounted
+  // StPageFlip refs
+  const bookRef = useRef<HTMLDivElement>(null);
+  const pageFlipRef = useRef<PageFlip | null>(null);
   const isMountedRef = useRef(true);
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -103,6 +103,10 @@ const BookViewer: React.FC = () => {
       isMountedRef.current = false;
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
+      }
+      if (pageFlipRef.current) {
+        pageFlipRef.current.destroy();
+        pageFlipRef.current = null;
       }
     };
   }, []);
