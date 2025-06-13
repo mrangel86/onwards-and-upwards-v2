@@ -474,7 +474,7 @@ const BookViewer: React.FC = () => {
         disableFlipByClick: false
       });
 
-      // Create HTML elements for each page with data-density="hard" for SINGLE-PAGE MODE
+      // Create HTML elements for each page with PERFECT CENTERING
       const pageElements: HTMLElement[] = [];
       
       pages.forEach((pageImage, index) => {
@@ -488,6 +488,7 @@ const BookViewer: React.FC = () => {
         pageDiv.style.overflow = 'hidden';
         pageDiv.style.width = '100%';
         pageDiv.style.height = '100%';
+        pageDiv.style.position = 'relative';
         
         const img = document.createElement('img');
         img.src = pageImage;
@@ -496,6 +497,11 @@ const BookViewer: React.FC = () => {
         img.style.maxHeight = '100%';
         img.style.objectFit = 'contain';
         img.style.display = 'block';
+        img.style.margin = 'auto';
+        img.style.position = 'absolute';
+        img.style.top = '50%';
+        img.style.left = '50%';
+        img.style.transform = 'translate(-50%, -50%)';
         
         pageDiv.appendChild(img);
         pageElements.push(pageDiv);
@@ -660,10 +666,10 @@ const BookViewer: React.FC = () => {
   const containerDimensions = calculateDimensions();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-screen bg-white flex flex-col">
       {/* Header */}
       {bookData && (
-        <div className="bg-white border-b border-gray-200 px-4 py-3">
+        <div className="bg-white border-b border-gray-200 px-4 py-3 flex-shrink-0">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <h1 className="text-xl font-semibold text-gray-800">{bookData.title}</h1>
             <div className="flex items-center gap-4">
@@ -681,8 +687,8 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display - FORCED single-page mode */}
-      <div className="flex items-center justify-center py-8" style={{ height: 'calc(100vh - 120px)' }}>
+      {/* Book Display - PERFECTLY CENTERED */}
+      <div className="flex-1 flex items-center justify-center px-4">
         <div className="relative">
           {/* Navigation Arrows */}
           <button
@@ -731,7 +737,7 @@ const BookViewer: React.FC = () => {
 
       {/* Page Navigation Dots */}
       {pages.length > 1 && (
-        <div className="flex justify-center pb-6">
+        <div className="flex justify-center pb-6 flex-shrink-0">
           <div className="flex gap-2 max-w-md overflow-x-auto">
             {pages.map((_, index) => (
               <button
