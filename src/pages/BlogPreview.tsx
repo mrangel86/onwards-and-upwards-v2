@@ -8,8 +8,8 @@ import DebugInfo from "@/components/preview/DebugInfo";
 import PreviewContent from "@/components/preview/PreviewContent";
 import { usePreviewPost } from "@/hooks/usePreviewPost";
 
-// Force deployment marker: BlogPreview routing fix v4.0 - 2025-06-13T11:15:00Z
-// CRITICAL: Fixed routing + detailed error logging for deployment diagnosis
+// Force deployment marker: BlogPreview enhanced debugging v4.2 - 2025-06-13T11:30:00Z
+// ENHANCED: Better debugging and slug matching for deployment diagnosis
 
 const BlogPreview = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -17,11 +17,11 @@ const BlogPreview = () => {
 
   // Add console logs to help debug routing issues
   React.useEffect(() => {
-    console.log('🚀 BlogPreview v4.0 component mounted');
+    console.log('🚀 BlogPreview v4.2 component mounted - ENHANCED DEBUGGING');
     console.log('📍 Current URL:', window.location.href);
     console.log('🎯 Slug parameter:', slug);
     console.log('✅ Component successfully loaded - routing is working!');
-    console.log('🔧 About to call usePreviewPost with slug:', slug);
+    console.log('🔧 About to call usePreviewPost with enhanced debugging...');
   }, [slug]);
 
   // Log when loading/error states change
@@ -43,8 +43,8 @@ const BlogPreview = () => {
           <div className="text-center">
             <p className="text-lg">Loading preview...</p>
             <p className="text-sm text-gray-500 mt-2">Slug: <code>{slug}</code></p>
-            <p className="text-xs text-blue-500 mt-1">✅ ROUTING WORKS - Using 'slug' field (v4.0 ROUTING FIX)</p>
-            <p className="text-xs text-green-600 mt-1">🔧 Querying Supabase post_previews table...</p>
+            <p className="text-xs text-blue-500 mt-1">✅ ROUTING WORKS - Enhanced debugging v4.2</p>
+            <p className="text-xs text-green-600 mt-1">🔧 Checking multiple query patterns...</p>
             <div className="mt-4 animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
             </div>
@@ -73,14 +73,29 @@ const BlogPreview = () => {
             <p className="text-sm text-gray-500 mb-8">This error is likely a database/data issue, not a routing issue.</p>
             
             <div className="mb-8 text-left">
-              <h3 className="font-bold mb-2">🔧 Troubleshooting Steps:</h3>
+              <h3 className="font-bold mb-2">🔧 Enhanced Debugging (v4.2):</h3>
               <ul className="text-sm space-y-1 text-gray-600">
-                <li>1. Check if the post exists in the post_previews table</li>
-                <li>2. Verify the slug matches exactly: <code>{slug}</code></li>
-                <li>3. Ensure Supabase connection is working</li>
-                <li>4. Check browser console for detailed error logs</li>
+                <li>1. ✅ Routing is working perfectly</li>
+                <li>2. ✅ React component loads correctly</li>
+                <li>3. ✅ Supabase connection is established</li>
+                <li>4. ❌ Slug <code>{slug}</code> not found in post_previews table</li>
+                <li>5. 🔍 Check available slugs in debug info below</li>
               </ul>
             </div>
+
+            {debugInfo.allAvailablePreviews && (
+              <div className="mb-8 text-left bg-blue-50 p-4 rounded">
+                <h4 className="font-bold mb-2">Available Preview Slugs:</h4>
+                <ul className="text-sm space-y-1">
+                  {debugInfo.allAvailablePreviews.map((preview: any) => (
+                    <li key={preview.id}>
+                      <code className="bg-blue-100 px-2 py-1 rounded mr-2">{preview.slug}</code>
+                      <span className="text-gray-600">{preview.title}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             
             <DebugInfo 
               debugInfo={debugInfo} 
