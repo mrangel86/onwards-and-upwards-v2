@@ -381,34 +381,39 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
-  // NEW: Initialize StPageFlip
+  // Initialize StPageFlip for SINGLE PAGE mode
   const initializePageFlip = useCallback(() => {
     if (!bookRef.current || !pages.length || pageFlipRef.current) {
       return;
     }
 
     try {
-      console.log('Initializing StPageFlip with', pages.length, 'pages');
+      console.log('Initializing StPageFlip with', pages.length, 'pages (single page mode)');
       
       const pageFlip = new PageFlip(bookRef.current, {
-        width: 400,
-        height: 600,
-        size: 'stretch',
-        minWidth: 315,
-        maxWidth: 1000,
-        minHeight: 400,
-        maxHeight: 1000,
+        // SINGLE PAGE CONFIGURATION
+        width: 800,   // Increased width for single page
+        height: 1000, // Increased height for single page
+        size: 'fixed', // Fixed size instead of stretch
+        minWidth: 400,
+        maxWidth: 1200,
+        minHeight: 500,
+        maxHeight: 1400,
         drawShadow: true,
-        flippingTime: 1000,
+        flippingTime: 800,
         usePortrait: true,
         startZIndex: 0,
-        autoSize: true,
-        maxShadowOpacity: 0.5,
+        autoSize: false, // Disable auto-size for consistent single page
+        maxShadowOpacity: 0.4,
         showCover: false,
         mobileScrollSupport: true,
         swipeDistance: 30,
         clickEventForward: true,
-        useMouseEvents: true
+        useMouseEvents: true,
+        // Additional single page settings
+        startPage: 0,
+        showPageCorners: true,
+        disableFlipByClick: false
       });
 
       // Create HTML elements for each page
@@ -422,6 +427,8 @@ const BookViewer: React.FC = () => {
         pageDiv.style.alignItems = 'center';
         pageDiv.style.justifyContent = 'center';
         pageDiv.style.overflow = 'hidden';
+        pageDiv.style.width = '100%';
+        pageDiv.style.height = '100%';
         
         const img = document.createElement('img');
         img.src = pageImage;
@@ -429,6 +436,7 @@ const BookViewer: React.FC = () => {
         img.style.maxWidth = '100%';
         img.style.maxHeight = '100%';
         img.style.objectFit = 'contain';
+        img.style.display = 'block';
         
         pageDiv.appendChild(img);
         pageElements.push(pageDiv);
@@ -446,7 +454,7 @@ const BookViewer: React.FC = () => {
       });
 
       pageFlipRef.current = pageFlip;
-      console.log('StPageFlip initialized successfully');
+      console.log('StPageFlip initialized successfully in single page mode');
       
     } catch (error) {
       console.error('Failed to initialize StPageFlip:', error);
@@ -588,7 +596,7 @@ const BookViewer: React.FC = () => {
       {/* Header */}
       {bookData && (
         <div className="bg-white border-b border-gray-200 px-4 py-3">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
             <h1 className="text-xl font-semibold text-gray-800">{bookData.title}</h1>
             <div className="flex items-center gap-4">
               <span className="text-sm text-gray-500">
@@ -605,37 +613,42 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display with StPageFlip - REPLACED SECTION */}
+      {/* Book Display with StPageFlip - SINGLE PAGE MODE */}
       <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
-        <div className="relative max-w-4xl w-full">
+        <div className="relative w-full max-w-6xl">
           {/* Navigation Arrows */}
           <button
             onClick={prevPage}
             disabled={currentPage === 0}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-3 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-20"
             aria-label="Previous page"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={28} />
           </button>
 
           <button
             onClick={nextPage}
             disabled={currentPage === pages.length - 1}
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
+            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-3 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-20"
             aria-label="Next page"
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={28} />
           </button>
 
-          {/* StPageFlip Container - THIS REPLACES THE OLD 3D CSS ANIMATION */}
+          {/* StPageFlip Container - SINGLE PAGE, FULL FRAME */}
           <div 
             ref={bookRef}
             className="relative bg-white shadow-2xl rounded-lg overflow-hidden mx-auto"
-            style={{ maxWidth: '800px', minHeight: '600px' }}
+            style={{ 
+              width: '100%', 
+              maxWidth: '1000px', 
+              minHeight: '70vh',
+              height: 'auto'
+            }}
           >
             {/* Fallback content while StPageFlip initializes */}
             {pages.length > 0 && !pageFlipRef.current && (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="w-full h-full flex items-center justify-center" style={{ minHeight: '70vh' }}>
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
                   <p className="text-sm text-gray-600">Initializing page flip...</p>
