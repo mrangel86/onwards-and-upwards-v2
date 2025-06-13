@@ -12,27 +12,27 @@ interface BookData {
   title: string;
 }
 
-// Enhanced PDF.js worker configuration with multiple fallbacks
+// Fixed PDF.js worker configuration for v4+ (uses .mjs files)
 const configurePdfWorker = () => {
   if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
     console.log('Configuring PDF.js worker, version:', pdfjsLib.version);
     
     try {
-      // First, try the standard build path for newer versions
+      // For PDF.js v4+, use .mjs worker files
       const workerUrls = [
-        // Option 1: Standard build path
-        `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`,
-        // Option 2: Legacy build path
-        `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/legacy/build/pdf.worker.min.js`,
-        // Option 3: Different CDN
-        `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`,
-        // Option 4: Mozilla CDN (most reliable)
-        `https://mozilla.github.io/pdf.js/build/pdf.worker.min.js`
+        // Option 1: unpkg CDN with .mjs extension
+        `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`,
+        // Option 2: jsDelivr CDN
+        `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`,
+        // Option 3: Mozilla CDN (fallback)
+        `https://mozilla.github.io/pdf.js/build/pdf.worker.min.mjs`,
+        // Option 4: Disable worker (main thread processing)
+        ''
       ];
       
       // Set the first option as primary
       pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrls[0];
-      console.log('PDF.js worker configured with primary URL:', workerUrls[0]);
+      console.log('PDF.js worker configured with URL:', workerUrls[0]);
       
       // Store fallback URLs for potential runtime switching
       (window as any).pdfWorkerFallbacks = workerUrls.slice(1);
@@ -54,15 +54,8 @@ const tryAlternativeWorker = async () => {
   
   for (const workerUrl of fallbacks) {
     try {
-      console.log('Trying alternative worker URL:', workerUrl);
+      console.log('Trying alternative worker URL:', workerUrl || 'main thread (no worker)');
       pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
-      
-      // Test if this worker URL works by creating a simple document
-      const testTask = pdfjsLib.getDocument({ data: new Uint8Array() });
-      await testTask.promise.catch(() => {}); // We expect this to fail, just testing worker
-      testTask.destroy();
-      
-      console.log('Alternative worker URL working:', workerUrl);
       return true;
     } catch (error) {
       console.log('Alternative worker failed:', workerUrl, error);
@@ -70,9 +63,6 @@ const tryAlternativeWorker = async () => {
     }
   }
   
-  // If all workers fail, disable worker
-  console.log('All worker URLs failed, disabling worker');
-  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
   return false;
 };
 
@@ -210,11 +200,12 @@ const BookViewer: React.FC = () => {
     setProcessingProgress(0);
     
     let retryAttempt = 0;
-    const maxRetries = 2;
+    const maxRetries = 3;
     
     while (retryAttempt <= maxRetries) {
       try {
         console.log(`Loading PDF attempt ${retryAttempt + 1}/${maxRetries + 1} from:`, pdfUrl);
+        console.log('Current worker source:', pdfjsLib.GlobalWorkerOptions.workerSrc || 'main thread');
         
         // Create abort controller for this operation
         abortControllerRef.current = new AbortController();
@@ -341,19 +332,19 @@ const BookViewer: React.FC = () => {
         
         // Check if it's a worker-related error and we have retries left
         if (retryAttempt < maxRetries && err instanceof Error && 
-            (err.message.includes('worker') || err.message.includes('fetch') || 
+            (err.message.includes('worker') || 
+             err.message.includes('fetch') || 
+             err.message.includes('dynamically imported module') ||
              err.message.includes('Setting up fake worker failed'))) {
           
           console.log('Worker error detected, trying alternative worker...');
           const workerWorking = await tryAlternativeWorker();
           
-          if (workerWorking || retryAttempt === maxRetries - 1) {
-            retryAttempt++;
-            continue; // Retry with new worker configuration
-          }
+          retryAttempt++;
+          continue; // Retry with new worker configuration
         }
         
-        // Provide specific error messages
+        // If not a worker error or no more retries, throw the error
         let errorMessage = 'Failed to process PDF';
         
         if (err instanceof Error) {
@@ -367,8 +358,10 @@ const BookViewer: React.FC = () => {
             errorMessage = 'Network error while loading PDF. Please check your connection.';
           } else if (err.message.includes('timeout') || err.message.includes('Loading')) {
             errorMessage = 'PDF loading timed out. The file might be too large.';
-          } else if (err.message.includes('worker') || err.message.includes('fetch')) {
-            errorMessage = 'PDF worker configuration error. Please try refreshing the page.';
+          } else if (err.message.includes('worker') || 
+                     err.message.includes('fetch') || 
+                     err.message.includes('dynamically imported module')) {
+            errorMessage = 'PDF worker configuration error. The PDF will be processed using the main thread (slower but functional).';
           } else {
             errorMessage = `PDF processing error: ${err.message}`;
           }
