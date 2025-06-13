@@ -411,15 +411,15 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
-  // Calculate dimensions for landscape single-page mode
+  // Calculate dimensions for single-page mode
   const calculateDimensions = useCallback(() => {
     // Get viewport dimensions
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight * 0.85;
     
-    // Use reasonable fixed dimensions since we now have data-density="hard" forcing single pages
-    const maxWidth = Math.min(viewportWidth * 0.7, 900); // Back to more reasonable size
-    const containerHeight = maxWidth * 0.65; // Landscape ratio
+    // Use reasonable fixed dimensions for single-page mode
+    const maxWidth = Math.min(viewportWidth * 0.6, 700); // Smaller width for single page
+    const containerHeight = maxWidth * 0.75; // More portrait-like ratio for single page
     
     // Ensure it fits in viewport height
     let finalWidth = maxWidth;
@@ -427,10 +427,10 @@ const BookViewer: React.FC = () => {
     
     if (containerHeight > viewportHeight) {
       finalHeight = viewportHeight;
-      finalWidth = finalHeight * 1.5; // Maintain landscape ratio
+      finalWidth = finalHeight * 0.75; // Maintain single-page ratio
     }
 
-    console.log('Landscape container with data-density=hard - Width:', finalWidth, 'Height:', finalHeight);
+    console.log('Single-page container - Width:', finalWidth, 'Height:', finalHeight);
 
     return {
       width: Math.round(finalWidth),
@@ -440,7 +440,7 @@ const BookViewer: React.FC = () => {
     };
   }, []);
 
-  // Initialize StPageFlip with data-density="hard" for single-page mode
+  // Initialize StPageFlip with FORCED single-page mode
   const initializePageFlip = useCallback(() => {
     if (!bookRef.current || !pages.length || pageFlipRef.current) {
       return;
@@ -448,19 +448,19 @@ const BookViewer: React.FC = () => {
 
     try {
       const dimensions = calculateDimensions();
-      console.log('Initializing StPageFlip with data-density="hard" for single-page mode:', dimensions);
+      console.log('Initializing StPageFlip in FORCED single-page mode:', dimensions);
       
       const pageFlip = new PageFlip(bookRef.current, {
         width: dimensions.width,
         height: dimensions.height,
         size: 'fixed',
         minWidth: Math.min(400, dimensions.width),
-        maxWidth: Math.max(900, dimensions.width),
-        minHeight: Math.min(250, dimensions.height),
+        maxWidth: Math.max(700, dimensions.width),
+        minHeight: Math.min(300, dimensions.height),
         maxHeight: Math.max(600, dimensions.height),
         drawShadow: true,
         flippingTime: 800,
-        usePortrait: false, // LANDSCAPE MODE
+        usePortrait: true, // FORCE SINGLE-PAGE MODE
         startZIndex: 0,
         autoSize: false,
         maxShadowOpacity: 0.4,
@@ -519,7 +519,7 @@ const BookViewer: React.FC = () => {
       });
 
       pageFlipRef.current = pageFlip;
-      console.log('StPageFlip initialized successfully with data-density="hard" for single-page mode');
+      console.log('StPageFlip initialized successfully in FORCED single-page mode');
       
     } catch (error) {
       console.error('Failed to initialize StPageFlip:', error);
@@ -681,7 +681,7 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display - landscape with data-density="hard" for single pages */}
+      {/* Book Display - FORCED single-page mode */}
       <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
         <div className="relative">
           {/* Navigation Arrows */}
@@ -703,7 +703,7 @@ const BookViewer: React.FC = () => {
             <ChevronRight size={28} />
           </button>
 
-          {/* StPageFlip Container - using data-density="hard" for single-page mode */}
+          {/* StPageFlip Container - FORCED single-page mode */}
           <div 
             ref={bookRef}
             className="relative bg-white shadow-2xl rounded-lg overflow-hidden"
@@ -711,10 +711,10 @@ const BookViewer: React.FC = () => {
               width: containerDimensions.containerWidth,
               height: containerDimensions.containerHeight,
               minWidth: '400px',
-              minHeight: '250px'
+              minHeight: '300px'
             }}
           >
-            {/* FIXED: Loading state that properly disappears when StPageFlip loads */}
+            {/* Loading state that properly disappears when StPageFlip loads */}
             {pages.length > 0 && !pageFlipInitialized && (
               <div className="absolute inset-0 bg-white flex items-center justify-center z-10">
                 <div className="text-center px-4">
