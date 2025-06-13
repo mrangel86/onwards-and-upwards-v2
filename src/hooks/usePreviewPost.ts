@@ -18,25 +18,25 @@ export const usePreviewPost = (slug: string | undefined) => {
   const [debugInfo, setDebugInfo] = useState<any>({});
   
   // NEW DEPLOYMENT: Enhanced debugging and slug handling
-  const BUILD_VERSION = 'v4.2-enhanced-debugging-' + new Date().toISOString().split('T')[0];
+  const BUILD_VERSION = 'v4.3-fixed-slug-field-' + new Date().toISOString().split('T')[0];
   const DEPLOYMENT_TIME = new Date().toISOString();
-  const CACHE_BUSTER = 'debug-enhanced-' + Math.random().toString(36).substr(2, 9);
+  const CACHE_BUSTER = 'slug-field-fix-' + Math.random().toString(36).substr(2, 9);
   const SUPABASE_URL = 'https://zrtgkvpbptxueetuqlmb.supabase.co';
 
   const [deploymentInfo] = useState<DeploymentInfo>({
     buildVersion: BUILD_VERSION,
     deploymentTime: DEPLOYMENT_TIME,
     cacheKey: CACHE_BUSTER,
-    commitHash: 'enhanced-debugging-deployment',
+    commitHash: 'slug-field-fix-deployment',
     compiledAt: new Date().toISOString(),
     forceDeployed: true
   });
 
   useEffect(() => {
     const fetchPreview = async () => {
-      console.log('🚀 BlogPreview v4.2 ENHANCED DEBUG: Starting fetch for slug:', slug);
+      console.log('🚀 BlogPreview v4.3 SLUG FIELD FIX: Starting fetch for slug:', slug);
       console.log('📦 Deployment Info:', deploymentInfo);
-      console.log('🔧 Enhanced debugging mode - multiple query attempts');
+      console.log('🔧 FIXED: Now querying "slug" field instead of "preview_slug"');
       
       setDebugInfo(prev => ({ 
         ...prev, 
@@ -55,11 +55,11 @@ export const usePreviewPost = (slug: string | undefined) => {
       }
 
       try {
-        console.log('🔗 ENHANCED DEBUG: Making primary Supabase query...');
+        console.log('🔗 FIXED QUERY: Making primary Supabase query with correct field...');
         console.log('🎯 Primary Query: post_previews.slug =', slug);
         console.log('📊 Supabase URL:', SUPABASE_URL);
         
-        // Primary query with exact slug match
+        // Primary query with exact slug match - FIXED to use 'slug' not 'preview_slug'
         const { data: primaryData, error: primaryError, count } = await supabase
           .from('post_previews')
           .select('*', { count: 'exact' })
@@ -148,14 +148,14 @@ export const usePreviewPost = (slug: string | undefined) => {
         setDebugInfo(prev => ({ ...prev, ...debugData }));
 
         if (finalError) {
-          console.error('❌ Supabase error (ENHANCED DEBUG):', finalError);
+          console.error('❌ Supabase error (SLUG FIELD FIX):', finalError);
           setError(`Supabase Error: ${finalError.message || 'Unknown database error'}`);
           setLoading(false);
           return;
         }
 
         if (finalData && finalData.length > 0) {
-          console.log('✅ Found post (ENHANCED DEBUG):', finalData[0]);
+          console.log('✅ Found post (SLUG FIELD FIX):', finalData[0]);
           setPost(finalData[0]);
         } else {
           console.log('⚠️ No posts found for slug:', slug);
@@ -163,7 +163,7 @@ export const usePreviewPost = (slug: string | undefined) => {
         }
 
       } catch (err: any) {
-        console.error('💥 BlogPreview error (ENHANCED DEBUG):', err);
+        console.error('💥 BlogPreview error (SLUG FIELD FIX):', err);
         setError(`Error: ${err.message || 'Unknown error'}`);
         setDebugInfo(prev => ({ ...prev, finalError: err }));
       } finally {
