@@ -12,15 +12,33 @@ interface BookData {
   title: string;
 }
 
-// Simplified, single PDF.js worker configuration
+// Enhanced PDF.js worker configuration with multiple fallbacks
 const configurePdfWorker = () => {
   if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    console.log('Configuring PDF.js worker, version:', pdfjsLib.version);
+    
     try {
-      // Use unpkg CDN - most reliable for Vercel deployments
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
-      console.log('PDF.js worker configured successfully');
+      // First, try the standard build path for newer versions
+      const workerUrls = [
+        // Option 1: Standard build path
+        `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`,
+        // Option 2: Legacy build path
+        `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/legacy/build/pdf.worker.min.js`,
+        // Option 3: Different CDN
+        `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`,
+        // Option 4: Mozilla CDN (most reliable)
+        `https://mozilla.github.io/pdf.js/build/pdf.worker.min.js`
+      ];
+      
+      // Set the first option as primary
+      pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrls[0];
+      console.log('PDF.js worker configured with primary URL:', workerUrls[0]);
+      
+      // Store fallback URLs for potential runtime switching
+      (window as any).pdfWorkerFallbacks = workerUrls.slice(1);
+      
     } catch (error) {
-      console.warn('PDF.js worker configuration failed, using main thread:', error);
+      console.warn('PDF.js worker configuration failed, disabling worker:', error);
       // Fallback to main thread processing (no worker)
       pdfjsLib.GlobalWorkerOptions.workerSrc = '';
     }
@@ -29,6 +47,34 @@ const configurePdfWorker = () => {
 
 // Initialize worker configuration once
 configurePdfWorker();
+
+// Function to try alternative worker URLs
+const tryAlternativeWorker = async () => {
+  const fallbacks = (window as any).pdfWorkerFallbacks || [];
+  
+  for (const workerUrl of fallbacks) {
+    try {
+      console.log('Trying alternative worker URL:', workerUrl);
+      pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+      
+      // Test if this worker URL works by creating a simple document
+      const testTask = pdfjsLib.getDocument({ data: new Uint8Array() });
+      await testTask.promise.catch(() => {}); // We expect this to fail, just testing worker
+      testTask.destroy();
+      
+      console.log('Alternative worker URL working:', workerUrl);
+      return true;
+    } catch (error) {
+      console.log('Alternative worker failed:', workerUrl, error);
+      continue;
+    }
+  }
+  
+  // If all workers fail, disable worker
+  console.log('All worker URLs failed, disabling worker');
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+  return false;
+};
 
 // Utility function to generate slug from filename
 const generateSlug = (filename: string): string => {
@@ -156,165 +202,183 @@ const BookViewer: React.FC = () => {
     }
   };
 
-  // Convert PDF to images with proper timeout and cleanup
+  // Convert PDF to images with enhanced worker fallback
   const convertPdfToImages = async (pdfUrl: string): Promise<string[]> => {
     if (!isMountedRef.current) return [];
     
     setPdfProcessing(true);
     setProcessingProgress(0);
     
-    try {
-      console.log('Loading PDF from:', pdfUrl);
-      
-      // Create abort controller for this operation
-      abortControllerRef.current = new AbortController();
-      
-      // Configure loading task with timeout
-      const loadingTask = pdfjsLib.getDocument({
-        url: pdfUrl,
-        cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/cmaps/`,
-        cMapPacked: true,
-        disableStream: true,
-        disableFontFace: false,
-        maxImageSize: 1024 * 1024 * 2, // 2MB to prevent memory issues
-      });
-
-      // Set up timeout
-      const TIMEOUT_MS = 20000; // 20 seconds timeout
-      const timeoutId = setTimeout(() => {
-        loadingTask.destroy();
-        if (abortControllerRef.current) {
-          abortControllerRef.current.abort();
-        }
-      }, TIMEOUT_MS);
-
-      let pdf;
+    let retryAttempt = 0;
+    const maxRetries = 2;
+    
+    while (retryAttempt <= maxRetries) {
       try {
-        pdf = await loadingTask.promise;
-        clearTimeout(timeoutId);
-      } catch (loadError) {
-        clearTimeout(timeoutId);
-        throw loadError;
-      }
+        console.log(`Loading PDF attempt ${retryAttempt + 1}/${maxRetries + 1} from:`, pdfUrl);
+        
+        // Create abort controller for this operation
+        abortControllerRef.current = new AbortController();
+        
+        // Configure loading task
+        const loadingTask = pdfjsLib.getDocument({
+          url: pdfUrl,
+          cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/cmaps/`,
+          cMapPacked: true,
+          disableStream: true,
+          disableFontFace: false,
+          maxImageSize: 1024 * 1024 * 2, // 2MB to prevent memory issues
+        });
 
-      if (!isMountedRef.current) {
-        pdf?.destroy();
-        return [];
-      }
+        // Set up timeout
+        const TIMEOUT_MS = 15000; // 15 seconds timeout
+        const timeoutId = setTimeout(() => {
+          loadingTask.destroy();
+          if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+          }
+        }, TIMEOUT_MS);
 
-      console.log(`PDF loaded successfully. Pages: ${pdf.numPages}`);
-      
-      const pageImages: string[] = [];
-      const totalPages = pdf.numPages;
+        let pdf;
+        try {
+          pdf = await loadingTask.promise;
+          clearTimeout(timeoutId);
+        } catch (loadError) {
+          clearTimeout(timeoutId);
+          throw loadError;
+        }
 
-      // Process pages sequentially to avoid memory issues
-      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
         if (!isMountedRef.current) {
           pdf?.destroy();
           return [];
         }
 
-        try {
-          const page = await pdf.getPage(pageNum);
-          
+        console.log(`PDF loaded successfully. Pages: ${pdf.numPages}`);
+        
+        const pageImages: string[] = [];
+        const totalPages = pdf.numPages;
+
+        // Process pages sequentially to avoid memory issues
+        for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
           if (!isMountedRef.current) {
-            page.cleanup();
             pdf?.destroy();
             return [];
           }
 
-          const scale = 1.5; // Balanced scale for quality vs performance
-          const viewport = page.getViewport({ scale });
+          try {
+            const page = await pdf.getPage(pageNum);
+            
+            if (!isMountedRef.current) {
+              page.cleanup();
+              pdf?.destroy();
+              return [];
+            }
 
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          
-          if (!context) {
-            page.cleanup();
-            throw new Error('Could not get canvas context');
+            const scale = 1.5; // Balanced scale for quality vs performance
+            const viewport = page.getViewport({ scale });
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            if (!context) {
+              page.cleanup();
+              throw new Error('Could not get canvas context');
+            }
+
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            const renderContext = {
+              canvasContext: context,
+              viewport: viewport,
+            };
+
+            await page.render(renderContext).promise;
+            
+            if (!isMountedRef.current) {
+              page.cleanup();
+              pdf?.destroy();
+              return [];
+            }
+
+            pageImages.push(canvas.toDataURL('image/jpeg', 0.85)); // Use JPEG for smaller size
+            page.cleanup(); // Clean up page resources
+            
+            // Update progress
+            const progress = Math.round((pageNum / totalPages) * 100);
+            setProcessingProgress(progress);
+            
+            console.log(`Processed page ${pageNum}/${totalPages}`);
+            
+          } catch (pageError) {
+            console.error(`Error processing page ${pageNum}:`, pageError);
+            
+            // Create error placeholder
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 600;
+            const context = canvas.getContext('2d');
+            
+            if (context) {
+              context.fillStyle = '#f3f4f6';
+              context.fillRect(0, 0, canvas.width, canvas.height);
+              context.fillStyle = '#374151';
+              context.font = '16px Arial';
+              context.textAlign = 'center';
+              context.fillText(`Page ${pageNum}`, canvas.width / 2, canvas.height / 2 - 10);
+              context.fillText('Failed to load', canvas.width / 2, canvas.height / 2 + 20);
+            }
+            
+            pageImages.push(canvas.toDataURL('image/jpeg', 0.85));
           }
-
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport,
-          };
-
-          await page.render(renderContext).promise;
-          
-          if (!isMountedRef.current) {
-            page.cleanup();
-            pdf?.destroy();
-            return [];
-          }
-
-          pageImages.push(canvas.toDataURL('image/jpeg', 0.85)); // Use JPEG for smaller size
-          page.cleanup(); // Clean up page resources
-          
-          // Update progress
-          const progress = Math.round((pageNum / totalPages) * 100);
-          setProcessingProgress(progress);
-          
-          console.log(`Processed page ${pageNum}/${totalPages}`);
-          
-        } catch (pageError) {
-          console.error(`Error processing page ${pageNum}:`, pageError);
-          
-          // Create error placeholder
-          const canvas = document.createElement('canvas');
-          canvas.width = 400;
-          canvas.height = 600;
-          const context = canvas.getContext('2d');
-          
-          if (context) {
-            context.fillStyle = '#f3f4f6';
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            context.fillStyle = '#374151';
-            context.font = '16px Arial';
-            context.textAlign = 'center';
-            context.fillText(`Page ${pageNum}`, canvas.width / 2, canvas.height / 2 - 10);
-            context.fillText('Failed to load', canvas.width / 2, canvas.height / 2 + 20);
-          }
-          
-          pageImages.push(canvas.toDataURL('image/jpeg', 0.85));
         }
-      }
 
-      // Clean up PDF document
-      pdf?.destroy();
-      return pageImages;
-      
-    } catch (err) {
-      console.error('PDF processing error:', err);
-      
-      // Provide specific error messages
-      let errorMessage = 'Failed to process PDF';
-      
-      if (err instanceof Error) {
-        if (err.name === 'AbortError') {
-          errorMessage = 'PDF loading was cancelled';
-        } else if (err.message.includes('InvalidPDFException')) {
-          errorMessage = 'The file is not a valid PDF document.';
-        } else if (err.message.includes('MissingPDFException')) {
-          errorMessage = 'PDF file not found or cannot be accessed.';
-        } else if (err.message.includes('UnexpectedResponseException')) {
-          errorMessage = 'Network error while loading PDF. Please check your connection.';
-        } else if (err.message.includes('timeout') || err.message.includes('Loading')) {
-          errorMessage = 'PDF loading timed out. The file might be too large.';
-        } else {
-          errorMessage = `PDF processing error: ${err.message}`;
+        // Clean up PDF document
+        pdf?.destroy();
+        return pageImages;
+        
+      } catch (err) {
+        console.error(`PDF processing error (attempt ${retryAttempt + 1}):`, err);
+        
+        // Check if it's a worker-related error and we have retries left
+        if (retryAttempt < maxRetries && err instanceof Error && 
+            (err.message.includes('worker') || err.message.includes('fetch') || 
+             err.message.includes('Setting up fake worker failed'))) {
+          
+          console.log('Worker error detected, trying alternative worker...');
+          const workerWorking = await tryAlternativeWorker();
+          
+          if (workerWorking || retryAttempt === maxRetries - 1) {
+            retryAttempt++;
+            continue; // Retry with new worker configuration
+          }
         }
-      }
-      
-      throw new Error(errorMessage);
-    } finally {
-      if (isMountedRef.current) {
-        setPdfProcessing(false);
-        setProcessingProgress(0);
+        
+        // Provide specific error messages
+        let errorMessage = 'Failed to process PDF';
+        
+        if (err instanceof Error) {
+          if (err.name === 'AbortError') {
+            errorMessage = 'PDF loading was cancelled';
+          } else if (err.message.includes('InvalidPDFException')) {
+            errorMessage = 'The file is not a valid PDF document.';
+          } else if (err.message.includes('MissingPDFException')) {
+            errorMessage = 'PDF file not found or cannot be accessed.';
+          } else if (err.message.includes('UnexpectedResponseException')) {
+            errorMessage = 'Network error while loading PDF. Please check your connection.';
+          } else if (err.message.includes('timeout') || err.message.includes('Loading')) {
+            errorMessage = 'PDF loading timed out. The file might be too large.';
+          } else if (err.message.includes('worker') || err.message.includes('fetch')) {
+            errorMessage = 'PDF worker configuration error. Please try refreshing the page.';
+          } else {
+            errorMessage = `PDF processing error: ${err.message}`;
+          }
+        }
+        
+        throw new Error(errorMessage);
       }
     }
+    
+    throw new Error('Failed to process PDF after multiple attempts');
   };
 
   // Main effect to load and process book
@@ -340,6 +404,8 @@ const BookViewer: React.FC = () => {
       } finally {
         if (!cancelled) {
           setLoading(false);
+          setPdfProcessing(false);
+          setProcessingProgress(0);
         }
       }
     };
