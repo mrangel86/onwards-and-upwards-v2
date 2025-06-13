@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import * as pdfjsLib from 'pdfjs-dist';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,45 +12,32 @@ interface BookData {
   title: string;
 }
 
-// Multi-fallback PDF.js worker configuration
+// Simplified, single PDF.js worker configuration
 const configurePdfWorker = () => {
-  try {
-    // Primary: Use worker from local bundle (Vite will handle this)
-    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-      'pdfjs-dist/build/pdf.worker.min.js',
-      import.meta.url
-    ).toString();
-    console.log('PDF.js worker configured: Local bundle');
-  } catch (localError) {
+  if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
     try {
-      // Fallback 1: Use unpkg CDN (more reliable than cdnjs for Vercel)
+      // Use unpkg CDN - most reliable for Vercel deployments
       pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
-      console.log('PDF.js worker configured: unpkg CDN fallback');
-    } catch (unpkgError) {
-      try {
-        // Fallback 2: Use jsDelivr CDN
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
-        console.log('PDF.js worker configured: jsDelivr CDN fallback');
-      } catch (jsDelivrError) {
-        // Fallback 3: Disable worker (slower but most compatible)
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-        console.warn('PDF.js worker disabled - using main thread (slower performance)');
-      }
+      console.log('PDF.js worker configured successfully');
+    } catch (error) {
+      console.warn('PDF.js worker configuration failed, using main thread:', error);
+      // Fallback to main thread processing (no worker)
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '';
     }
   }
 };
 
-// Initialize worker configuration
+// Initialize worker configuration once
 configurePdfWorker();
 
 // Utility function to generate slug from filename
 const generateSlug = (filename: string): string => {
   return filename
-    .replace(/\.pdf$/i, '') // Remove .pdf extension
+    .replace(/\.pdf$/i, '')
     .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-    .replace(/\s+/g, '-') // Replace spaces with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
     .trim();
 };
 
@@ -65,9 +52,26 @@ const BookViewer: React.FC = () => {
   const [pages, setPages] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [pdfProcessing, setPdfProcessing] = useState(false);
+  const [processingProgress, setProcessingProgress] = useState(0);
+
+  // Use ref to track if component is mounted
+  const isMountedRef = useRef(true);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   // Load book data based on slug or file parameter
-  const loadBookData = async () => {
+  const loadBookData = async (): Promise<string | null> => {
+    if (!isMountedRef.current) return null;
+    
     setLoading(true);
     setError(null);
 
@@ -80,18 +84,26 @@ const BookViewer: React.FC = () => {
           .eq('slug', slug)
           .single();
 
+        if (!isMountedRef.current) return null;
+
         if (data && !dbError) {
           setBookData(data);
           return data.file_url;
         }
 
-        // If not found in database, try to construct URL from slug and check if file exists
+        // If not found in database, try to construct URL from slug
         const potentialFileName = slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) + '.pdf';
         const constructedUrl = `${supabase.storage.from(BOOKS_BUCKET).getPublicUrl(potentialFileName).data.publicUrl}`;
         
-        // Check if file exists by attempting to fetch it
+        // Check if file exists
         try {
-          const response = await fetch(constructedUrl, { method: 'HEAD' });
+          const response = await fetch(constructedUrl, { 
+            method: 'HEAD',
+            signal: abortControllerRef.current?.signal 
+          });
+          
+          if (!isMountedRef.current) return null;
+          
           if (response.ok) {
             const newBookData = {
               slug,
@@ -100,15 +112,19 @@ const BookViewer: React.FC = () => {
             };
             setBookData(newBookData);
             
-            // Save to database for future use
-            await supabase.from('books').insert(newBookData).select().single();
+            // Save to database for future use (don't await to avoid blocking)
+            supabase.from('books').insert(newBookData).select().single().catch(console.warn);
             return constructedUrl;
           }
-        } catch {
-          // File doesn't exist
+        } catch (fetchError) {
+          if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+            return null;
+          }
+          // File doesn't exist, continue to error
         }
         
         throw new Error(`Book with slug "${slug}" not found`);
+        
       } else if (fileParam) {
         // Direct file URL provided
         const url = new URL(fileParam);
@@ -121,120 +137,172 @@ const BookViewer: React.FC = () => {
           file_url: fileParam,
           title
         };
+        
+        if (!isMountedRef.current) return null;
         setBookData(newBookData);
         
-        // Try to save to database
-        try {
-          await supabase.from('books').upsert(newBookData, { onConflict: 'slug' });
-        } catch (err) {
-          console.warn('Could not save book to database:', err);
-        }
+        // Try to save to database (don't block on this)
+        supabase.from('books').upsert(newBookData, { onConflict: 'slug' }).catch(console.warn);
         
         return fileParam;
       } else {
         throw new Error('No book specified. Please provide either a slug or file parameter.');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load book data');
+      if (!isMountedRef.current) return null;
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load book data';
+      setError(errorMessage);
       return null;
     }
   };
 
-  // Convert PDF to images for display with enhanced error handling
-  const convertPdfToImages = async (pdfUrl: string) => {
+  // Convert PDF to images with proper timeout and cleanup
+  const convertPdfToImages = async (pdfUrl: string): Promise<string[]> => {
+    if (!isMountedRef.current) return [];
+    
     setPdfProcessing(true);
+    setProcessingProgress(0);
+    
     try {
       console.log('Loading PDF from:', pdfUrl);
       
-      // Enhanced PDF loading with timeout and better error handling
+      // Create abort controller for this operation
+      abortControllerRef.current = new AbortController();
+      
+      // Configure loading task with timeout
       const loadingTask = pdfjsLib.getDocument({
         url: pdfUrl,
         cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/cmaps/`,
         cMapPacked: true,
-        // Disable streaming for better compatibility
         disableStream: true,
-        // Disable font face rendering for faster loading
         disableFontFace: false,
-        // Set max image size to prevent memory issues
-        maxImageSize: 1024 * 1024 * 4, // 4MB
+        maxImageSize: 1024 * 1024 * 2, // 2MB to prevent memory issues
       });
 
-      // Add timeout protection
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('PDF loading timeout after 30 seconds')), 30000);
-      });
+      // Set up timeout
+      const TIMEOUT_MS = 20000; // 20 seconds timeout
+      const timeoutId = setTimeout(() => {
+        loadingTask.destroy();
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+        }
+      }, TIMEOUT_MS);
 
-      const pdf = await Promise.race([loadingTask.promise, timeoutPromise]) as any;
+      let pdf;
+      try {
+        pdf = await loadingTask.promise;
+        clearTimeout(timeoutId);
+      } catch (loadError) {
+        clearTimeout(timeoutId);
+        throw loadError;
+      }
+
+      if (!isMountedRef.current) {
+        pdf?.destroy();
+        return [];
+      }
+
       console.log(`PDF loaded successfully. Pages: ${pdf.numPages}`);
       
       const pageImages: string[] = [];
+      const totalPages = pdf.numPages;
 
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      // Process pages sequentially to avoid memory issues
+      for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        if (!isMountedRef.current) {
+          pdf?.destroy();
+          return [];
+        }
+
         try {
           const page = await pdf.getPage(pageNum);
-          const scale = 2; // Higher scale for better quality
+          
+          if (!isMountedRef.current) {
+            page.cleanup();
+            pdf?.destroy();
+            return [];
+          }
+
+          const scale = 1.5; // Balanced scale for quality vs performance
           const viewport = page.getViewport({ scale });
 
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
-          if (!context) throw new Error('Could not get canvas context');
+          
+          if (!context) {
+            page.cleanup();
+            throw new Error('Could not get canvas context');
+          }
 
           canvas.height = viewport.height;
           canvas.width = viewport.width;
 
-          await page.render({
+          const renderContext = {
             canvasContext: context,
             viewport: viewport,
-          }).promise;
+          };
 
-          pageImages.push(canvas.toDataURL('image/png'));
-          console.log(`Processed page ${pageNum}/${pdf.numPages}`);
+          await page.render(renderContext).promise;
+          
+          if (!isMountedRef.current) {
+            page.cleanup();
+            pdf?.destroy();
+            return [];
+          }
+
+          pageImages.push(canvas.toDataURL('image/jpeg', 0.85)); // Use JPEG for smaller size
+          page.cleanup(); // Clean up page resources
+          
+          // Update progress
+          const progress = Math.round((pageNum / totalPages) * 100);
+          setProcessingProgress(progress);
+          
+          console.log(`Processed page ${pageNum}/${totalPages}`);
+          
         } catch (pageError) {
           console.error(`Error processing page ${pageNum}:`, pageError);
-          // Create a placeholder for failed pages
+          
+          // Create error placeholder
           const canvas = document.createElement('canvas');
           canvas.width = 400;
           canvas.height = 600;
           const context = canvas.getContext('2d');
+          
           if (context) {
             context.fillStyle = '#f3f4f6';
             context.fillRect(0, 0, canvas.width, canvas.height);
             context.fillStyle = '#374151';
-            context.font = '20px Arial';
+            context.font = '16px Arial';
             context.textAlign = 'center';
             context.fillText(`Page ${pageNum}`, canvas.width / 2, canvas.height / 2 - 10);
             context.fillText('Failed to load', canvas.width / 2, canvas.height / 2 + 20);
           }
-          pageImages.push(canvas.toDataURL('image/png'));
+          
+          pageImages.push(canvas.toDataURL('image/jpeg', 0.85));
         }
       }
 
+      // Clean up PDF document
+      pdf?.destroy();
       return pageImages;
+      
     } catch (err) {
       console.error('PDF processing error:', err);
       
-      // Enhanced error messages based on error type
+      // Provide specific error messages
       let errorMessage = 'Failed to process PDF';
+      
       if (err instanceof Error) {
-        if (err.message.includes('timeout')) {
-          errorMessage = 'PDF loading timed out. The file might be too large or the connection is slow.';
+        if (err.name === 'AbortError') {
+          errorMessage = 'PDF loading was cancelled';
         } else if (err.message.includes('InvalidPDFException')) {
           errorMessage = 'The file is not a valid PDF document.';
         } else if (err.message.includes('MissingPDFException')) {
           errorMessage = 'PDF file not found or cannot be accessed.';
         } else if (err.message.includes('UnexpectedResponseException')) {
           errorMessage = 'Network error while loading PDF. Please check your connection.';
-        } else if (err.message.includes('worker')) {
-          errorMessage = 'PDF worker configuration error. Trying alternative loading method...';
-          
-          // Attempt to reconfigure worker and retry once
-          try {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = '';
-            console.log('Retrying PDF processing without worker...');
-            return await convertPdfToImages(pdfUrl);
-          } catch (retryError) {
-            errorMessage = 'PDF processing failed even with fallback method.';
-          }
+        } else if (err.message.includes('timeout') || err.message.includes('Loading')) {
+          errorMessage = 'PDF loading timed out. The file might be too large.';
         } else {
           errorMessage = `PDF processing error: ${err.message}`;
         }
@@ -242,27 +310,46 @@ const BookViewer: React.FC = () => {
       
       throw new Error(errorMessage);
     } finally {
-      setPdfProcessing(false);
+      if (isMountedRef.current) {
+        setPdfProcessing(false);
+        setProcessingProgress(0);
+      }
     }
   };
 
   // Main effect to load and process book
   useEffect(() => {
+    let cancelled = false;
+    
     const loadBook = async () => {
-      const pdfUrl = await loadBookData();
-      if (!pdfUrl) return;
-
+      if (cancelled) return;
+      
       try {
+        const pdfUrl = await loadBookData();
+        if (cancelled || !pdfUrl) return;
+
         const pageImages = await convertPdfToImages(pdfUrl);
+        if (cancelled) return;
+
         setPages(pageImages);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load book');
+        if (!cancelled) {
+          const errorMessage = err instanceof Error ? err.message : 'Failed to load book';
+          setError(errorMessage);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     loadBook();
+
+    // Cleanup function
+    return () => {
+      cancelled = true;
+    };
   }, [slug, fileParam]);
 
   const nextPage = () => {
@@ -292,10 +379,18 @@ const BookViewer: React.FC = () => {
             {pdfProcessing ? 'Processing PDF pages...' : 'Loading book...'}
           </p>
           {bookData && <p className="text-sm text-gray-500 mt-2">{bookData.title}</p>}
-          {pdfProcessing && pages.length > 0 && (
-            <p className="text-xs text-gray-400 mt-1">
-              Processed {pages.length} pages...
-            </p>
+          {pdfProcessing && (
+            <div className="mt-4">
+              <div className="w-64 bg-gray-200 rounded-full h-2 mx-auto">
+                <div 
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${processingProgress}%` }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">
+                {processingProgress}% complete
+              </p>
+            </div>
           )}
         </div>
       </div>
