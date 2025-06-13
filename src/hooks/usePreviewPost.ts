@@ -18,9 +18,10 @@ export const usePreviewPost = (slug: string | undefined) => {
   const [debugInfo, setDebugInfo] = useState<any>({});
   
   // NEW DEPLOYMENT: Fresh build with correct slug field implementation
-  const BUILD_VERSION = 'v4.0-routing-fix-' + new Date().toISOString().split('T')[0];
+  const BUILD_VERSION = 'v4.1-routing-fix-' + new Date().toISOString().split('T')[0];
   const DEPLOYMENT_TIME = new Date().toISOString();
   const CACHE_BUSTER = 'routing-fix-' + Math.random().toString(36).substr(2, 9);
+  const SUPABASE_URL = 'https://zrtgkvpbptxueetuqlmb.supabase.co';
 
   const [deploymentInfo] = useState<DeploymentInfo>({
     buildVersion: BUILD_VERSION,
@@ -33,7 +34,7 @@ export const usePreviewPost = (slug: string | undefined) => {
 
   useEffect(() => {
     const fetchPreview = async () => {
-      console.log('🚀 BlogPreview v4.0 ROUTING FIX: Starting fresh fetch for slug:', slug);
+      console.log('🚀 BlogPreview v4.1 ROUTING FIX: Starting fresh fetch for slug:', slug);
       console.log('📦 Deployment Info:', deploymentInfo);
       console.log('🔧 Using slug field (NOT preview_slug) - Routing fix deployment');
       
@@ -56,7 +57,7 @@ export const usePreviewPost = (slug: string | undefined) => {
       try {
         console.log('🔗 ROUTING FIX: Making Supabase query with slug field...');
         console.log('🎯 Query target: post_previews.slug =', slug);
-        console.log('📊 Supabase URL:', supabase.supabaseUrl);
+        console.log('📊 Supabase URL:', SUPABASE_URL);
         console.log('🔑 Using correct field: slug (not preview_slug)');
         
         const { data, error, count } = await supabase
@@ -69,7 +70,7 @@ export const usePreviewPost = (slug: string | undefined) => {
           error, 
           count,
           dataLength: data?.length,
-          supabaseUrl: supabase.supabaseUrl 
+          supabaseUrl: SUPABASE_URL 
         });
         
         const debugData = {
@@ -82,7 +83,7 @@ export const usePreviewPost = (slug: string | undefined) => {
           totalCount: count,
           routingFix: true,
           buildVersion: BUILD_VERSION,
-          supabaseUrl: supabase.supabaseUrl
+          supabaseUrl: SUPABASE_URL
         };
         
         setDebugInfo(prev => ({ ...prev, ...debugData }));
