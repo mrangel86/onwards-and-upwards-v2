@@ -13,30 +13,30 @@ const PreviewBanner: React.FC<PreviewBannerProps> = ({ type, slug, buildVersion,
     loading: {
       bgColor: 'bg-blue-50 border-blue-200 text-blue-800',
       icon: '👁️',
-      title: 'Preview Mode v2.2 FORCE DEPLOYED',
+      title: 'Preview Mode v3.0 NEW DEPLOYMENT',
       message: 'Loading...',
-      details: `Commit: 09a0854c | Cache: ${cacheBuster}`
+      details: `Fresh Build | Cache: ${cacheBuster}`
     },
     error: {
       bgColor: 'bg-red-50 border-red-200 text-red-800',
       icon: '❌',
-      title: 'Preview Error v2.2 FORCE DEPLOYED',
+      title: 'Preview Error v3.0 NEW DEPLOYMENT',
       message: '',
-      details: `Build: ${buildVersion} | Commit: 09a0854c | Cache: ${cacheBuster}`
+      details: `Build: ${buildVersion} | Fresh deployment | Cache: ${cacheBuster}`
     },
     'not-found': {
       bgColor: 'bg-yellow-50 border-yellow-200 text-yellow-800',
       icon: '⚠️',
-      title: 'No Preview Found v2.2 FORCE DEPLOYED',
+      title: 'No Preview Found v3.0 NEW DEPLOYMENT',
       message: '',
-      details: `Build: ${buildVersion} | Commit: 09a0854c | Cache: ${cacheBuster}`
+      details: `Build: ${buildVersion} | Fresh deployment | Cache: ${cacheBuster}`
     },
     success: {
       bgColor: 'bg-green-50 border-green-200 text-green-800',
       icon: '👁️',
-      title: 'Preview Mode v2.2 FORCE DEPLOYED',
+      title: 'Preview Mode v3.0 NEW DEPLOYMENT',
       message: `Post Found! • ${slug ? `${slug}` : ''}`,
-      details: `✅ FORCE DEPLOYED • Commit: 09a0854c • Build: ${buildVersion} • Using 'slug' field`
+      details: `✅ NEW DEPLOYMENT SUCCESSFUL • Build: ${buildVersion} • Using 'slug' field (NOT preview_slug)`
     }
   };
 

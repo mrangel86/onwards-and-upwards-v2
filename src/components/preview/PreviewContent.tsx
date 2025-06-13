@@ -48,15 +48,15 @@ const PreviewContent: React.FC<PreviewContentProps> = ({ post, buildVersion }) =
         {formatContent(post.content)}
       </section>
 
-      {/* Enhanced Success info with Force Deployment Details */}
+      {/* Enhanced Success info with New Deployment Details */}
       <div className="mt-8 p-4 bg-green-50 rounded text-sm">
-        <div className="font-bold text-green-800 mb-2">✅ Preview System Working! (v2.2 FORCE DEPLOYED)</div>
+        <div className="font-bold text-green-800 mb-2">✅ Preview System Working! (v3.0 NEW DEPLOYMENT)</div>
         <div className="text-green-700 space-y-1">
           <div>Successfully loaded preview from Supabase</div>
           <div>ID: <code>{post.id}</code> • Type: <code>{post.type}</code></div>
           <div>Field Used: <code className="bg-green-100 px-1 rounded">slug</code> (NOT preview_slug)</div>
-          <div>Commit: <code className="bg-green-100 px-1 rounded">09a0854c</code> • Build: <code>{buildVersion}</code></div>
-          <div className="text-xs mt-2 text-green-600">🚀 FORCE DEPLOYMENT SUCCESSFUL - Cache fix applied immediately</div>
+          <div>New Deployment: <code className="bg-green-100 px-1 rounded">ACTIVE</code> • Build: <code>{buildVersion}</code></div>
+          <div className="text-xs mt-2 text-green-600">🚀 NEW DEPLOYMENT SUCCESSFUL - Fresh build with correct slug field</div>
         </div>
       </div>
     </main>

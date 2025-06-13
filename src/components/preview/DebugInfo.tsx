@@ -10,19 +10,16 @@ interface DebugInfoProps {
 const DebugInfo: React.FC<DebugInfoProps> = ({ debugInfo, cacheBuster, buildVersion }) => {
   return (
     <div className="bg-gray-50 p-6 rounded-lg text-left max-w-2xl mx-auto">
-      <h3 className="font-bold mb-4">🐛 Debug Information (v2.2 FORCE DEPLOYED)</h3>
+      <h3 className="font-bold mb-4">🐛 Debug Information (v3.0 NEW DEPLOYMENT)</h3>
       <div className="space-y-3 text-sm">
         <div>
           <strong>Build Version:</strong> <code>{buildVersion}</code>
         </div>
         <div>
-          <strong>Commit Hash:</strong> <code className="text-green-600">09a0854c</code>
+          <strong>New Deployment:</strong> <span className="text-green-600">✅ ACTIVE</span>
         </div>
         <div>
           <strong>Cache Buster:</strong> <code>{cacheBuster}</code>
-        </div>
-        <div>
-          <strong>Force Deployed:</strong> <span className="text-green-600">✅ YES</span>
         </div>
         <div>
           <strong>Slug:</strong> <code>{debugInfo.slug}</code>
