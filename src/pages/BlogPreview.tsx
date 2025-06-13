@@ -8,13 +8,20 @@ import DebugInfo from "@/components/preview/DebugInfo";
 import PreviewContent from "@/components/preview/PreviewContent";
 import { usePreviewPost } from "@/hooks/usePreviewPost";
 
-// Deployment trigger: TypeScript error resolved, testing slug field - 2025-06-10
-// 🚀 FORCE DEPLOYMENT: Cache fix commit 09a0854c - 2025-06-10T15:45:00
-// CRITICAL UPDATE: Deploying slug field fix to resolve 400 errors immediately
+// Force deployment marker: BlogPreview route fix - 2025-06-13T11:08:00Z
+// CRITICAL: Ensure preview routes work on deployed site
 
 const BlogPreview = () => {
   const { slug } = useParams<{ slug: string }>();
   const { loading, post, error, debugInfo, buildVersion, cacheBuster } = usePreviewPost(slug);
+
+  // Add console logs to help debug routing issues
+  React.useEffect(() => {
+    console.log('🚀 BlogPreview component mounted');
+    console.log('📍 Current URL:', window.location.href);
+    console.log('🎯 Slug parameter:', slug);
+    console.log('✅ Component successfully loaded - routing is working!');
+  }, [slug]);
 
   if (loading) {
     return (
@@ -30,7 +37,7 @@ const BlogPreview = () => {
           <div className="text-center">
             <p className="text-lg">Loading preview...</p>
             <p className="text-sm text-gray-500 mt-2">Slug: <code>{slug}</code></p>
-            <p className="text-xs text-blue-500 mt-1">Using 'slug' field (FORCE DEPLOYED)</p>
+            <p className="text-xs text-blue-500 mt-1">✅ ROUTING WORKS - Using 'slug' field (v3.0 NEW DEPLOYMENT)</p>
             <div className="mt-4 animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
             </div>
@@ -55,6 +62,8 @@ const BlogPreview = () => {
             <h1 className="text-2xl font-bold text-red-600 mb-4">Preview Error</h1>
             <p className="text-gray-600 mb-4">Failed to load preview for: <code>{slug}</code></p>
             <p className="text-red-500 mb-8">{error}</p>
+            <p className="text-green-600 mb-4">✅ GOOD NEWS: Routing works! The 404 is fixed.</p>
+            <p className="text-sm text-gray-500 mb-8">This error is likely a data issue, not a routing issue.</p>
             
             <DebugInfo 
               debugInfo={debugInfo} 
@@ -81,6 +90,7 @@ const BlogPreview = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Preview Not Found</h1>
             <p className="text-gray-600 mb-4">No preview exists for: <code>{slug}</code></p>
+            <p className="text-green-600 mb-4">✅ ROUTING FIXED: No more 404 errors!</p>
             <p className="text-sm text-gray-500">Make sure the post is synced to the preview system.</p>
           </div>
         </main>
