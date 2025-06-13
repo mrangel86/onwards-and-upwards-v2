@@ -48,15 +48,15 @@ const PreviewContent: React.FC<PreviewContentProps> = ({ post, buildVersion }) =
         {formatContent(post.content)}
       </section>
 
-      {/* Enhanced Success info with New Deployment Details */}
-      <div className="mt-8 p-4 bg-green-50 rounded text-sm">
-        <div className="font-bold text-green-800 mb-2">✅ Preview System Working! (v3.0 NEW DEPLOYMENT)</div>
-        <div className="text-green-700 space-y-1">
-          <div>Successfully loaded preview from Supabase</div>
+      {/* Bottom Preview Banner - Pastel Red */}
+      <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded text-sm">
+        <div className="font-bold text-red-800 mb-2">✅ Your post is NOT live, this is just a preview of your post! In order to make your post live, you must publish it.</div>
+        <div className="text-red-700 space-y-1">
+          <div>Preview System v3.0 successfully loaded from preview_posts table</div>
           <div>ID: <code>{post.id}</code> • Type: <code>{post.type}</code></div>
-          <div>Field Used: <code className="bg-green-100 px-1 rounded">slug</code> (NOT preview_slug)</div>
-          <div>New Deployment: <code className="bg-green-100 px-1 rounded">ACTIVE</code> • Build: <code>{buildVersion}</code></div>
-          <div className="text-xs mt-2 text-green-600">🚀 NEW DEPLOYMENT SUCCESSFUL - Fresh build with correct slug field</div>
+          <div>Field Used: <code className="bg-red-100 px-1 rounded">slug</code> (clean system)</div>
+          <div>Build: <code className="bg-red-100 px-1 rounded">{buildVersion}</code></div>
+          <div className="text-xs mt-2 text-red-600">🚀 Preview System v3.0 - Clean deployment with updated banners</div>
         </div>
       </div>
     </main>
