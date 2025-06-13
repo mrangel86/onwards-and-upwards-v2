@@ -97,6 +97,7 @@ const BookViewer: React.FC = () => {
   const [pdfProcessing, setPdfProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [pdfDimensions, setPdfDimensions] = useState<PDFDimensions | null>(null);
+  const [pageFlipInitialized, setPageFlipInitialized] = useState(false);
 
   // StPageFlip refs
   const bookRef = useRef<HTMLDivElement>(null);
@@ -117,6 +118,15 @@ const BookViewer: React.FC = () => {
       }
     };
   }, []);
+
+  // Reset PageFlip initialization state when pages change
+  useEffect(() => {
+    setPageFlipInitialized(false);
+    if (pageFlipRef.current) {
+      pageFlipRef.current.destroy();
+      pageFlipRef.current = null;
+    }
+  }, [pages]);
 
   // Load book data based on slug or file parameter
   const loadBookData = async (): Promise<string | null> => {
@@ -504,6 +514,8 @@ const BookViewer: React.FC = () => {
 
       pageFlip.on('init', (e) => {
         console.log('StPageFlip initialized in mode:', e.data.mode);
+        // Mark PageFlip as initialized
+        setPageFlipInitialized(true);
       });
 
       pageFlipRef.current = pageFlip;
@@ -703,7 +715,7 @@ const BookViewer: React.FC = () => {
             }}
           >
             {/* FIXED: Loading state that properly disappears when StPageFlip loads */}
-            {pages.length > 0 && !pageFlipRef.current && (
+            {pages.length > 0 && !pageFlipInitialized && (
               <div className="absolute inset-0 bg-white flex items-center justify-center z-10">
                 <div className="text-center px-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
