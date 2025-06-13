@@ -4,9 +4,6 @@ import * as pdfjsLib from 'pdfjs-dist';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Set up PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-
 const BOOKS_BUCKET = 'books';
 
 interface BookData {
@@ -14,6 +11,37 @@ interface BookData {
   file_url: string;
   title: string;
 }
+
+// Multi-fallback PDF.js worker configuration
+const configurePdfWorker = () => {
+  try {
+    // Primary: Use worker from local bundle (Vite will handle this)
+    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+      'pdfjs-dist/build/pdf.worker.min.js',
+      import.meta.url
+    ).toString();
+    console.log('PDF.js worker configured: Local bundle');
+  } catch (localError) {
+    try {
+      // Fallback 1: Use unpkg CDN (more reliable than cdnjs for Vercel)
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+      console.log('PDF.js worker configured: unpkg CDN fallback');
+    } catch (unpkgError) {
+      try {
+        // Fallback 2: Use jsDelivr CDN
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+        console.log('PDF.js worker configured: jsDelivr CDN fallback');
+      } catch (jsDelivrError) {
+        // Fallback 3: Disable worker (slower but most compatible)
+        pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+        console.warn('PDF.js worker disabled - using main thread (slower performance)');
+      }
+    }
+  }
+};
+
+// Initialize worker configuration
+configurePdfWorker();
 
 // Utility function to generate slug from filename
 const generateSlug = (filename: string): string => {
@@ -36,6 +64,7 @@ const BookViewer: React.FC = () => {
   const [bookData, setBookData] = useState<BookData | null>(null);
   const [pages, setPages] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [pdfProcessing, setPdfProcessing] = useState(false);
 
   // Load book data based on slug or file parameter
   const loadBookData = async () => {
@@ -111,35 +140,109 @@ const BookViewer: React.FC = () => {
     }
   };
 
-  // Convert PDF to images for display
+  // Convert PDF to images for display with enhanced error handling
   const convertPdfToImages = async (pdfUrl: string) => {
+    setPdfProcessing(true);
     try {
-      const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+      console.log('Loading PDF from:', pdfUrl);
+      
+      // Enhanced PDF loading with timeout and better error handling
+      const loadingTask = pdfjsLib.getDocument({
+        url: pdfUrl,
+        cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/cmaps/`,
+        cMapPacked: true,
+        // Disable streaming for better compatibility
+        disableStream: true,
+        // Disable font face rendering for faster loading
+        disableFontFace: false,
+        // Set max image size to prevent memory issues
+        maxImageSize: 1024 * 1024 * 4, // 4MB
+      });
+
+      // Add timeout protection
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('PDF loading timeout after 30 seconds')), 30000);
+      });
+
+      const pdf = await Promise.race([loadingTask.promise, timeoutPromise]) as any;
+      console.log(`PDF loaded successfully. Pages: ${pdf.numPages}`);
+      
       const pageImages: string[] = [];
 
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
-        const scale = 2; // Higher scale for better quality
-        const viewport = page.getViewport({ scale });
+        try {
+          const page = await pdf.getPage(pageNum);
+          const scale = 2; // Higher scale for better quality
+          const viewport = page.getViewport({ scale });
 
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        if (!context) throw new Error('Could not get canvas context');
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          if (!context) throw new Error('Could not get canvas context');
 
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
 
-        await page.render({
-          canvasContext: context,
-          viewport: viewport,
-        }).promise;
+          await page.render({
+            canvasContext: context,
+            viewport: viewport,
+          }).promise;
 
-        pageImages.push(canvas.toDataURL('image/png'));
+          pageImages.push(canvas.toDataURL('image/png'));
+          console.log(`Processed page ${pageNum}/${pdf.numPages}`);
+        } catch (pageError) {
+          console.error(`Error processing page ${pageNum}:`, pageError);
+          // Create a placeholder for failed pages
+          const canvas = document.createElement('canvas');
+          canvas.width = 400;
+          canvas.height = 600;
+          const context = canvas.getContext('2d');
+          if (context) {
+            context.fillStyle = '#f3f4f6';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+            context.fillStyle = '#374151';
+            context.font = '20px Arial';
+            context.textAlign = 'center';
+            context.fillText(`Page ${pageNum}`, canvas.width / 2, canvas.height / 2 - 10);
+            context.fillText('Failed to load', canvas.width / 2, canvas.height / 2 + 20);
+          }
+          pageImages.push(canvas.toDataURL('image/png'));
+        }
       }
 
       return pageImages;
     } catch (err) {
-      throw new Error(`Failed to process PDF: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      console.error('PDF processing error:', err);
+      
+      // Enhanced error messages based on error type
+      let errorMessage = 'Failed to process PDF';
+      if (err instanceof Error) {
+        if (err.message.includes('timeout')) {
+          errorMessage = 'PDF loading timed out. The file might be too large or the connection is slow.';
+        } else if (err.message.includes('InvalidPDFException')) {
+          errorMessage = 'The file is not a valid PDF document.';
+        } else if (err.message.includes('MissingPDFException')) {
+          errorMessage = 'PDF file not found or cannot be accessed.';
+        } else if (err.message.includes('UnexpectedResponseException')) {
+          errorMessage = 'Network error while loading PDF. Please check your connection.';
+        } else if (err.message.includes('worker')) {
+          errorMessage = 'PDF worker configuration error. Trying alternative loading method...';
+          
+          // Attempt to reconfigure worker and retry once
+          try {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '';
+            console.log('Retrying PDF processing without worker...');
+            return await convertPdfToImages(pdfUrl);
+          } catch (retryError) {
+            errorMessage = 'PDF processing failed even with fallback method.';
+          }
+        } else {
+          errorMessage = `PDF processing error: ${err.message}`;
+        }
+      }
+      
+      throw new Error(errorMessage);
+    } finally {
+      setPdfProcessing(false);
     }
   };
 
@@ -185,8 +288,15 @@ const BookViewer: React.FC = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Loading book...</p>
+          <p className="text-lg text-gray-600">
+            {pdfProcessing ? 'Processing PDF pages...' : 'Loading book...'}
+          </p>
           {bookData && <p className="text-sm text-gray-500 mt-2">{bookData.title}</p>}
+          {pdfProcessing && pages.length > 0 && (
+            <p className="text-xs text-gray-400 mt-1">
+              Processed {pages.length} pages...
+            </p>
+          )}
         </div>
       </div>
     );
@@ -197,14 +307,31 @@ const BookViewer: React.FC = () => {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="text-red-500 text-6xl mb-4">📚</div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Book Not Found</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Book Loading Failed</h1>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.history.back()} 
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors"
-          >
-            Go Back
-          </button>
+          <div className="space-y-2">
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors mr-2"
+            >
+              Try Again
+            </button>
+            <button 
+              onClick={() => window.history.back()} 
+              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors"
+            >
+              Go Back
+            </button>
+          </div>
+          <div className="mt-4 text-xs text-gray-400">
+            <details>
+              <summary className="cursor-pointer">Technical Details</summary>
+              <p className="mt-2 text-left">
+                PDF.js version: {pdfjsLib.version}<br/>
+                Worker source: {pdfjsLib.GlobalWorkerOptions.workerSrc || 'Main thread (no worker)'}
+              </p>
+            </details>
+          </div>
         </div>
       </div>
     );
