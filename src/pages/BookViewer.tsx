@@ -13,6 +13,12 @@ interface BookData {
   title: string;
 }
 
+interface PDFDimensions {
+  width: number;
+  height: number;
+  aspectRatio: number;
+}
+
 // Fixed PDF.js worker configuration for v4+ (uses .mjs files)
 const configurePdfWorker = () => {
   if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
@@ -90,6 +96,7 @@ const BookViewer: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [pdfProcessing, setPdfProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
+  const [pdfDimensions, setPdfDimensions] = useState<PDFDimensions | null>(null);
 
   // StPageFlip refs
   const bookRef = useRef<HTMLDivElement>(null);
@@ -199,7 +206,7 @@ const BookViewer: React.FC = () => {
     }
   };
 
-  // Convert PDF to images with enhanced worker fallback
+  // Convert PDF to images with enhanced worker fallback AND dimension capture
   const convertPdfToImages = async (pdfUrl: string): Promise<string[]> => {
     if (!isMountedRef.current) return [];
     
@@ -254,6 +261,7 @@ const BookViewer: React.FC = () => {
         
         const pageImages: string[] = [];
         const totalPages = pdf.numPages;
+        let dimensions: PDFDimensions | null = null;
 
         // Process pages sequentially to avoid memory issues
         for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
@@ -273,6 +281,18 @@ const BookViewer: React.FC = () => {
 
             const scale = 1.5; // Balanced scale for quality vs performance
             const viewport = page.getViewport({ scale });
+
+            // CAPTURE DIMENSIONS FROM FIRST PAGE
+            if (pageNum === 1) {
+              const originalViewport = page.getViewport({ scale: 1.0 });
+              dimensions = {
+                width: originalViewport.width,
+                height: originalViewport.height,
+                aspectRatio: originalViewport.width / originalViewport.height
+              };
+              setPdfDimensions(dimensions);
+              console.log('PDF dimensions captured:', dimensions);
+            }
 
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d');
@@ -381,36 +401,82 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
-  // Initialize StPageFlip for SINGLE PAGE mode
+  // Calculate optimal dimensions for viewport
+  const calculateDimensions = useCallback(() => {
+    if (!pdfDimensions) {
+      // Fallback dimensions
+      return { width: 800, height: 1000, containerWidth: '800px', containerHeight: '70vh' };
+    }
+
+    const { aspectRatio } = pdfDimensions;
+    
+    // Get viewport dimensions (80-90% usage)
+    const viewportWidth = window.innerWidth * 0.85;
+    const viewportHeight = window.innerHeight * 0.8;
+    
+    let optimalWidth, optimalHeight;
+    
+    // Calculate optimal size while maintaining aspect ratio
+    if (aspectRatio > 1) {
+      // Landscape: width-constrained
+      optimalWidth = Math.min(viewportWidth, 1200);
+      optimalHeight = optimalWidth / aspectRatio;
+      
+      // Check if height fits, adjust if needed
+      if (optimalHeight > viewportHeight) {
+        optimalHeight = viewportHeight;
+        optimalWidth = optimalHeight * aspectRatio;
+      }
+    } else {
+      // Portrait: height-constrained
+      optimalHeight = Math.min(viewportHeight, 1000);
+      optimalWidth = optimalHeight * aspectRatio;
+      
+      // Check if width fits, adjust if needed
+      if (optimalWidth > viewportWidth) {
+        optimalWidth = viewportWidth;
+        optimalHeight = optimalWidth / aspectRatio;
+      }
+    }
+
+    return {
+      width: Math.round(optimalWidth),
+      height: Math.round(optimalHeight),
+      containerWidth: `${Math.round(optimalWidth)}px`,
+      containerHeight: `${Math.round(optimalHeight)}px`
+    };
+  }, [pdfDimensions]);
+
+  // Initialize StPageFlip with DYNAMIC sizing
   const initializePageFlip = useCallback(() => {
-    if (!bookRef.current || !pages.length || pageFlipRef.current) {
+    if (!bookRef.current || !pages.length || pageFlipRef.current || !pdfDimensions) {
       return;
     }
 
     try {
-      console.log('Initializing StPageFlip with', pages.length, 'pages (single page mode)');
+      const dimensions = calculateDimensions();
+      console.log('Initializing StPageFlip with dynamic dimensions:', dimensions);
       
       const pageFlip = new PageFlip(bookRef.current, {
-        // SINGLE PAGE CONFIGURATION
-        width: 800,   // Increased width for single page
-        height: 1000, // Increased height for single page
-        size: 'fixed', // Fixed size instead of stretch
-        minWidth: 400,
-        maxWidth: 1200,
-        minHeight: 500,
-        maxHeight: 1400,
+        // DYNAMIC SIZING BASED ON PDF ASPECT RATIO
+        width: dimensions.width,
+        height: dimensions.height,
+        size: 'fixed',
+        minWidth: Math.min(400, dimensions.width),
+        maxWidth: Math.max(1200, dimensions.width),
+        minHeight: Math.min(500, dimensions.height),
+        maxHeight: Math.max(1400, dimensions.height),
         drawShadow: true,
         flippingTime: 800,
-        usePortrait: true,
+        usePortrait: pdfDimensions.aspectRatio < 1,
         startZIndex: 0,
-        autoSize: false, // Disable auto-size for consistent single page
+        autoSize: false,
         maxShadowOpacity: 0.4,
         showCover: false,
         mobileScrollSupport: true,
         swipeDistance: 30,
         clickEventForward: true,
         useMouseEvents: true,
-        // Additional single page settings
         startPage: 0,
         showPageCorners: true,
         disableFlipByClick: false
@@ -454,13 +520,13 @@ const BookViewer: React.FC = () => {
       });
 
       pageFlipRef.current = pageFlip;
-      console.log('StPageFlip initialized successfully in single page mode');
+      console.log('StPageFlip initialized successfully with dynamic sizing');
       
     } catch (error) {
       console.error('Failed to initialize StPageFlip:', error);
       setError('Failed to initialize page flip animation. Please try refreshing the page.');
     }
-  }, [pages]);
+  }, [pages, pdfDimensions, calculateDimensions]);
 
   // NEW: Navigation functions
   const nextPage = useCallback(() => {
@@ -481,16 +547,16 @@ const BookViewer: React.FC = () => {
     }
   }, [pages.length]);
 
-  // Initialize PageFlip when pages are loaded
+  // Initialize PageFlip when pages and dimensions are loaded
   useEffect(() => {
-    if (pages.length > 0) {
+    if (pages.length > 0 && pdfDimensions) {
       const timer = setTimeout(() => {
         initializePageFlip();
       }, 100);
       
       return () => clearTimeout(timer);
     }
-  }, [pages, initializePageFlip]);
+  }, [pages, pdfDimensions, initializePageFlip]);
 
   // Main effect to load and process book
   useEffect(() => {
@@ -591,6 +657,9 @@ const BookViewer: React.FC = () => {
     );
   }
 
+  // Calculate container dimensions
+  const containerDimensions = calculateDimensions();
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -613,9 +682,9 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display with StPageFlip - SINGLE PAGE MODE */}
+      {/* Book Display with DYNAMIC StPageFlip sizing */}
       <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
-        <div className="relative w-full max-w-6xl">
+        <div className="relative">
           {/* Navigation Arrows */}
           <button
             onClick={prevPage}
@@ -635,23 +704,25 @@ const BookViewer: React.FC = () => {
             <ChevronRight size={28} />
           </button>
 
-          {/* StPageFlip Container - SINGLE PAGE, FULL FRAME */}
+          {/* StPageFlip Container - DYNAMICALLY SIZED */}
           <div 
             ref={bookRef}
-            className="relative bg-white shadow-2xl rounded-lg overflow-hidden mx-auto"
+            className="relative bg-white shadow-2xl rounded-lg overflow-hidden"
             style={{ 
-              width: '100%', 
-              maxWidth: '1000px', 
-              minHeight: '70vh',
-              height: 'auto'
+              width: containerDimensions.containerWidth,
+              height: containerDimensions.containerHeight,
+              minWidth: '300px',
+              minHeight: '400px'
             }}
           >
             {/* Fallback content while StPageFlip initializes */}
-            {pages.length > 0 && !pageFlipRef.current && (
-              <div className="w-full h-full flex items-center justify-center" style={{ minHeight: '70vh' }}>
+            {pages.length > 0 && (!pageFlipRef.current || !pdfDimensions) && (
+              <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
-                  <p className="text-sm text-gray-600">Initializing page flip...</p>
+                  <p className="text-sm text-gray-600">
+                    {!pdfDimensions ? 'Analyzing PDF dimensions...' : 'Initializing page flip...'}
+                  </p>
                 </div>
               </div>
             )}
