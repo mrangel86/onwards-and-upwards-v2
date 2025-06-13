@@ -401,45 +401,46 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
-  // Calculate optimal dimensions for viewport with SINGLE-PAGE width limiting
+  // Calculate optimal dimensions for SINGLE-PAGE mode by forcing portrait container
   const calculateDimensions = useCallback(() => {
     if (!pdfDimensions) {
-      // Fallback dimensions
-      return { width: 800, height: 1000, containerWidth: '800px', containerHeight: '70vh' };
+      // Fallback dimensions - ensure height > width for portrait mode
+      return { width: 600, height: 800, containerWidth: '600px', containerHeight: '800px' };
     }
 
     const { aspectRatio } = pdfDimensions;
     
     // Get viewport dimensions
-    const viewportWidth = window.innerWidth;
+    const viewportWidth = window.innerWidth * 0.8;
     const viewportHeight = window.innerHeight * 0.8;
     
     let optimalWidth, optimalHeight;
     
-    // Calculate optimal size while maintaining aspect ratio
     if (aspectRatio > 1) {
-      // Landscape: use conservative width percentage to prevent double-page mode
-      const maxWidthPercentage = 0.6; // 60% instead of 85% for landscape PDFs
-      optimalWidth = Math.min(viewportWidth * maxWidthPercentage, 1200);
-      optimalHeight = optimalWidth / aspectRatio;
+      // Landscape PDF: FORCE portrait container to ensure single-page mode
+      // We want container height > width to trigger StPageFlip's portrait mode
+      const maxWidth = Math.min(viewportWidth * 0.7, 800); // Limit width
+      optimalWidth = maxWidth;
+      optimalHeight = maxWidth * 1.3; // Force height to be 30% taller than width
       
-      // Check if height fits, adjust if needed
+      // Ensure it fits in viewport
       if (optimalHeight > viewportHeight) {
         optimalHeight = viewportHeight;
-        optimalWidth = optimalHeight * aspectRatio;
+        optimalWidth = optimalHeight * 0.75; // Keep width smaller than height
       }
     } else {
-      // Portrait: can use more width since single page is expected
-      const maxWidthPercentage = 0.85; // Keep 85% for portrait PDFs
-      optimalHeight = Math.min(viewportHeight, 1000);
-      optimalWidth = optimalHeight * aspectRatio;
+      // Portrait PDF: Natural portrait container
+      const maxHeight = Math.min(viewportHeight, 900);
+      optimalHeight = maxHeight;
+      optimalWidth = Math.min(optimalHeight * aspectRatio, viewportWidth * 0.8);
       
-      // Check if width fits, adjust if needed
-      if (optimalWidth > viewportWidth * maxWidthPercentage) {
-        optimalWidth = viewportWidth * maxWidthPercentage;
-        optimalHeight = optimalWidth / aspectRatio;
+      // Ensure width < height for portrait mode detection
+      if (optimalWidth >= optimalHeight) {
+        optimalWidth = optimalHeight * 0.9;
       }
     }
+
+    console.log('Container dimensions - Width:', optimalWidth, 'Height:', optimalHeight, 'Ratio:', optimalWidth / optimalHeight);
 
     return {
       width: Math.round(optimalWidth),
@@ -449,7 +450,7 @@ const BookViewer: React.FC = () => {
     };
   }, [pdfDimensions]);
 
-  // Initialize StPageFlip with DYNAMIC sizing
+  // Initialize StPageFlip with FORCED PORTRAIT container
   const initializePageFlip = useCallback(() => {
     if (!bookRef.current || !pages.length || pageFlipRef.current || !pdfDimensions) {
       return;
@@ -457,21 +458,21 @@ const BookViewer: React.FC = () => {
 
     try {
       const dimensions = calculateDimensions();
-      console.log('Initializing StPageFlip with dynamic dimensions:', dimensions);
-      console.log('PDF aspect ratio:', pdfDimensions.aspectRatio, 'usePortrait:', pdfDimensions.aspectRatio < 1);
+      console.log('Initializing StPageFlip with FORCED PORTRAIT dimensions:', dimensions);
+      console.log('PDF aspect ratio:', pdfDimensions.aspectRatio);
       
       const pageFlip = new PageFlip(bookRef.current, {
-        // DYNAMIC SIZING BASED ON PDF ASPECT RATIO
+        // FORCED PORTRAIT CONTAINER DIMENSIONS (height > width)
         width: dimensions.width,
         height: dimensions.height,
         size: 'fixed',
-        minWidth: Math.min(400, dimensions.width),
-        maxWidth: Math.max(1200, dimensions.width),
-        minHeight: Math.min(500, dimensions.height),
-        maxHeight: Math.max(1400, dimensions.height),
+        minWidth: Math.min(300, dimensions.width),
+        maxWidth: Math.max(800, dimensions.width),
+        minHeight: Math.min(400, dimensions.height),
+        maxHeight: Math.max(1000, dimensions.height),
         drawShadow: true,
         flippingTime: 800,
-        usePortrait: pdfDimensions.aspectRatio < 1, // Keep original orientation logic
+        usePortrait: true, // Always enable portrait mode
         startZIndex: 0,
         autoSize: false,
         maxShadowOpacity: 0.4,
@@ -522,8 +523,12 @@ const BookViewer: React.FC = () => {
         console.log('PageFlip state changed:', e.data);
       });
 
+      pageFlip.on('init', (e) => {
+        console.log('StPageFlip initialized in mode:', e.data.mode);
+      });
+
       pageFlipRef.current = pageFlip;
-      console.log('StPageFlip initialized successfully with dynamic sizing');
+      console.log('StPageFlip initialized successfully with forced portrait container');
       
     } catch (error) {
       console.error('Failed to initialize StPageFlip:', error);
@@ -685,7 +690,7 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display with DYNAMIC StPageFlip sizing */}
+      {/* Book Display with FORCED PORTRAIT container */}
       <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
         <div className="relative">
           {/* Navigation Arrows */}
@@ -707,7 +712,7 @@ const BookViewer: React.FC = () => {
             <ChevronRight size={28} />
           </button>
 
-          {/* StPageFlip Container - DYNAMICALLY SIZED */}
+          {/* StPageFlip Container - FORCED PORTRAIT (height > width) */}
           <div 
             ref={bookRef}
             className="relative bg-white shadow-2xl rounded-lg overflow-hidden"
@@ -724,7 +729,7 @@ const BookViewer: React.FC = () => {
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
                   <p className="text-sm text-gray-600">
-                    {!pdfDimensions ? 'Analyzing PDF dimensions...' : 'Initializing page flip...'}
+                    {!pdfDimensions ? 'Analyzing PDF dimensions...' : 'Initializing single-page mode...'}
                   </p>
                 </div>
               </div>
