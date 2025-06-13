@@ -11,32 +11,32 @@ interface PreviewBannerProps {
 const PreviewBanner: React.FC<PreviewBannerProps> = ({ type, slug, buildVersion, cacheBuster }) => {
   const bannerConfig = {
     loading: {
-      bgColor: 'bg-blue-50 border-blue-200 text-blue-800',
+      bgColor: 'bg-red-50 border-red-200 text-red-800',
       icon: '👁️',
-      title: 'Preview Mode v3.0 NEW DEPLOYMENT',
+      title: 'Preview Mode v3.0: this is a preview of your post before publishing',
       message: 'Loading...',
-      details: `Fresh Build | Cache: ${cacheBuster}`
+      details: `Build: ${buildVersion} | Cache: ${cacheBuster}`
     },
     error: {
       bgColor: 'bg-red-50 border-red-200 text-red-800',
       icon: '❌',
-      title: 'Preview Error v3.0 NEW DEPLOYMENT',
-      message: '',
-      details: `Build: ${buildVersion} | Fresh deployment | Cache: ${cacheBuster}`
+      title: 'Preview Error v3.0',
+      message: 'Error loading preview',
+      details: `Build: ${buildVersion} | Cache: ${cacheBuster}`
     },
     'not-found': {
-      bgColor: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+      bgColor: 'bg-red-50 border-red-200 text-red-800',
       icon: '⚠️',
-      title: 'No Preview Found v3.0 NEW DEPLOYMENT',
-      message: '',
-      details: `Build: ${buildVersion} | Fresh deployment | Cache: ${cacheBuster}`
+      title: 'No Preview Found v3.0',
+      message: 'Preview not found',
+      details: `Build: ${buildVersion} | Cache: ${cacheBuster}`
     },
     success: {
-      bgColor: 'bg-green-50 border-green-200 text-green-800',
+      bgColor: 'bg-red-50 border-red-200 text-red-800',
       icon: '👁️',
-      title: 'Preview Mode v3.0 NEW DEPLOYMENT',
-      message: `Post Found! • ${slug ? `${slug}` : ''}`,
-      details: `✅ NEW DEPLOYMENT SUCCESSFUL • Build: ${buildVersion} • Using 'slug' field (NOT preview_slug)`
+      title: 'Preview Mode v3.0: this is a preview of your post before publishing',
+      message: `Preview loaded successfully • ${slug ? `${slug}` : ''}`,
+      details: `✅ Using preview_posts table with 'slug' field | Build: ${buildVersion}`
     }
   };
 
@@ -46,9 +46,9 @@ const PreviewBanner: React.FC<PreviewBannerProps> = ({ type, slug, buildVersion,
     <div className={`${config.bgColor} border-b p-3 text-center`}>
       <p>
         {config.icon} <strong>{config.title}</strong>
-        {config.message && ` — ${config.message}`}
+        {config.message && type !== 'success' && ` — ${config.message}`}
         {slug && type === 'success' && (
-          <code className="ml-2 bg-green-100 px-2 py-1 rounded text-sm">{slug}</code>
+          <code className="ml-2 bg-red-100 px-2 py-1 rounded text-sm">{slug}</code>
         )}
       </p>
       <p className="text-xs mt-1">
