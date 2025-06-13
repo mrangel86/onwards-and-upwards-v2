@@ -401,78 +401,58 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
-  // Calculate optimal dimensions for SINGLE-PAGE mode by forcing portrait container
+  // Calculate dimensions for LANDSCAPE single-page mode
   const calculateDimensions = useCallback(() => {
-    if (!pdfDimensions) {
-      // Fallback dimensions - ensure height > width for portrait mode
-      return { width: 600, height: 800, containerWidth: '600px', containerHeight: '800px' };
-    }
-
-    const { aspectRatio } = pdfDimensions;
-    
     // Get viewport dimensions
-    const viewportWidth = window.innerWidth * 0.8;
-    const viewportHeight = window.innerHeight * 0.8;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight * 0.85; // Leave some space for header
     
-    let optimalWidth, optimalHeight;
+    // Create landscape container (width > height) but limit width to prevent double-page
+    // Use 16:10 aspect ratio which works well for landscape books
+    const maxWidth = Math.min(viewportWidth * 0.65, 1000); // Limit to 65% width
+    const containerHeight = maxWidth * 0.625; // 16:10 aspect ratio (10/16 = 0.625)
     
-    if (aspectRatio > 1) {
-      // Landscape PDF: FORCE portrait container to ensure single-page mode
-      // We want container height > width to trigger StPageFlip's portrait mode
-      const maxWidth = Math.min(viewportWidth * 0.7, 800); // Limit width
-      optimalWidth = maxWidth;
-      optimalHeight = maxWidth * 1.3; // Force height to be 30% taller than width
-      
-      // Ensure it fits in viewport
-      if (optimalHeight > viewportHeight) {
-        optimalHeight = viewportHeight;
-        optimalWidth = optimalHeight * 0.75; // Keep width smaller than height
-      }
-    } else {
-      // Portrait PDF: Natural portrait container
-      const maxHeight = Math.min(viewportHeight, 900);
-      optimalHeight = maxHeight;
-      optimalWidth = Math.min(optimalHeight * aspectRatio, viewportWidth * 0.8);
-      
-      // Ensure width < height for portrait mode detection
-      if (optimalWidth >= optimalHeight) {
-        optimalWidth = optimalHeight * 0.9;
-      }
+    // Ensure it fits in viewport height
+    let finalWidth = maxWidth;
+    let finalHeight = containerHeight;
+    
+    if (containerHeight > viewportHeight) {
+      finalHeight = viewportHeight;
+      finalWidth = finalHeight * 1.6; // Maintain 16:10 ratio
     }
 
-    console.log('Container dimensions - Width:', optimalWidth, 'Height:', optimalHeight, 'Ratio:', optimalWidth / optimalHeight);
+    console.log('Landscape container dimensions - Width:', finalWidth, 'Height:', finalHeight, 'Ratio:', finalWidth / finalHeight);
 
     return {
-      width: Math.round(optimalWidth),
-      height: Math.round(optimalHeight),
-      containerWidth: `${Math.round(optimalWidth)}px`,
-      containerHeight: `${Math.round(optimalHeight)}px`
+      width: Math.round(finalWidth),
+      height: Math.round(finalHeight),
+      containerWidth: `${Math.round(finalWidth)}px`,
+      containerHeight: `${Math.round(finalHeight)}px`
     };
-  }, [pdfDimensions]);
+  }, []);
 
-  // Initialize StPageFlip with FORCED PORTRAIT container
+  // Initialize StPageFlip for LANDSCAPE single-page mode
   const initializePageFlip = useCallback(() => {
-    if (!bookRef.current || !pages.length || pageFlipRef.current || !pdfDimensions) {
+    if (!bookRef.current || !pages.length || pageFlipRef.current) {
       return;
     }
 
     try {
       const dimensions = calculateDimensions();
-      console.log('Initializing StPageFlip with FORCED PORTRAIT dimensions:', dimensions);
-      console.log('PDF aspect ratio:', pdfDimensions.aspectRatio);
+      console.log('Initializing StPageFlip for LANDSCAPE single-page mode:', dimensions);
       
       const pageFlip = new PageFlip(bookRef.current, {
-        // FORCED PORTRAIT CONTAINER DIMENSIONS (height > width)
+        // LANDSCAPE CONTAINER DIMENSIONS (width > height)
         width: dimensions.width,
         height: dimensions.height,
         size: 'fixed',
-        minWidth: Math.min(300, dimensions.width),
-        maxWidth: Math.max(800, dimensions.width),
-        minHeight: Math.min(400, dimensions.height),
-        maxHeight: Math.max(1000, dimensions.height),
+        minWidth: Math.min(400, dimensions.width),
+        maxWidth: Math.max(1000, dimensions.width),
+        minHeight: Math.min(250, dimensions.height),
+        maxHeight: Math.max(700, dimensions.height),
         drawShadow: true,
         flippingTime: 800,
-        usePortrait: true, // Always enable portrait mode
+        usePortrait: false, // LANDSCAPE MODE for single pages
         startZIndex: 0,
         autoSize: false,
         maxShadowOpacity: 0.4,
@@ -528,15 +508,15 @@ const BookViewer: React.FC = () => {
       });
 
       pageFlipRef.current = pageFlip;
-      console.log('StPageFlip initialized successfully with forced portrait container');
+      console.log('StPageFlip initialized successfully for landscape single-page mode');
       
     } catch (error) {
       console.error('Failed to initialize StPageFlip:', error);
       setError('Failed to initialize page flip animation. Please try refreshing the page.');
     }
-  }, [pages, pdfDimensions, calculateDimensions]);
+  }, [pages, calculateDimensions]);
 
-  // NEW: Navigation functions
+  // Navigation functions
   const nextPage = useCallback(() => {
     if (pageFlipRef.current) {
       pageFlipRef.current.flipNext();
@@ -555,16 +535,16 @@ const BookViewer: React.FC = () => {
     }
   }, [pages.length]);
 
-  // Initialize PageFlip when pages and dimensions are loaded
+  // Initialize PageFlip when pages are loaded
   useEffect(() => {
-    if (pages.length > 0 && pdfDimensions) {
+    if (pages.length > 0) {
       const timer = setTimeout(() => {
         initializePageFlip();
       }, 100);
       
       return () => clearTimeout(timer);
     }
-  }, [pages, pdfDimensions, initializePageFlip]);
+  }, [pages, initializePageFlip]);
 
   // Main effect to load and process book
   useEffect(() => {
@@ -690,7 +670,7 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display with FORCED PORTRAIT container */}
+      {/* Book Display - LANDSCAPE single-page container */}
       <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
         <div className="relative">
           {/* Navigation Arrows */}
@@ -712,24 +692,24 @@ const BookViewer: React.FC = () => {
             <ChevronRight size={28} />
           </button>
 
-          {/* StPageFlip Container - FORCED PORTRAIT (height > width) */}
+          {/* StPageFlip Container - LANDSCAPE (width > height) */}
           <div 
             ref={bookRef}
             className="relative bg-white shadow-2xl rounded-lg overflow-hidden"
             style={{ 
               width: containerDimensions.containerWidth,
               height: containerDimensions.containerHeight,
-              minWidth: '300px',
-              minHeight: '400px'
+              minWidth: '400px',
+              minHeight: '250px'
             }}
           >
             {/* Fallback content while StPageFlip initializes */}
-            {pages.length > 0 && (!pageFlipRef.current || !pdfDimensions) && (
+            {pages.length > 0 && !pageFlipRef.current && (
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
                   <p className="text-sm text-gray-600">
-                    {!pdfDimensions ? 'Analyzing PDF dimensions...' : 'Initializing single-page mode...'}
+                    Initializing landscape single-page mode...
                   </p>
                 </div>
               </div>
@@ -758,7 +738,7 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Updated Instructions */}
+      {/* Instructions */}
       <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-75 text-white px-4 py-2 rounded-lg text-sm">
         Click page corners, use arrows, or swipe to turn pages
       </div>
