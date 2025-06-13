@@ -682,7 +682,7 @@ const BookViewer: React.FC = () => {
       )}
 
       {/* Book Display - FORCED single-page mode */}
-      <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
+      <div className="flex items-center justify-center py-8" style={{ height: 'calc(100vh - 120px)' }}>
         <div className="relative">
           {/* Navigation Arrows */}
           <button
