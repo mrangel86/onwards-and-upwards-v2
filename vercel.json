@@ -3,6 +3,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
+      "source": "/preview-posts/(.*)",
+      "destination": "/index.html"
+    },
+    {
       "source": "/preview/(.*)",
       "destination": "/index.html"
     },

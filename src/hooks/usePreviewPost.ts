@@ -17,40 +17,40 @@ export const usePreviewPost = (slug: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>({});
   
-  // COMPLETE REWRITE: v6.0 - Fix slug extraction and force correct field usage
-  const BUILD_VERSION = 'v6.0-COMPLETE-REWRITE-' + new Date().toISOString();
+  // PREVIEW SYSTEM v2.0 - Clean preview_posts table and new route
+  const BUILD_VERSION = 'v2.0-PREVIEW-SYSTEM-V2-' + new Date().toISOString();
   const DEPLOYMENT_TIME = new Date().toISOString();
-  const CACHE_BUSTER = 'complete-rewrite-' + Math.random().toString(36).substr(2, 9);
+  const CACHE_BUSTER = 'preview-system-v2-' + Math.random().toString(36).substr(2, 9);
   const SUPABASE_URL = 'https://zrtgkvpbptxueetuqlmb.supabase.co';
 
   const [deploymentInfo] = useState<DeploymentInfo>({
     buildVersion: BUILD_VERSION,
     deploymentTime: DEPLOYMENT_TIME,
     cacheKey: CACHE_BUSTER,
-    commitHash: 'complete-rewrite-' + Date.now(),
+    commitHash: 'preview-system-v2-' + Date.now(),
     compiledAt: new Date().toISOString(),
     forceDeployed: true
   });
 
   useEffect(() => {
     const fetchPreview = async () => {
-      console.log('🚀 BlogPreview v6.0 COMPLETE REWRITE: Starting fetch');
+      console.log('🚀 PREVIEW SYSTEM v2.0: Starting fetch from preview_posts table');
       console.log('📦 Raw slug parameter received:', slug);
       console.log('🔧 Current URL:', window.location.href);
       console.log('🎯 URL pathname:', window.location.pathname);
       
-      // Extract slug from URL path if the parameter is still :slug
+      // Extract slug from URL path if the parameter is still :slug (now checking for preview-posts)
       let actualSlug = slug;
       if (!slug || slug === ':slug' || slug === 'undefined') {
         const pathParts = window.location.pathname.split('/');
-        const previewIndex = pathParts.indexOf('preview');
+        const previewIndex = pathParts.indexOf('preview-posts');
         if (previewIndex !== -1 && pathParts[previewIndex + 1]) {
           actualSlug = pathParts[previewIndex + 1];
         }
       }
       
       console.log('✅ Final extracted slug:', actualSlug);
-      console.log('🔧 COMPLETE REWRITE: Using ONLY slug field, NEVER preview_slug');
+      console.log('🔧 PREVIEW SYSTEM v2.0: Using preview_posts table');
       
       setDebugInfo(prev => ({ 
         ...prev, 
@@ -59,8 +59,9 @@ export const usePreviewPost = (slug: string | undefined) => {
         startTime: new Date().toISOString(),
         deploymentInfo: deploymentInfo,
         fieldUsed: 'slug',
-        fieldNeverUsed: 'preview_slug',
-        completeRewrite: true
+        tableUsed: 'preview_posts',
+        oldTable: 'post_previews',
+        previewSystemVersion: 'v2.0'
       }));
 
       if (!actualSlug || actualSlug === ':slug') {
@@ -71,39 +72,40 @@ export const usePreviewPost = (slug: string | undefined) => {
       }
 
       try {
-        console.log('🔗 COMPLETE REWRITE: Using ONLY the slug field');
-        console.log('🎯 Query: post_previews WHERE slug =', actualSlug);
-        console.log('⚡ EXECUTING QUERY WITH SLUG FIELD ONLY');
+        console.log('🔗 PREVIEW SYSTEM v2.0: Using preview_posts table');
+        console.log('🎯 Query: preview_posts WHERE slug =', actualSlug);
+        console.log('⚡ EXECUTING QUERY ON CLEAN TABLE');
         
-        // Force use of slug field only - complete rewrite
+        // Use new preview_posts table
         const { data: primaryData, error: primaryError, count } = await supabase
-          .from('post_previews')
+          .from('preview_posts')
           .select('*', { count: 'exact' })
           .eq('slug', actualSlug);
 
-        console.log('📊 Query Result (COMPLETE REWRITE):', { 
+        console.log('📊 Query Result (PREVIEW SYSTEM v2.0):', { 
           data: primaryData, 
           error: primaryError, 
           count,
           dataLength: primaryData?.length,
           actualSlugUsed: actualSlug,
-          queryField: 'slug'
+          queryField: 'slug',
+          tableUsed: 'preview_posts'
         });
 
         let finalData = primaryData;
         let finalError = primaryError;
-        let queryUsed = `slug = '${actualSlug}'`;
+        let queryUsed = `slug = '${actualSlug}' FROM preview_posts`;
 
         // Fallback: Get all previews to see what's available
         if (primaryError || !primaryData || primaryData.length === 0) {
           console.log('🔄 Primary query unsuccessful, trying fallback...');
           
           const { data: allPreviews, error: allError } = await supabase
-            .from('post_previews')
+            .from('preview_posts')
             .select('slug, title, id')
             .limit(10);
 
-          console.log('📋 All available previews:', allPreviews);
+          console.log('📋 All available previews in preview_posts:', allPreviews);
 
           if (allPreviews && allPreviews.length > 0) {
             const exactMatch = allPreviews.find(p => p.slug === actualSlug);
@@ -116,7 +118,7 @@ export const usePreviewPost = (slug: string | undefined) => {
               console.log('✅ Found match, fetching for slug:', matchedSlug);
               
               const { data: matchedData, error: matchedError } = await supabase
-                .from('post_previews')
+                .from('preview_posts')
                 .select('*')
                 .eq('slug', matchedSlug)
                 .single();
@@ -124,7 +126,7 @@ export const usePreviewPost = (slug: string | undefined) => {
               if (matchedData && !matchedError) {
                 finalData = [matchedData];
                 finalError = null;
-                queryUsed = `Found match: '${matchedSlug}'`;
+                queryUsed = `Found match: '${matchedSlug}' FROM preview_posts`;
               }
             }
           }
@@ -139,12 +141,13 @@ export const usePreviewPost = (slug: string | undefined) => {
         const debugData = {
           queryAttempted: queryUsed,
           fieldUsed: 'slug',
-          fieldNeverUsed: 'preview_slug',
+          tableUsed: 'preview_posts',
+          oldTable: 'post_previews',
           error: finalError,
           dataReceived: finalData,
           dataCount: finalData?.length || 0,
           totalCount: count,
-          completeRewrite: true,
+          previewSystemVersion: 'v2.0',
           buildVersion: BUILD_VERSION,
           supabaseUrl: SUPABASE_URL,
           actualSlugProcessed: actualSlug
@@ -153,14 +156,14 @@ export const usePreviewPost = (slug: string | undefined) => {
         setDebugInfo(prev => ({ ...prev, ...debugData }));
 
         if (finalError) {
-          console.error('❌ Supabase error (COMPLETE REWRITE):', finalError);
+          console.error('❌ Supabase error (PREVIEW SYSTEM v2.0):', finalError);
           setError(`Database Error: ${finalError.message || 'Unknown error'}`);
           setLoading(false);
           return;
         }
 
         if (finalData && finalData.length > 0) {
-          console.log('✅ Found post (COMPLETE REWRITE):', finalData[0]);
+          console.log('✅ Found post (PREVIEW SYSTEM v2.0):', finalData[0]);
           setPost(finalData[0]);
         } else {
           console.log('⚠️ No posts found for slug:', actualSlug);
@@ -168,9 +171,9 @@ export const usePreviewPost = (slug: string | undefined) => {
         }
 
       } catch (err: any) {
-        console.error('💥 Complete rewrite error:', err);
+        console.error('💥 Preview System v2.0 error:', err);
         setError(`Error: ${err.message || 'Unknown error'}`);
-        setDebugInfo(prev => ({ ...prev, completeRewriteError: err }));
+        setDebugInfo(prev => ({ ...prev, previewSystemV2Error: err }));
       } finally {
         setLoading(false);
       }
