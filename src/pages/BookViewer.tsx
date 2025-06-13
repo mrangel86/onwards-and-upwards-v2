@@ -401,16 +401,16 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
-  // Calculate dimensions for LANDSCAPE single-page mode
+  // Calculate dimensions for SINGLE-PAGE landscape mode - MUCH NARROWER
   const calculateDimensions = useCallback(() => {
     // Get viewport dimensions
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight * 0.85; // Leave some space for header
     
-    // Create landscape container (width > height) but limit width to prevent double-page
-    // Use 16:10 aspect ratio which works well for landscape books
-    const maxWidth = Math.min(viewportWidth * 0.65, 1000); // Limit to 65% width
-    const containerHeight = maxWidth * 0.625; // 16:10 aspect ratio (10/16 = 0.625)
+    // AGGRESSIVE width limitation to force single-page mode
+    // Make it barely wider than tall to trigger landscape but prevent double-page
+    const maxWidth = Math.min(viewportWidth * 0.45, 700); // MUCH NARROWER - 45% instead of 65%
+    const containerHeight = maxWidth * 0.65; // Closer to square but still landscape
     
     // Ensure it fits in viewport height
     let finalWidth = maxWidth;
@@ -418,10 +418,10 @@ const BookViewer: React.FC = () => {
     
     if (containerHeight > viewportHeight) {
       finalHeight = viewportHeight;
-      finalWidth = finalHeight * 1.6; // Maintain 16:10 ratio
+      finalWidth = finalHeight * 1.4; // Maintain slight landscape ratio
     }
 
-    console.log('Landscape container dimensions - Width:', finalWidth, 'Height:', finalHeight, 'Ratio:', finalWidth / finalHeight);
+    console.log('NARROW Landscape container - Width:', finalWidth, 'Height:', finalHeight, 'Ratio:', finalWidth / finalHeight);
 
     return {
       width: Math.round(finalWidth),
@@ -431,7 +431,7 @@ const BookViewer: React.FC = () => {
     };
   }, []);
 
-  // Initialize StPageFlip for LANDSCAPE single-page mode
+  // Initialize StPageFlip for SINGLE-PAGE landscape mode
   const initializePageFlip = useCallback(() => {
     if (!bookRef.current || !pages.length || pageFlipRef.current) {
       return;
@@ -439,20 +439,20 @@ const BookViewer: React.FC = () => {
 
     try {
       const dimensions = calculateDimensions();
-      console.log('Initializing StPageFlip for LANDSCAPE single-page mode:', dimensions);
+      console.log('Initializing StPageFlip with NARROW landscape container:', dimensions);
       
       const pageFlip = new PageFlip(bookRef.current, {
-        // LANDSCAPE CONTAINER DIMENSIONS (width > height)
+        // VERY NARROW LANDSCAPE CONTAINER
         width: dimensions.width,
         height: dimensions.height,
         size: 'fixed',
-        minWidth: Math.min(400, dimensions.width),
-        maxWidth: Math.max(1000, dimensions.width),
-        minHeight: Math.min(250, dimensions.height),
-        maxHeight: Math.max(700, dimensions.height),
+        minWidth: Math.min(300, dimensions.width),
+        maxWidth: Math.max(700, dimensions.width),
+        minHeight: Math.min(200, dimensions.height),
+        maxHeight: Math.max(500, dimensions.height),
         drawShadow: true,
         flippingTime: 800,
-        usePortrait: false, // LANDSCAPE MODE for single pages
+        usePortrait: false, // LANDSCAPE MODE
         startZIndex: 0,
         autoSize: false,
         maxShadowOpacity: 0.4,
@@ -508,7 +508,7 @@ const BookViewer: React.FC = () => {
       });
 
       pageFlipRef.current = pageFlip;
-      console.log('StPageFlip initialized successfully for landscape single-page mode');
+      console.log('StPageFlip initialized successfully - should be single-page landscape mode');
       
     } catch (error) {
       console.error('Failed to initialize StPageFlip:', error);
@@ -670,7 +670,7 @@ const BookViewer: React.FC = () => {
         </div>
       )}
 
-      {/* Book Display - LANDSCAPE single-page container */}
+      {/* Book Display - NARROW landscape container to force single-page */}
       <div className="flex items-center justify-center p-4" style={{ minHeight: 'calc(100vh - 120px)' }}>
         <div className="relative">
           {/* Navigation Arrows */}
@@ -692,24 +692,24 @@ const BookViewer: React.FC = () => {
             <ChevronRight size={28} />
           </button>
 
-          {/* StPageFlip Container - LANDSCAPE (width > height) */}
+          {/* StPageFlip Container - NARROW landscape to force single-page */}
           <div 
             ref={bookRef}
             className="relative bg-white shadow-2xl rounded-lg overflow-hidden"
             style={{ 
               width: containerDimensions.containerWidth,
               height: containerDimensions.containerHeight,
-              minWidth: '400px',
-              minHeight: '250px'
+              minWidth: '300px',
+              minHeight: '200px'
             }}
           >
-            {/* Fallback content while StPageFlip initializes */}
+            {/* Fallback content while StPageFlip initializes - FIXED TEXT */}
             {pages.length > 0 && !pageFlipRef.current && (
               <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center">
+                <div className="text-center px-4">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto mb-2"></div>
                   <p className="text-sm text-gray-600">
-                    Initializing landscape single-page mode...
+                    Initializing book viewer...
                   </p>
                 </div>
               </div>
