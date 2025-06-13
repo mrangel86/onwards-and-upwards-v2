@@ -8,26 +8,25 @@ import DebugInfo from "@/components/preview/DebugInfo";
 import PreviewContent from "@/components/preview/PreviewContent";
 import { usePreviewPost } from "@/hooks/usePreviewPost";
 
-// Force deployment marker: BlogPreview enhanced debugging v4.2 - 2025-06-13T11:30:00Z
-// ENHANCED: Better debugging and slug matching for deployment diagnosis
+// FINAL FIX deployment marker: BlogPreview v5.0 - 2025-06-13T11:45:00Z
+// FINAL: Proper slug parameter extraction and correct field usage
 
 const BlogPreview = () => {
-  const { slug } = useParams<{ slug: string }>();
-  const { loading, post, error, debugInfo, buildVersion, cacheBuster } = usePreviewPost(slug);
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
+  
+  console.log('🚀 BlogPreview v5.0 FINAL component mounted');
+  console.log('📍 Current URL:', window.location.href);
+  console.log('🎯 URL params:', params);
+  console.log('🎯 Extracted slug:', slug);
+  console.log('✅ Component loaded - calling usePreviewPost with slug:', slug);
 
-  // Add console logs to help debug routing issues
-  React.useEffect(() => {
-    console.log('🚀 BlogPreview v4.2 component mounted - ENHANCED DEBUGGING');
-    console.log('📍 Current URL:', window.location.href);
-    console.log('🎯 Slug parameter:', slug);
-    console.log('✅ Component successfully loaded - routing is working!');
-    console.log('🔧 About to call usePreviewPost with enhanced debugging...');
-  }, [slug]);
+  const { loading, post, error, debugInfo, buildVersion, cacheBuster } = usePreviewPost(slug);
 
   // Log when loading/error states change
   React.useEffect(() => {
-    console.log('📊 BlogPreview state update:', { loading, hasPost: !!post, error });
-  }, [loading, post, error]);
+    console.log('📊 BlogPreview state update:', { loading, hasPost: !!post, error, slug });
+  }, [loading, post, error, slug]);
 
   if (loading) {
     return (
@@ -43,8 +42,8 @@ const BlogPreview = () => {
           <div className="text-center">
             <p className="text-lg">Loading preview...</p>
             <p className="text-sm text-gray-500 mt-2">Slug: <code>{slug}</code></p>
-            <p className="text-xs text-blue-500 mt-1">✅ ROUTING WORKS - Enhanced debugging v4.2</p>
-            <p className="text-xs text-green-600 mt-1">🔧 Checking multiple query patterns...</p>
+            <p className="text-xs text-blue-500 mt-1">✅ FINAL FIX v5.0 - Proper slug extraction</p>
+            <p className="text-xs text-green-600 mt-1">🔧 Using correct 'slug' field only</p>
             <div className="mt-4 animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
             </div>
@@ -69,17 +68,18 @@ const BlogPreview = () => {
             <h1 className="text-2xl font-bold text-red-600 mb-4">Preview Error</h1>
             <p className="text-gray-600 mb-4">Failed to load preview for: <code>{slug}</code></p>
             <p className="text-red-500 mb-4 text-sm bg-red-50 p-4 rounded">{error}</p>
-            <p className="text-green-600 mb-4">✅ GOOD NEWS: Routing works! The 404 is fixed.</p>
+            <p className="text-green-600 mb-4">✅ FINAL FIX: Routing works! Using correct field.</p>
             <p className="text-sm text-gray-500 mb-8">This error is likely a database/data issue, not a routing issue.</p>
             
             <div className="mb-8 text-left">
-              <h3 className="font-bold mb-2">🔧 Enhanced Debugging (v4.2):</h3>
+              <h3 className="font-bold mb-2">🔧 FINAL FIX Debugging (v5.0):</h3>
               <ul className="text-sm space-y-1 text-gray-600">
                 <li>1. ✅ Routing is working perfectly</li>
                 <li>2. ✅ React component loads correctly</li>
                 <li>3. ✅ Supabase connection is established</li>
-                <li>4. ❌ Slug <code>{slug}</code> not found in post_previews table</li>
-                <li>5. 🔍 Check available slugs in debug info below</li>
+                <li>4. ✅ Using correct 'slug' field (NOT preview_slug)</li>
+                <li>5. ❌ Slug <code>{slug}</code> not found in post_previews table</li>
+                <li>6. 🔍 Check available slugs in debug info below</li>
               </ul>
             </div>
 
@@ -122,7 +122,7 @@ const BlogPreview = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Preview Not Found</h1>
             <p className="text-gray-600 mb-4">No preview exists for: <code>{slug}</code></p>
-            <p className="text-green-600 mb-4">✅ ROUTING FIXED: No more 404 errors!</p>
+            <p className="text-green-600 mb-4">✅ FINAL FIX: Using correct field!</p>
             <p className="text-sm text-gray-500 mb-4">Make sure the post is synced to the preview system.</p>
             
             <div className="bg-yellow-50 p-4 rounded text-sm text-left mb-4">

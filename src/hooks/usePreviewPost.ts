@@ -17,88 +17,85 @@ export const usePreviewPost = (slug: string | undefined) => {
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>({});
   
-  // FORCE NEW DEPLOYMENT: Complete rebuild with correct slug field
-  const BUILD_VERSION = 'v4.4-FORCE-SLUG-FIX-' + new Date().toISOString();
+  // FINAL FIX: Complete rebuild with proper slug handling
+  const BUILD_VERSION = 'v5.0-FINAL-SLUG-FIX-' + new Date().toISOString();
   const DEPLOYMENT_TIME = new Date().toISOString();
-  const CACHE_BUSTER = 'force-slug-' + Math.random().toString(36).substr(2, 9);
+  const CACHE_BUSTER = 'final-slug-fix-' + Math.random().toString(36).substr(2, 9);
   const SUPABASE_URL = 'https://zrtgkvpbptxueetuqlmb.supabase.co';
 
   const [deploymentInfo] = useState<DeploymentInfo>({
     buildVersion: BUILD_VERSION,
     deploymentTime: DEPLOYMENT_TIME,
     cacheKey: CACHE_BUSTER,
-    commitHash: 'force-slug-fix-' + Date.now(),
+    commitHash: 'final-slug-fix-' + Date.now(),
     compiledAt: new Date().toISOString(),
     forceDeployed: true
   });
 
   useEffect(() => {
     const fetchPreview = async () => {
-      console.log('🚀 BlogPreview v4.4 FORCE SLUG FIX: Starting fetch for slug:', slug);
-      console.log('📦 NEW Deployment Info:', deploymentInfo);
-      console.log('🔧 FORCING correct field usage - NO MORE preview_slug!');
+      console.log('🚀 BlogPreview v5.0 FINAL SLUG FIX: Starting fetch for slug:', slug);
+      console.log('📦 FINAL Deployment Info:', deploymentInfo);
+      console.log('🔧 FINAL FIX: Using correct slug field only');
       
       setDebugInfo(prev => ({ 
         ...prev, 
         slug, 
         startTime: new Date().toISOString(),
         deploymentInfo: deploymentInfo,
-        forcedFieldName: 'slug',
-        bannedFieldName: 'preview_slug'
+        fieldUsed: 'slug',
+        fieldNeverUsed: 'preview_slug'
       }));
 
-      if (!slug) {
-        console.log('❌ No slug provided to usePreviewPost');
-        setError('No slug provided');
+      if (!slug || slug === ':slug') {
+        console.log('❌ Invalid slug provided to usePreviewPost:', slug);
+        setError('Invalid slug provided');
         setLoading(false);
         return;
       }
 
       try {
-        console.log('🔗 FORCE FIX: Using ONLY the slug field, NEVER preview_slug');
-        console.log('🎯 FORCED Query: post_previews WHERE slug =', slug);
+        console.log('🔗 FINAL FIX: Using ONLY the slug field');
+        console.log('🎯 Query: post_previews WHERE slug =', slug);
         console.log('📊 Supabase URL:', SUPABASE_URL);
         
-        // COMPLETELY NEW QUERY - force using slug field
+        // Primary query using only the slug field
         console.log('⚡ EXECUTING: supabase.from("post_previews").select("*").eq("slug", "' + slug + '")');
         
-        const queryResult = await supabase
+        const { data: primaryData, error: primaryError, count } = await supabase
           .from('post_previews')
           .select('*', { count: 'exact' })
           .eq('slug', slug);
 
-        const { data: primaryData, error: primaryError, count } = queryResult;
-
-        console.log('📊 FORCED Query Result:', { 
+        console.log('📊 Query Result:', { 
           data: primaryData, 
           error: primaryError, 
           count,
           dataLength: primaryData?.length,
           supabaseUrl: SUPABASE_URL,
           queryUsed: `slug = '${slug}'`,
-          fieldUsed: 'slug',
-          fieldNOTUsed: 'preview_slug'
+          fieldUsed: 'slug'
         });
 
         let finalData = primaryData;
         let finalError = primaryError;
-        let queryUsed = `FORCED: slug = '${slug}' (NOT preview_slug)`;
+        let queryUsed = `slug = '${slug}'`;
 
-        // If primary query fails or returns no results, try alternative approaches
+        // If primary query fails or returns no results, try fallback queries
         if (primaryError || !primaryData || primaryData.length === 0) {
           console.log('🔄 Primary query unsuccessful, trying fallback queries...');
           
-          // Fallback 1: Get all previews to see what's available
+          // Fallback: Get all previews to see what's available
           const { data: allPreviews, error: allError } = await supabase
             .from('post_previews')
             .select('slug, title, id')
             .limit(10);
 
           console.log('📋 All available previews:', allPreviews);
-          console.log('🔍 Looking for slug containing:', slug);
+          console.log('🔍 Looking for slug matching:', slug);
 
           if (allPreviews && allPreviews.length > 0) {
-            // Try to find a matching slug with case-insensitive search
+            // Try to find a matching slug
             const exactMatch = allPreviews.find(p => p.slug === slug);
             const caseInsensitiveMatch = allPreviews.find(p => 
               p.slug.toLowerCase() === slug.toLowerCase()
@@ -127,7 +124,7 @@ export const usePreviewPost = (slug: string | undefined) => {
               if (matchedData && !matchedError) {
                 finalData = [matchedData];
                 finalError = null;
-                queryUsed = `Found via slug matching: '${matchedSlug}' (FORCED slug field)`;
+                queryUsed = `Found via slug matching: '${matchedSlug}'`;
               }
             }
           }
@@ -143,12 +140,11 @@ export const usePreviewPost = (slug: string | undefined) => {
         const debugData = {
           queryAttempted: queryUsed,
           fieldUsed: 'slug',
-          fieldNEVERUsed: 'preview_slug',
           error: finalError,
           dataReceived: finalData,
           dataCount: finalData?.length || 0,
           totalCount: count,
-          forcedDebugging: true,
+          finalDebugging: true,
           buildVersion: BUILD_VERSION,
           supabaseUrl: SUPABASE_URL
         };
@@ -156,14 +152,14 @@ export const usePreviewPost = (slug: string | undefined) => {
         setDebugInfo(prev => ({ ...prev, ...debugData }));
 
         if (finalError) {
-          console.error('❌ Supabase error (FORCED SLUG FIX):', finalError);
+          console.error('❌ Supabase error (FINAL SLUG FIX):', finalError);
           setError(`Supabase Error: ${finalError.message || 'Unknown database error'}`);
           setLoading(false);
           return;
         }
 
         if (finalData && finalData.length > 0) {
-          console.log('✅ Found post (FORCED SLUG FIX):', finalData[0]);
+          console.log('✅ Found post (FINAL SLUG FIX):', finalData[0]);
           setPost(finalData[0]);
         } else {
           console.log('⚠️ No posts found for slug:', slug);
@@ -171,7 +167,7 @@ export const usePreviewPost = (slug: string | undefined) => {
         }
 
       } catch (err: any) {
-        console.error('💥 BlogPreview error (FORCED SLUG FIX):', err);
+        console.error('💥 BlogPreview error (FINAL SLUG FIX):', err);
         setError(`Error: ${err.message || 'Unknown error'}`);
         setDebugInfo(prev => ({ ...prev, finalError: err }));
       } finally {
