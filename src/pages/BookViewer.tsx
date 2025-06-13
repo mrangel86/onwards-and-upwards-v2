@@ -381,43 +381,108 @@ const BookViewer: React.FC = () => {
     throw new Error('Failed to process PDF after multiple attempts');
   };
 
-  // Animated page navigation
-  const animateToPage = (newPage: number, direction: 'next' | 'prev') => {
-    if (isAnimating || newPage === currentPage) return;
-    
-    setIsAnimating(true);
-    setAnimationDirection(direction);
-    
-    // Start page turn animation
-    setTimeout(() => {
-      setCurrentPage(newPage);
-    }, 300); // Mid-animation page change
-    
-    // End animation
-    setTimeout(() => {
-      setIsAnimating(false);
-      setAnimationDirection(null);
-    }, 600); // Total animation duration
-  };
-
-  const nextPage = () => {
-    if (currentPage < pages.length - 1) {
-      animateToPage(currentPage + 1, 'next');
+  // NEW: Initialize StPageFlip
+  const initializePageFlip = useCallback(() => {
+    if (!bookRef.current || !pages.length || pageFlipRef.current) {
+      return;
     }
-  };
 
-  const prevPage = () => {
-    if (currentPage > 0) {
-      animateToPage(currentPage - 1, 'prev');
-    }
-  };
+    try {
+      console.log('Initializing StPageFlip with', pages.length, 'pages');
+      
+      const pageFlip = new PageFlip(bookRef.current, {
+        width: 400,
+        height: 600,
+        size: 'stretch',
+        minWidth: 315,
+        maxWidth: 1000,
+        minHeight: 400,
+        maxHeight: 1000,
+        drawShadow: true,
+        flippingTime: 1000,
+        usePortrait: true,
+        startZIndex: 0,
+        autoSize: true,
+        maxShadowOpacity: 0.5,
+        showCover: false,
+        mobileScrollSupport: true,
+        swipeDistance: 30,
+        clickEventForward: true,
+        useMouseEvents: true
+      });
 
-  const goToPage = (pageIndex: number) => {
-    if (pageIndex >= 0 && pageIndex < pages.length && !isAnimating) {
-      const direction = pageIndex > currentPage ? 'next' : 'prev';
-      animateToPage(pageIndex, direction);
+      // Create HTML elements for each page
+      const pageElements: HTMLElement[] = [];
+      
+      pages.forEach((pageImage, index) => {
+        const pageDiv = document.createElement('div');
+        pageDiv.className = 'page';
+        pageDiv.style.backgroundColor = '#fff';
+        pageDiv.style.display = 'flex';
+        pageDiv.style.alignItems = 'center';
+        pageDiv.style.justifyContent = 'center';
+        pageDiv.style.overflow = 'hidden';
+        
+        const img = document.createElement('img');
+        img.src = pageImage;
+        img.alt = `Page ${index + 1}`;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '100%';
+        img.style.objectFit = 'contain';
+        
+        pageDiv.appendChild(img);
+        pageElements.push(pageDiv);
+      });
+
+      pageFlip.loadFromHTML(pageElements);
+
+      pageFlip.on('flip', (e) => {
+        setCurrentPage(e.data);
+        console.log('Page flipped to:', e.data);
+      });
+
+      pageFlip.on('changeState', (e) => {
+        console.log('PageFlip state changed:', e.data);
+      });
+
+      pageFlipRef.current = pageFlip;
+      console.log('StPageFlip initialized successfully');
+      
+    } catch (error) {
+      console.error('Failed to initialize StPageFlip:', error);
+      setError('Failed to initialize page flip animation. Please try refreshing the page.');
     }
-  };
+  }, [pages]);
+
+  // NEW: Navigation functions
+  const nextPage = useCallback(() => {
+    if (pageFlipRef.current) {
+      pageFlipRef.current.flipNext();
+    }
+  }, []);
+
+  const prevPage = useCallback(() => {
+    if (pageFlipRef.current) {
+      pageFlipRef.current.flipPrev();
+    }
+  }, []);
+
+  const goToPage = useCallback((pageIndex: number) => {
+    if (pageFlipRef.current && pageIndex >= 0 && pageIndex < pages.length) {
+      pageFlipRef.current.turnToPage(pageIndex);
+    }
+  }, [pages.length]);
+
+  // Initialize PageFlip when pages are loaded
+  useEffect(() => {
+    if (pages.length > 0) {
+      const timer = setTimeout(() => {
+        initializePageFlip();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [pages, initializePageFlip]);
 
   // Main effect to load and process book
   useEffect(() => {
@@ -546,7 +611,7 @@ const BookViewer: React.FC = () => {
           {/* Navigation Arrows */}
           <button
             onClick={prevPage}
-            disabled={currentPage === 0 || isAnimating}
+            disabled={currentPage === 0}
             className="absolute left-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
             aria-label="Previous page"
           >
@@ -555,7 +620,7 @@ const BookViewer: React.FC = () => {
 
           <button
             onClick={nextPage}
-            disabled={currentPage === pages.length - 1 || isAnimating}
+            disabled={currentPage === pages.length - 1}
             className="absolute right-4 top-1/2 -translate-y-1/2 bg-black bg-opacity-20 hover:bg-opacity-40 text-white rounded-full p-2 transition-all disabled:opacity-30 disabled:cursor-not-allowed z-10"
             aria-label="Next page"
           >
