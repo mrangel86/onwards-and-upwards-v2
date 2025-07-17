@@ -27,9 +27,10 @@ export default {
         "light-blue": "#C5D4F9",
         white: "#FFFFFF",
         black: "#000000",
+        // Updated accent color to use new light-blue
+        accent: '#C5D4F9',
         // Legacy colors for backwards compatibility
         peach: "#FDE1D3",
-        accent: '#9b87f5',
         cardbg: "#F9F6F1",
         primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))' },
         secondary: { DEFAULT: 'hsl(var(--secondary))', foreground: 'hsl(var(--secondary-foreground))' },
