@@ -58,8 +58,7 @@ const NewsletterSignup = () => {
     <>
       <section
         id="newsletter"
-        className="w-full px-0 py-14 md:py-20 flex items-center"
-        style={{ background: "#FDE1D3" }}
+        className="w-full px-0 py-14 md:py-20 flex items-center bg-ivory"
       >
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-6">
