@@ -77,7 +77,7 @@ const InfiniteScrollVideos: React.FC<InfiniteScrollVideosProps> = ({
                 )}
                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/40 group-active:bg-black/60 transition">
                   <div className="bg-white/90 rounded-full p-4 shadow-md">
-                    <Play size={36} color="#9b87f5" />
+                    <Play size={36} color="#C5D4F9" />
                   </div>
                 </div>
               </button>
