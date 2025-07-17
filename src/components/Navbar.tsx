@@ -49,9 +49,9 @@ const Navbar = () => {
     <header className="bg-white shadow-sm">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="font-playfair font-bold text-xl text-primary">
-            Onwards & Upwards
+          {/* Logo - New wordmark */}
+          <Link to="/" className="font-montserrat font-thin text-xl uppercase tracking-wide text-primary">
+            ONWARDS & UPWARDS
           </Link>
 
           {/* Desktop Navigation */}
