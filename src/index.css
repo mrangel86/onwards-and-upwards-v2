@@ -98,4 +98,61 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* New Typography System */
+  /* Headers (H1, H2) - Montserrat Thin, ALL CAPS */
+  h1, h2 {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 100 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0em !important;
+  }
+
+  /* Subheaders (H3, H4) - Montserrat Light, Regular case */
+  h3, h4 {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 300 !important;
+    text-transform: none !important;
+    letter-spacing: 0em !important;
+  }
+
+  /* Body text - Raleway Regular */
+  body, p, .font-sans {
+    font-family: 'Raleway', sans-serif !important;
+    font-weight: 400 !important;
+    letter-spacing: 0em !important;
+  }
+
+  /* Utility classes for new color palette */
+  .bg-ivory {
+    background-color: #FEF4F0;
+  }
+
+  .bg-light-blue {
+    background-color: #C5D4F9;
+  }
+
+  .bg-white {
+    background-color: #FFFFFF;
+  }
+
+  .bg-black {
+    background-color: #000000;
+  }
+
+  .text-ivory {
+    color: #FEF4F0 !important;
+  }
+
+  .text-light-blue {
+    color: #C5D4F9 !important;
+  }
+
+  .text-white {
+    color: #FFFFFF !important;
+  }
+
+  .text-black {
+    color: #000000 !important;
+  }
 }
