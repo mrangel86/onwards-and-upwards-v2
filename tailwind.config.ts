@@ -22,6 +22,12 @@ export default {
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        // New color palette
+        ivory: "#FEF4F0",
+        "light-blue": "#C5D4F9",
+        white: "#FFFFFF",
+        black: "#000000",
+        // Legacy colors for backwards compatibility
         peach: "#FDE1D3",
         accent: '#9b87f5',
         cardbg: "#F9F6F1",
@@ -43,6 +49,10 @@ export default {
         },
       },
       fontFamily: {
+        // New typography system
+        montserrat: ['Montserrat', 'sans-serif'],
+        raleway: ['Raleway', 'sans-serif'],
+        // Legacy fonts for backwards compatibility
         playfair: ['Playfair Display', 'serif'],
         inter: ['Inter', 'system-ui', 'sans-serif'],
       },
