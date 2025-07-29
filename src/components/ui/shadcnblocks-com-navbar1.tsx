@@ -146,14 +146,16 @@ const Navbar1 = ({
   },
 }: Navbar1Props) => {
   return (
-    <section className="py-4">
+    <section className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="container">
-        <nav className="hidden justify-between lg:flex">
-          <div className="flex items-center gap-6">
-            <a href={logo.url} className="flex items-center gap-2">
-              <img src={logo.src} className="w-8" alt={logo.alt} />
-              <span className="text-lg font-semibold">{logo.title}</span>
-            </a>
+        <nav className="hidden justify-between items-center h-16 lg:flex">
+          {/* Logo */}
+          <a href={logo.url} className="font-montserrat font-thin text-xl uppercase tracking-wide text-primary">
+            {logo.title}
+          </a>
+          
+          {/* Navigation Items and Newsletter Button */}
+          <div className="flex items-center gap-8">
             <div className="flex items-center">
               <NavigationMenu>
                 <NavigationMenuList>
@@ -161,21 +163,26 @@ const Navbar1 = ({
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <a href={auth.login.url}>{auth.login.text}</a>
-            </Button>
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.text}</a>
-            </Button>
+            
+            {/* Newsletter Button */}
+            {auth.login.text && (
+              <Button 
+                asChild 
+                variant="outline" 
+                size="sm"
+                className="px-4 py-2 text-gray-600 bg-transparent border border-gray-300 rounded-md hover:bg-secondary hover:text-white hover:border-secondary transition-colors"
+              >
+                <a href={auth.login.url}>{auth.login.text}</a>
+              </Button>
+            )}
           </div>
         </nav>
+        
+        {/* Mobile Navigation */}
         <div className="block lg:hidden">
-          <div className="flex items-center justify-between">
-            <a href={logo.url} className="flex items-center gap-2">
-              <img src={logo.src} className="w-8" alt={logo.alt} />
-              <span className="text-lg font-semibold">{logo.title}</span>
+          <div className="flex items-center justify-between h-16">
+            <a href={logo.url} className="font-montserrat font-thin text-xl uppercase tracking-wide text-primary">
+              {logo.title}
             </a>
             <Sheet>
               <SheetTrigger asChild>
@@ -183,14 +190,11 @@ const Navbar1 = ({
                   <Menu className="size-4" />
                 </Button>
               </SheetTrigger>
-              <SheetContent className="overflow-y-auto">
+              <SheetContent className="overflow-y-auto z-[60]">
                 <SheetHeader>
                   <SheetTitle>
-                    <a href={logo.url} className="flex items-center gap-2">
-                      <img src={logo.src} className="w-8" alt={logo.alt} />
-                      <span className="text-lg font-semibold">
-                        {logo.title}
-                      </span>
+                    <a href={logo.url} className="font-montserrat font-thin text-xl uppercase tracking-wide text-primary">
+                      {logo.title}
                     </a>
                   </SheetTitle>
                 </SheetHeader>
@@ -202,27 +206,19 @@ const Navbar1 = ({
                   >
                     {menu.map((item) => renderMobileMenuItem(item))}
                   </Accordion>
-                  <div className="border-t py-4">
-                    <div className="grid grid-cols-2 justify-start">
-                      {mobileExtraLinks.map((link, idx) => (
-                        <a
-                          key={idx}
-                          className="inline-flex h-10 items-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent-foreground"
-                          href={link.url}
-                        >
-                          {link.name}
-                        </a>
-                      ))}
+                  
+                  {/* Newsletter Button for Mobile */}
+                  {auth.login.text && (
+                    <div className="flex flex-col gap-3">
+                      <Button 
+                        asChild 
+                        variant="outline"
+                        className="px-4 py-2 text-gray-600 bg-transparent border border-gray-300 rounded-md hover:bg-secondary hover:text-white hover:border-secondary transition-colors"
+                      >
+                        <a href={auth.login.url}>{auth.login.text}</a>
+                      </Button>
                     </div>
-                  </div>
-                  <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
-                      <a href={auth.login.url}>{auth.login.text}</a>
-                    </Button>
-                    <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.text}</a>
-                    </Button>
-                  </div>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
@@ -236,10 +232,10 @@ const Navbar1 = ({
 const renderMenuItem = (item: MenuItem) => {
   if (item.items) {
     return (
-      <NavigationMenuItem key={item.title} className="text-muted-foreground">
-        <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
-        <NavigationMenuContent>
-          <ul className="w-80 p-3">
+      <NavigationMenuItem key={item.title}>
+        <NavigationMenuTrigger className="font-raleway text-sm font-normal text-gray-600 hover:text-secondary">{item.title}</NavigationMenuTrigger>
+        <NavigationMenuContent className="z-[60]">
+          <ul className="w-80 p-3 bg-white border border-gray-200 shadow-lg rounded-md">
             <NavigationMenuLink>
               {item.items.map((subItem) => (
                 <li key={subItem.title}>
@@ -271,7 +267,7 @@ const renderMenuItem = (item: MenuItem) => {
   return (
     <a
       key={item.title}
-      className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent-foreground"
+      className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-normal font-raleway text-gray-600 transition-colors hover:text-secondary"
       href={item.url}
     >
       {item.title}
