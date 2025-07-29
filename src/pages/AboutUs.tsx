@@ -4,10 +4,10 @@ import Footer from "@/components/Footer";
 import { Heart } from "lucide-react";
 
 // Placeholders
-const familyImg = "/lovable-uploads/16b3feb4-3248-4307-b70a-b81109ade8c0.png"; // Use as "family"
-const michaelImg = "https://images.unsplash.com/photo-1721322800607-8c38375eef04?auto=format&fit=crop&w=600&q=80"; // Living room, modern "dad"
-const gesyImg = "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=600&q=80"; // Fruit, use as placeholder for Gesy
-const victoriaImg = "https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?auto=format&fit=crop&w=600&q=80"; // Chubby baby
+const familyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-header.jpg";
+const michaelImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-michael.jpg";
+const gesyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-gesy.jpg";
+const victoriaImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-victoria.jpg";
 
 const AboutUs = () => {
   return (
@@ -93,7 +93,7 @@ const AboutUs = () => {
 
         {/* ABOUT VICTORIA */}
         <section className="max-w-5xl mx-auto w-full py-8 md:py-14 px-4 md:px-6">
-          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-7 md:gap-10 bg-[#FF99CC] rounded-xl border border-gray-200 shadow">
+          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-7 md:gap-10 bg-[#FFDDDC] rounded-xl border border-gray-200 shadow">
             <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
               <div className="flex items-center gap-2 mb-3">
                 <h2 className="text-xl font-semibold text-primary">About Victoria</h2>
