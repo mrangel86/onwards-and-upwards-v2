@@ -21,8 +21,12 @@ const AboutUs = () => {
           <div className="text-lg text-muted-foreground text-center mb-8 font-medium">
             A family of three exploring Europe one adventure at a time
           </div>
-          <div className="bg-[#F9F6F1] rounded-xl md:rounded-2xl shadow-sm py-8 px-4 md:px-8 mb-6">
-            <div className="w-full aspect-[4/1.7] md:aspect-[3/1.2] overflow-hidden flex items-center justify-center mb-5 rounded-xl md:rounded-2xl">
+        </section>
+
+        {/* FULL WIDTH FAMILY SECTION */}
+        <section className="w-full bg-[#F9F6F1] py-8 md:py-12 mb-8">
+          <div className="max-w-5xl mx-auto px-4 md:px-6">
+            <div className="w-full aspect-[4/1.7] md:aspect-[3/1.2] overflow-hidden flex items-center justify-center mb-5">
               <img
                 src={familyImg}
                 alt="Our family portrait placeholder"
