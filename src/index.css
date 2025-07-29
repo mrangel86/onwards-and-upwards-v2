@@ -100,11 +100,11 @@
   }
 
   /* New Typography System */
-  /* Headers (H1, H2) - Montserrat Regular, ALL CAPS */
+  /* Headers (H1, H2) - Montserrat SemiBold, Regular case */
   h1, h2 {
     font-family: 'Montserrat', sans-serif !important;
-    font-weight: 400 !important;
-    text-transform: uppercase !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
     letter-spacing: 0em !important;
   }
 
@@ -129,7 +129,7 @@
   }
 
   .bg-light-blue {
-    background-color: #C5D4F9;
+    background-color: #0099FF;
   }
 
   .bg-white {
@@ -145,7 +145,7 @@
   }
 
   .text-light-blue {
-    color: #C5D4F9 !important;
+    color: #0099FF !important;
   }
 
   .text-white {

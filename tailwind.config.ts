@@ -24,11 +24,11 @@ export default {
         foreground: 'hsl(var(--foreground))',
         // New color palette
         ivory: "#FEF4F0",
-        "light-blue": "#C5D4F9",
+        "light-blue": "#0099FF",
         white: "#FFFFFF",
         black: "#000000",
-        // Updated accent color to use new light-blue
-        accent: '#C5D4F9',
+        // Updated accent color to new blue
+        accent: '#0099FF',
         // Legacy colors for backwards compatibility
         peach: "#FDE1D3",
         cardbg: "#F9F6F1",

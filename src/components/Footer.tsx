@@ -6,8 +6,8 @@ const Footer = () => (
   <footer className="bg-white border-t pt-10 pb-6 px-4">
     <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-start gap-8 md:gap-20">
       <div className="flex-shrink-0 mb-4 md:mb-0">
-        <Link to="/" className="flex items-center font-playfair text-xl font-bold tracking-tight text-primary hover:text-accent transition">
-          Onwards&nbsp;&amp;&nbsp;Upwards
+        <Link to="/" className="font-montserrat font-thin text-xl uppercase tracking-wide text-primary">
+          ONWARDS & UPWARDS
         </Link>
       </div>
       
