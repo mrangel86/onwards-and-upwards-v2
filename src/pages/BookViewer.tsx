@@ -173,7 +173,7 @@ const BookViewer: React.FC = () => {
             setBookData(newBookData);
             
             // Save to database for future use (don't await to avoid blocking)
-            supabase.from('books').insert(newBookData).select().single().catch(console.warn);
+            supabase.from('books').insert(newBookData).select().single().then(null, console.warn);
             return constructedUrl;
           }
         } catch (fetchError) {
@@ -202,7 +202,7 @@ const BookViewer: React.FC = () => {
         setBookData(newBookData);
         
         // Try to save to database (don't block on this)
-        supabase.from('books').upsert(newBookData, { onConflict: 'slug' }).catch(console.warn);
+        supabase.from('books').upsert(newBookData, { onConflict: 'slug' }).then(null, console.warn);
         
         return fileParam;
       } else {

@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -67,7 +66,7 @@ const AboutUs = () => {
         <section className="max-w-5xl mx-auto w-full py-8 md:py-14 px-4 md:px-6">
           <div
             className="flex flex-col md:flex-row-reverse items-center md:items-stretch gap-7 md:gap-10 rounded-xl"
-            style={{ background: "linear-gradient(95deg, #FDE1D3 0%, #FFF4EC 100%)" }}
+            style={{ background: "#FEF4F0" }}
           >
             <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
               <h2 className="text-xl md:text-2xl font-playfair font-semibold text-primary mb-3" style={{ fontFamily: "Playfair Display, serif" }}>
@@ -93,27 +92,29 @@ const AboutUs = () => {
         </section>
 
         {/* ABOUT VICTORIA */}
-        <section className="max-w-5xl mx-auto w-full py-10 md:py-16 px-4 md:px-6">
-          <div
-            className="bg-[#F6F0FA] rounded-xl shadow flex flex-col items-center p-6 md:p-10"
-            style={{ background: "linear-gradient(99deg,#F6F0FA 50%,#E5F6FB 100%)" }}
-          >
-            <div className="flex items-center gap-2 mb-3">
-              <h2 className="text-xl md:text-2xl font-semibold text-primary font-serif" style={{ fontFamily: "Playfair Display, serif" }}>
-                About Victoria
-              </h2>
-              <Heart size={22} className="text-accent" />
+        <section className="max-w-5xl mx-auto w-full py-8 md:py-14 px-4 md:px-6">
+          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-7 md:gap-10 bg-[#FF99CC] rounded-xl border border-gray-200 shadow">
+            <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
+              <div className="flex items-center gap-2 mb-3">
+                <h2 className="text-xl font-semibold text-primary">About Victoria</h2>
+                <Heart size={22} className="text-accent" />
+              </div>
+              <p className="mb-3 text-base text-gray-800">
+                The heart and smile of our travels, Victoria brings pure delight everywhere we go. Whether giggling from her carrier or dozing through adventures, she reminds us to slow down, look closer, and enjoy the magic in every new place (and every bakery).
+              </p>
+              <p className="text-base text-gray-800">
+                We're endlessly grateful for each day exploring the world through her bright, wonder-filled eyes.
+              </p>
             </div>
-            <div className="w-full max-w-2xl aspect-[4/2.3] rounded-xl overflow-hidden mb-5">
-              <img
-                src={victoriaImg}
-                alt="Placeholder for Victoria"
-                className="w-full h-full object-cover"
-              />
+            <div className="flex-1 flex items-center justify-center p-6">
+              <div className="w-full max-w-xs aspect-[4/5] bg-gray-200 rounded-xl overflow-hidden flex items-center justify-center">
+                <img
+                  src={victoriaImg}
+                  alt="Placeholder for Victoria"
+                  className="object-cover w-full h-full"
+                />
+              </div>
             </div>
-            <p className="text-center text-base md:text-lg text-gray-800 max-w-2xl" style={{ fontFamily: "Playfair Display, serif" }}>
-              The heart and smile of our travels, Victoria brings pure delight everywhere we go. Whether giggling from her carrier or dozing through adventures, she reminds us to slow down, look closer, and enjoy the magic in every new place (and every bakery). We’re endlessly grateful for each day exploring the world through her bright, wonder-filled eyes.
-            </p>
           </div>
         </section>
       </main>
