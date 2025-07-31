@@ -25,12 +25,12 @@ const Index = () => {
         items: [
           {
             title: "Photography",
-            description: "Beautiful moments captured in time",
+            description: "Glimpses of life, frame by frame",
             url: "/gallery/photos",
           },
           {
             title: "Videography", 
-            description: "Stories told through motion",
+            description: "Little films from the road",
             url: "/gallery/videos",
           },
         ],

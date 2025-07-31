@@ -170,7 +170,7 @@ const Navbar1 = ({
                 asChild 
                 variant="outline" 
                 size="sm"
-                className="px-4 py-2 text-gray-600 bg-transparent border border-gray-300 rounded-md hover:bg-secondary hover:text-white hover:border-secondary transition-colors"
+                className="px-4 py-2 text-gray-600 bg-transparent border border-gray-300 rounded-md hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors"
               >
                 <a href={auth.login.url}>{auth.login.text}</a>
               </Button>
@@ -213,7 +213,7 @@ const Navbar1 = ({
                       <Button 
                         asChild 
                         variant="outline"
-                        className="px-4 py-2 text-gray-600 bg-transparent border border-gray-300 rounded-md hover:bg-secondary hover:text-white hover:border-secondary transition-colors"
+                        className="px-4 py-2 text-gray-600 bg-transparent border border-gray-300 rounded-md hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors"
                       >
                         <a href={auth.login.url}>{auth.login.text}</a>
                       </Button>
@@ -233,7 +233,7 @@ const renderMenuItem = (item: MenuItem) => {
   if (item.items) {
     return (
       <NavigationMenuItem key={item.title}>
-        <NavigationMenuTrigger className="font-raleway text-sm font-normal text-gray-600 hover:text-secondary">{item.title}</NavigationMenuTrigger>
+        <NavigationMenuTrigger className="font-raleway text-sm font-normal text-gray-600 hover:text-secondary data-[state=open]:bg-transparent data-[state=open]:text-gray-600">{item.title}</NavigationMenuTrigger>
         <NavigationMenuContent className="z-[60]">
           <ul className="w-80 p-3 bg-white border border-gray-200 shadow-lg rounded-md">
             <NavigationMenuLink>
