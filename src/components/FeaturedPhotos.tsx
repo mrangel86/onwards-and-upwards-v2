@@ -162,6 +162,9 @@ const FeaturedPhotos = () => {
                   <div className="text-center px-4">
                     <h3 className="text-white font-semibold text-lg mb-1">{photo.title || 'Featured photo'}</h3>
                     <p className="text-white/80 text-sm">{photo.caption || ''}</p>
+                    {photo.location && (
+                      <p className="text-white/80 text-xs italic mt-2">{photo.location}</p>
+                    )}
                   </div>
                 </div>
               </div>
