@@ -76,7 +76,7 @@ const NewsletterSignup = () => {
             />
             <button
               type="submit"
-              className="bg-accent hover:bg-black hover:border-white border-2 border-accent text-white font-semibold px-6 py-3 rounded-full shadow transition"
+              className="bg-accent hover:bg-black hover:border-white border border-accent text-white font-semibold px-6 py-3 rounded-full shadow transition"
             >
               Subscribe
             </button>
