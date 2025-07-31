@@ -12,6 +12,7 @@ interface LightboxModalProps {
   titles?: string[];
   descs?: string[];
   postIds?: (string | null)[];
+  locations?: (string | null)[];
 }
 
 type LinkedPost = {
@@ -27,6 +28,7 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   titles = [],
   descs = [],
   postIds = [],
+  locations = [],
 }) => {
   const [currentIdx, setCurrentIdx] = useState(initialIdx);
   const [imageError, setImageError] = useState(false);
@@ -143,6 +145,13 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
             >
               See more from this trip → {linkedPost.title}
             </Link>
+          )}
+          
+          {/* Location (for featured photos) */}
+          {locations[currentIdx] && (
+            <div className="text-white/80 text-sm italic mt-2">
+              {locations[currentIdx]}
+            </div>
           )}
           
           {/* Image counter */}

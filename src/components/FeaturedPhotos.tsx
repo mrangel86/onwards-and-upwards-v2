@@ -11,6 +11,7 @@ type FeaturedPhoto = {
   title: string | null;
   caption: string | null;
   post_slug: string | null;
+  location: string | null;
 };
 
 const FeaturedPhotos = () => {
@@ -26,7 +27,7 @@ const FeaturedPhotos = () => {
       try {
         const { data, error } = await supabase
           .from('media')
-          .select('url, title, caption, post_slug')
+          .select('url, title, caption, post_slug, location')
           .eq('media_type', 'photo')
           .eq('is_featured_photo_section', true)
           .order('created_at', { ascending: false })
@@ -49,37 +50,43 @@ const FeaturedPhotos = () => {
               url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&q=80",
               title: "Foggy Summit",
               caption: "A quiet morning above the clouds.",
-              post_slug: null
+              post_slug: null,
+              location: "Alpine Valley, Switzerland"
             },
             {
               url: "https://images.unsplash.com/photo-1523712999610-f77fbcfc3843?w=600&q=80",
               title: "Sunlit Forest",
               caption: "Sunbeams painting the woods.",
-              post_slug: null
+              post_slug: null,
+              location: "Black Forest, Germany"
             },
             {
               url: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80",
               title: "Mountain View",
               caption: "Endless green and winding trails.",
-              post_slug: null
+              post_slug: null,
+              location: "Scottish Highlands"
             },
             {
               url: "https://images.unsplash.com/photo-1615729947596-a598e5de0ab3?w=600&q=80",
               title: "Rocky Ascent",
               caption: "Bold steps, wild terrain.",
-              post_slug: null
+              post_slug: null,
+              location: "Dolomites, Italy"
             },
             {
               url: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=600&q=80",
               title: "Deer Standstill",
               caption: "Unexpected wildlife encounters.",
-              post_slug: null
+              post_slug: null,
+              location: "Yellowstone National Park"
             },
             {
               url: "https://images.unsplash.com/photo-1518877593221-1f28583780b4?w=600&q=80",
               title: "Sea Dance",
               caption: "Waves leaping under a golden sky.",
-              post_slug: null
+              post_slug: null,
+              location: "Santorini, Greece"
             }
           ]);
         }
@@ -180,6 +187,7 @@ const FeaturedPhotos = () => {
         titles={featuredPhotos.map((p) => p.title || '')}
         descs={featuredPhotos.map((p) => p.caption || '')}
         postIds={featuredPhotos.map((p) => p.post_slug)}
+        locations={featuredPhotos.map((p) => p.location)}
       />
     </section>
   );
