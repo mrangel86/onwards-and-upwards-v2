@@ -100,7 +100,7 @@ const BlogPreview = () => {
       <div className="mt-10 text-center">
         <button 
           onClick={handleSeeMoreClick}
-          className="border-2 border-accent text-accent hover:bg-accent hover:text-white font-semibold px-8 py-3 rounded-full shadow transition"
+          className="border-2 border-accent text-accent hover:bg-black hover:text-white hover:border-white font-semibold px-8 py-3 rounded-full shadow transition"
         >
           See More
         </button>
