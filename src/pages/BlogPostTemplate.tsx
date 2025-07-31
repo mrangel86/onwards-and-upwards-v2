@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "@/components/Navbar";
+import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import Footer from "@/components/Footer";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import OtherPostsGrid from "@/components/OtherPostsGrid";
@@ -101,9 +101,44 @@ const FullImage = ({ src }: { src: string }) => (
   </div>
 );
 
-const BlogPostTemplate = () => (
-  <div className="font-inter bg-background min-h-screen flex flex-col">
-    <Navbar />
+const BlogPostTemplate = () => {
+  const navbarData = {
+    logo: {
+      url: "/",
+      src: "/placeholder.svg",
+      alt: "Onwards & Upwards",
+      title: "ONWARDS & UPWARDS",
+    },
+    menu: [
+      { title: "Home", url: "/" },
+      {
+        title: "Gallery",
+        url: "#",
+        items: [
+          {
+            title: "Photography",
+            description: "Glimpses of life, frame by frame",
+            url: "/gallery/photos",
+          },
+          {
+            title: "Videography", 
+            description: "Little films from the road",
+            url: "/gallery/videos",
+          },
+        ],
+      },
+      { title: "Blog", url: "/blog" },
+      { title: "About Us", url: "/about" },
+    ],
+    auth: {
+      login: { text: "Newsletter", url: "/newsletter" },
+      signup: { text: "", url: "#" },
+    },
+  };
+
+  return (
+    <div className="font-inter bg-background min-h-screen flex flex-col">
+      <Navbar1 {...navbarData} />
     <main className="flex-1 max-w-3xl mx-auto w-full px-4 pb-10">
       {/* Header */}
       <section className="pt-10 pb-6">
@@ -140,7 +175,8 @@ const BlogPostTemplate = () => (
     </main>
     <NewsletterSignup />
     <Footer />
-  </div>
-);
+    </div>
+  );
+};
 
 export default BlogPostTemplate;

@@ -168,9 +168,8 @@ const Navbar1 = ({
             {auth.login.text && (
               <Button 
                 asChild 
-                variant="outline" 
                 size="sm"
-                className="px-4 py-2 text-gray-600 bg-transparent border border-gray-300 rounded-md hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors"
+                className="px-4 py-2 bg-accent text-white hover:bg-accent/90 transition-colors"
               >
                 <a href={auth.login.url}>{auth.login.text}</a>
               </Button>
@@ -212,8 +211,7 @@ const Navbar1 = ({
                     <div className="flex flex-col gap-3">
                       <Button 
                         asChild 
-                        variant="outline"
-                        className="px-4 py-2 text-gray-600 bg-transparent border border-gray-300 rounded-md hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-colors"
+                        className="px-4 py-2 bg-accent text-white hover:bg-accent/90 transition-colors"
                       >
                         <a href={auth.login.url}>{auth.login.text}</a>
                       </Button>
@@ -233,7 +231,7 @@ const renderMenuItem = (item: MenuItem) => {
   if (item.items) {
     return (
       <NavigationMenuItem key={item.title}>
-        <NavigationMenuTrigger className="font-raleway text-sm font-normal text-gray-600 hover:bg-transparent hover:text-gray-600 data-[state=open]:bg-transparent data-[state=open]:text-gray-600">{item.title}</NavigationMenuTrigger>
+        <NavigationMenuTrigger className="font-raleway text-sm font-normal text-gray-600 hover:bg-transparent hover:text-accent data-[state=open]:bg-transparent data-[state=open]:text-accent">{item.title}</NavigationMenuTrigger>
         <NavigationMenuContent className="z-[60]">
           <ul className="w-80 p-3 bg-white border border-gray-200 shadow-lg rounded-md">
             <NavigationMenuLink>
@@ -245,11 +243,11 @@ const renderMenuItem = (item: MenuItem) => {
                   >
                     {subItem.icon}
                     <div>
-                      <div className="text-sm font-semibold">
+                      <h3 className="text-sm font-semibold">
                         {subItem.title}
-                      </div>
+                      </h3>
                       {subItem.description && (
-                        <p className="text-sm leading-snug text-muted-foreground">
+                        <p className="text-sm leading-snug text-muted-foreground whitespace-normal">
                           {subItem.description}
                         </p>
                       )}
@@ -267,7 +265,7 @@ const renderMenuItem = (item: MenuItem) => {
   return (
     <a
       key={item.title}
-      className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-normal font-raleway text-gray-600 transition-colors hover:text-gray-800"
+      className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-normal font-raleway text-gray-600 transition-colors hover:text-accent"
       href={item.url}
     >
       {item.title}
@@ -291,9 +289,9 @@ const renderMobileMenuItem = (item: MenuItem) => {
             >
               {subItem.icon}
               <div>
-                <div className="text-sm font-semibold">{subItem.title}</div>
+                <h3 className="text-sm font-semibold">{subItem.title}</h3>
                 {subItem.description && (
-                  <p className="text-sm leading-snug text-muted-foreground">
+                  <p className="text-sm leading-snug text-muted-foreground whitespace-normal">
                     {subItem.description}
                   </p>
                 )}

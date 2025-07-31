@@ -1,5 +1,5 @@
 import React from "react";
-import Navbar from "@/components/Navbar";
+import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import Footer from "@/components/Footer";
 import { Heart } from "lucide-react";
 
@@ -10,9 +10,43 @@ const gesyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/publ
 const victoriaImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-victoria.jpg";
 
 const AboutUs = () => {
+  const navbarData = {
+    logo: {
+      url: "/",
+      src: "/placeholder.svg",
+      alt: "Onwards & Upwards",
+      title: "ONWARDS & UPWARDS",
+    },
+    menu: [
+      { title: "Home", url: "/" },
+      {
+        title: "Gallery",
+        url: "#",
+        items: [
+          {
+            title: "Photography",
+            description: "Glimpses of life, frame by frame",
+            url: "/gallery/photos",
+          },
+          {
+            title: "Videography", 
+            description: "Little films from the road",
+            url: "/gallery/videos",
+          },
+        ],
+      },
+      { title: "Blog", url: "/blog" },
+      { title: "About Us", url: "/about" },
+    ],
+    auth: {
+      login: { text: "Newsletter", url: "/newsletter" },
+      signup: { text: "", url: "#" },
+    },
+  };
+
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar1 {...navbarData} />
       <main className="flex-1 w-full">
         {/* HERO SECTION */}
         <section className="max-w-5xl mx-auto pt-14 md:pt-20 pb-10 px-4 md:px-6">

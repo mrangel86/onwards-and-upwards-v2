@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Navbar from "@/components/Navbar";
+import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import Footer from "@/components/Footer";
 import LightboxModal from "@/components/LightboxModal";
 import GalleryFilterBar from "@/components/GalleryFilterBar";
@@ -46,7 +46,7 @@ const PhotoGallery = () => {
 
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar1 {...navbarData} />
       <main className="flex-1 px-4 pb-12 pt-6 max-w-6xl md:max-w-7xl mx-auto w-full">
         {/* Header */}
         <header className="mb-5 md:mb-8">

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import Navbar from "@/components/Navbar";
+import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import Footer from "@/components/Footer";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import OtherPostsGrid from "@/components/OtherPostsGrid";
@@ -23,6 +23,40 @@ const BlogPost = () => {
   const [contentImages, setContentImages] = useState<string[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
+  const navbarData = {
+    logo: {
+      url: "/",
+      src: "/placeholder.svg",
+      alt: "Onwards & Upwards",
+      title: "ONWARDS & UPWARDS",
+    },
+    menu: [
+      { title: "Home", url: "/" },
+      {
+        title: "Gallery",
+        url: "#",
+        items: [
+          {
+            title: "Photography",
+            description: "Glimpses of life, frame by frame",
+            url: "/gallery/photos",
+          },
+          {
+            title: "Videography", 
+            description: "Little films from the road",
+            url: "/gallery/videos",
+          },
+        ],
+      },
+      { title: "Blog", url: "/blog" },
+      { title: "About Us", url: "/about" },
+    ],
+    auth: {
+      login: { text: "Newsletter", url: "/newsletter" },
+      signup: { text: "", url: "#" },
+    },
+  };
+
   const {
     data: post,
     isLoading,
@@ -129,7 +163,7 @@ const BlogPost = () => {
 
   if (isLoading) {
     return <div className="font-inter bg-background min-h-screen flex flex-col">
-        <Navbar />
+        <Navbar1 {...navbarData} />
         <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10 pt-16">
           <p className="text-center">Loading post...</p>
         </main>
@@ -144,7 +178,7 @@ const BlogPost = () => {
   const isGalleryPost = post.type === 'gallery' && post.gallery_description;
 
   return <div className="font-inter bg-background min-h-screen flex flex-col">
-      <Navbar />
+      <Navbar1 {...navbarData} />
       <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10">
         {/* Header */}
         <section className="pt-10 pb-6">
