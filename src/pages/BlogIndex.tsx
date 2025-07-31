@@ -162,7 +162,7 @@ const BlogIndex = () => {
             {/* Post Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {visiblePosts.map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`}>
+                <Link key={post.id} to={`/posts/${post.slug}`}>
                   <BlogCard
                     title={post.title}
                     author={post.author || "Anonymous"}
