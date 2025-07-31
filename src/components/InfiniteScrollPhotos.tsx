@@ -65,8 +65,8 @@ const InfiniteScrollPhotos: React.FC<InfiniteScrollPhotosProps> = ({
                   </p>
                 )}
                 {photo.location && (
-                  <p className="text-xs text-white/80 mt-1">
-                    📍 {photo.location}
+                  <p className="text-xs text-white/80 mt-1 italic">
+                    {photo.location}
                   </p>
                 )}
               </div>

@@ -96,6 +96,9 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
               <div className="text-center px-4">
                 <h3 className="text-white font-semibold text-lg mb-1">{item.title || 'Gallery image'}</h3>
                 <p className="text-white/80 text-sm">{item.caption || ''}</p>
+                {item.location && (
+                  <p className="text-white/80 text-xs italic mt-2">{item.location}</p>
+                )}
               </div>
             </div>
           </div>
@@ -110,6 +113,7 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
         initialIdx={currentImageIndex}
         titles={mediaItems.map((item) => item.title || '')}
         descs={mediaItems.map((item) => item.caption || '')}
+        locations={mediaItems.map((item) => item.location)}
       />
     </div>
   );

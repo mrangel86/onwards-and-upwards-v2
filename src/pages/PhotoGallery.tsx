@@ -113,6 +113,7 @@ const PhotoGallery = () => {
           initialIdx={lightboxIdx}
           titles={photos.map((p) => p.title || '')}
           descs={photos.map((p) => p.caption || '')}
+          locations={photos.map((p) => p.location)}
         />
       </main>
       <Footer />
