@@ -167,11 +167,8 @@ const BlogIndex = () => {
                   title={post.title}
                   author={post.author || "Anonymous"}
                   date={post.created_at ? format(new Date(post.created_at), 'MMMM d, yyyy') : ''}
-                  
                   excerpt={getPreviewText(post)}
                   image={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&q=80"}
-                  
-                  type={post.type || 'essay'}
                 />
               ))}
             </div>
