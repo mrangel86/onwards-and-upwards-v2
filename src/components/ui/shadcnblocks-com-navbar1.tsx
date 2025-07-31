@@ -233,30 +233,28 @@ const renderMenuItem = (item: MenuItem) => {
       <NavigationMenuItem key={item.title}>
         <NavigationMenuTrigger className="font-raleway text-sm font-normal text-gray-600 hover:bg-transparent hover:text-accent data-[state=open]:bg-transparent data-[state=open]:text-accent">{item.title}</NavigationMenuTrigger>
         <NavigationMenuContent className="z-[60]">
-          <ul className="w-80 p-3 bg-white border border-gray-200 shadow-lg rounded-md">
-            <NavigationMenuLink>
-              {item.items.map((subItem) => (
-                <li key={subItem.title}>
-                  <a
-                    className="flex select-none gap-4 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-muted hover:text-accent-foreground"
-                    href={subItem.url}
-                  >
-                    {subItem.icon}
-                    <div>
-                      <h3 className="text-sm font-semibold">
-                        {subItem.title}
-                      </h3>
-                      {subItem.description && (
-                        <p className="text-sm leading-snug text-muted-foreground whitespace-normal">
-                          {subItem.description}
-                        </p>
-                      )}
-                    </div>
-                  </a>
-                </li>
-              ))}
-            </NavigationMenuLink>
-          </ul>
+          <div className="w-80 p-3 bg-white border border-gray-200 shadow-lg rounded-md">
+            {item.items.map((subItem) => (
+              <div key={subItem.title}>
+                <a
+                  className="flex select-none gap-4 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-muted hover:text-accent-foreground"
+                  href={subItem.url}
+                >
+                  {subItem.icon}
+                  <div>
+                    <h3 className="text-sm font-semibold">
+                      {subItem.title}
+                    </h3>
+                    {subItem.description && (
+                      <p className="text-sm leading-snug text-muted-foreground whitespace-normal">
+                        {subItem.description}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              </div>
+            ))}
+          </div>
         </NavigationMenuContent>
       </NavigationMenuItem>
     );

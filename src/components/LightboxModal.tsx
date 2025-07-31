@@ -40,6 +40,12 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
       setCurrentIdx(initialIdx);
       setImageError(false);
       fetchLinkedPost(postIds[initialIdx]);
+      // Focus the modal for keyboard navigation
+      const timer = setTimeout(() => {
+        const modal = document.querySelector('[role="dialog"]') as HTMLElement;
+        if (modal) modal.focus();
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [open, initialIdx, postIds]);
 

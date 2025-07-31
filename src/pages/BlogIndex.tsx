@@ -162,14 +162,15 @@ const BlogIndex = () => {
             {/* Post Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {visiblePosts.map((post) => (
-                <BlogCard
-                  key={post.id}
-                  title={post.title}
-                  author={post.author || "Anonymous"}
-                  date={post.created_at ? format(new Date(post.created_at), 'MMMM d, yyyy') : ''}
-                  excerpt={getPreviewText(post)}
-                  image={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&q=80"}
-                />
+                <Link key={post.id} to={`/blog/${post.slug}`}>
+                  <BlogCard
+                    title={post.title}
+                    author={post.author || "Anonymous"}
+                    date={post.created_at ? format(new Date(post.created_at), 'MMMM d, yyyy') : ''}
+                    excerpt={getPreviewText(post)}
+                    image={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&q=80"}
+                  />
+                </Link>
               ))}
             </div>
 
