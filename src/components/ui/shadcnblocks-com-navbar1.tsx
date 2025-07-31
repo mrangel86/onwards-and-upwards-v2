@@ -233,7 +233,7 @@ const renderMenuItem = (item: MenuItem) => {
   if (item.items) {
     return (
       <NavigationMenuItem key={item.title}>
-        <NavigationMenuTrigger className="font-raleway text-sm font-normal text-gray-600 data-[state=open]:bg-transparent data-[state=open]:text-gray-600">{item.title}</NavigationMenuTrigger>
+        <NavigationMenuTrigger className="font-raleway text-sm font-normal text-gray-600 hover:bg-transparent hover:text-gray-600 data-[state=open]:bg-transparent data-[state=open]:text-gray-600">{item.title}</NavigationMenuTrigger>
         <NavigationMenuContent className="z-[60]">
           <ul className="w-80 p-3 bg-white border border-gray-200 shadow-lg rounded-md">
             <NavigationMenuLink>

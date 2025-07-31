@@ -117,7 +117,7 @@ const HeroCarousel = () => {
                   {post.excerpt || "Read more about our journey..."}
                 </p>
                 <Link to={`/posts/${post.slug}`} className="inline-block">
-                  <button className="bg-accent hover:bg-primary text-white font-semibold px-6 py-3 rounded-full shadow-lg transition animate-fade-in">
+                  <button className="bg-accent hover:bg-black hover:border-white border-2 border-accent text-white font-semibold px-6 py-3 rounded-full shadow-lg transition animate-fade-in">
                     Read More
                   </button>
                 </Link>
