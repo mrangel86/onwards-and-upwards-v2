@@ -107,9 +107,9 @@ const BlogPost = () => {
     }
   };
 
-  // Extract all images from post content - only needed for regular posts
+  // Extract all images from post content
   useEffect(() => {
-    if (!post || !post.content || slug === 'japan-highlights') return;
+    if (!post || !post.content) return;
     
     const extractImages = () => {
       const parser = new DOMParser();
@@ -128,7 +128,7 @@ const BlogPost = () => {
     extractImages();
   }, [post, slug]);
 
-  // Handle image click to open lightbox (for regular posts)
+  // Handle image click to open lightbox
   const handleImageClick = (imageUrl: string) => {
     const imageIndex = contentImages.indexOf(imageUrl);
     setActiveImageIndex(imageIndex >= 0 ? imageIndex : 0);
@@ -136,9 +136,9 @@ const BlogPost = () => {
     setLightboxOpen(true);
   };
 
-  // Add click handlers to content images (for regular posts)
+  // Add click handlers to content images
   useEffect(() => {
-    if (!post || slug === 'japan-highlights') return;
+    if (!post) return;
     
     const contentElement = document.querySelector('.prose');
     if (!contentElement) return;
@@ -195,10 +195,10 @@ const BlogPost = () => {
         </section>
 
         {/* Content body */}
-        {slug === 'japan-highlights' || isGalleryPost ? (
+        {isGalleryPost ? (
           <PostImageGallery 
-            postId={post.id} 
-            galleryDescription={isGalleryPost ? post.gallery_description : undefined}
+            postId={post.slug} 
+            galleryDescription={post.gallery_description}
           />
         ) : (
           <section className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
@@ -213,8 +213,8 @@ const BlogPost = () => {
         </div>
       </main>
       
-      {/* Image Lightbox Modal - only for regular posts */}
-      {slug !== 'japan-highlights' && !isGalleryPost && (
+      {/* Image Lightbox Modal */}
+      {!isGalleryPost && (
         <LightboxModal
           open={lightboxOpen}
           onClose={() => setLightboxOpen(false)}
