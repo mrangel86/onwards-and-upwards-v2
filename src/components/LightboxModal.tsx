@@ -37,6 +37,12 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   // Reset to initial index when modal opens and fetch linked post if available
   useEffect(() => {
     if (open) {
+      console.log('LightboxModal: Opening with data:');
+      console.log('- initialIdx:', initialIdx);
+      console.log('- images length:', images.length);
+      console.log('- titles length:', titles.length);
+      console.log('- descs length:', descs.length);
+      console.log('- locations length:', locations.length);
       setCurrentIdx(initialIdx);
       setImageError(false);
       fetchLinkedPost(postIds[initialIdx]);
@@ -86,21 +92,26 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
 
   if (!open) return null;
 
-  const handlePrev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentIdx((prev) => (prev - 1 + images.length) % images.length);
+  const handlePrev = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    e?.stopPropagation();
+    const newIdx = (currentIdx - 1 + images.length) % images.length;
+    console.log('LightboxModal: handlePrev called. Current:', currentIdx, 'New:', newIdx);
+    setCurrentIdx(newIdx);
     setImageError(false);
   };
 
-  const handleNext = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentIdx((prev) => (prev + 1) % images.length);
+  const handleNext = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    e?.stopPropagation();
+    const newIdx = (currentIdx + 1) % images.length;
+    console.log('LightboxModal: handleNext called. Current:', currentIdx, 'New:', newIdx);
+    setCurrentIdx(newIdx);
     setImageError(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") handlePrev(e as unknown as React.MouseEvent);
-    if (e.key === "ArrowRight") handleNext(e as unknown as React.MouseEvent);
+    e.preventDefault();
+    if (e.key === "ArrowLeft") handlePrev(e);
+    if (e.key === "ArrowRight") handleNext(e);
     if (e.key === "Escape") onClose();
   };
 
