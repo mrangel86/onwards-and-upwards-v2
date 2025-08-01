@@ -21,6 +21,8 @@ const BlogPost = () => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImageUrl, setLightboxImageUrl] = useState("");
   const [contentImages, setContentImages] = useState<string[]>([]);
+  const [contentImageTitles, setContentImageTitles] = useState<string[]>([]);
+  const [contentImageCaptions, setContentImageCaptions] = useState<string[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
   const navbarData = {
@@ -115,14 +117,36 @@ const BlogPost = () => {
       const parser = new DOMParser();
       const doc = parser.parseFromString(post.content, 'text/html');
       const imageElements = doc.querySelectorAll('img');
-      const images = Array.from(imageElements).map(img => img.src);
+      
+      const images: string[] = [];
+      const titles: string[] = [];
+      const captions: string[] = [];
+      
+      // Extract metadata from content images
+      Array.from(imageElements).forEach(img => {
+        images.push(img.src);
+        titles.push(img.alt || img.title || post.title || '');
+        
+        // Try to find caption from parent figure or nearby text
+        const parent = img.parentElement;
+        let caption = '';
+        if (parent?.tagName === 'FIGURE') {
+          const figcaption = parent.querySelector('figcaption');
+          caption = figcaption?.textContent || '';
+        }
+        captions.push(caption);
+      });
       
       // Add hero image if it exists
       if (post.hero_image_url) {
         images.unshift(post.hero_image_url);
+        titles.unshift(post.title || '');
+        captions.unshift(post.excerpt || '');
       }
       
       setContentImages(images);
+      setContentImageTitles(titles);
+      setContentImageCaptions(captions);
     };
     
     extractImages();
@@ -220,6 +244,8 @@ const BlogPost = () => {
           onClose={() => setLightboxOpen(false)}
           images={contentImages}
           initialIdx={activeImageIndex}
+          titles={contentImageTitles}
+          descs={contentImageCaptions}
         />
       )}
       
