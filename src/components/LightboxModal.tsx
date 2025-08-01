@@ -53,7 +53,7 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [open, initialIdx, postIds]);
+  }, [open, initialIdx]); // Removed postIds dependency to prevent reopening
 
   // Fetch linked post when current index changes
   useEffect(() => {
@@ -183,16 +183,26 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
         {images.length > 1 && (
           <>
             <button
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
-              onClick={handlePrev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white rounded-full p-2 transition-colors z-10"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handlePrev(e);
+              }}
               aria-label="Previous image"
+              type="button"
             >
               <ChevronLeft size={28} />
             </button>
             <button
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white rounded-full p-2 transition-colors"
-              onClick={handleNext}
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/60 text-white rounded-full p-2 transition-colors z-10"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleNext(e);
+              }}
               aria-label="Next image"
+              type="button"
             >
               <ChevronRight size={28} />
             </button>
