@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import LightboxModal from "./LightboxModal";
 import { Separator } from "@/components/ui/separator";
+import { optimizeSupabaseImage, ImagePresets } from "@/lib/imageOptimization";
 
 type MediaItem = {
   id: string;
@@ -86,7 +87,7 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
             onClick={() => openLightbox(index)}
           >
             <img
-              src={item.url}
+              src={optimizeSupabaseImage(item.url, ImagePresets.gallery)}
               alt={item.title || 'Gallery image'}
               className="w-full h-auto object-cover"
               loading="lazy"

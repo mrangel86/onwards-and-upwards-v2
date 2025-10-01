@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { type Photo } from '@/hooks/usePhotos';
+import { optimizeSupabaseImage, ImagePresets } from '@/lib/imageOptimization';
 
 interface InfiniteScrollPhotosProps {
   photos: Photo[];
@@ -47,7 +48,7 @@ const InfiniteScrollPhotos: React.FC<InfiniteScrollPhotosProps> = ({
             onClick={() => onPhotoClick(index)}
           >
             <img
-              src={photo.url}
+              src={optimizeSupabaseImage(photo.url, ImagePresets.gallery)}
               alt={photo.title || photo.caption || 'Photo'}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               loading="lazy"

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import LightboxModal from "./LightboxModal";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { optimizeSupabaseImage, ImagePresets } from "@/lib/imageOptimization";
 
 type FeaturedPhoto = {
   url: string;
@@ -149,7 +150,7 @@ const FeaturedPhotos = () => {
                 aria-label={`Open photo: ${photo.title || 'Featured photo'}`}
               >
                 <img
-                  src={photo.url}
+                  src={optimizeSupabaseImage(photo.url, ImagePresets.featured)}
                   alt={photo.title || 'Featured photo'}
                   className="w-full h-56 object-cover transition duration-300 group-hover:scale-105"
                   loading="lazy"
