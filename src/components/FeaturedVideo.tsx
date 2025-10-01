@@ -25,7 +25,6 @@ const FeaturedVideo = () => {
   useEffect(() => {
     const fetchFeaturedVideo = async () => {
       try {
-        console.log('Fetching featured video...');
         // Fetch the featured video from media table
         const { data, error } = await supabase
           .from('media')
@@ -37,7 +36,6 @@ const FeaturedVideo = () => {
           .single();
 
         if (error) {
-          console.error('Error fetching featured video:', error);
           if (error.code !== 'PGRST116') { // No rows returned (non-error case)
             console.error('Error fetching featured video:', error);
           }
@@ -51,7 +49,6 @@ const FeaturedVideo = () => {
           return;
         }
 
-        console.log('Featured video data:', data);
         setFeaturedVideo(data);
         setLoading(false);
       } catch (err) {
@@ -82,7 +79,6 @@ const FeaturedVideo = () => {
   if (!featuredVideo) return null;
 
   const videoId = extractYoutubeId(featuredVideo.url);
-  console.log('Using video ID:', videoId);
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">

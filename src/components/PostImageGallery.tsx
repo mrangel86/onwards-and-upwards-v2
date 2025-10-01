@@ -33,7 +33,6 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
   const { data: mediaItems, isLoading } = useQuery({
     queryKey: ['postMedia', postId],
     queryFn: async () => {
-      console.log('PostImageGallery: Fetching media for postId/slug:', postId);
       const { data, error } = await supabase
         .from('media')
         .select('id, url, title, caption, created_at, media_type, location, tags, is_hero_carousel, is_post_header_image, is_featured_photo_section, post_slug, is_featured_video_section')
@@ -45,7 +44,6 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
         throw error;
       }
       
-      console.log('PostImageGallery: Fetched media items:', data?.length || 0, 'items');
       return data || [];
     }
   });

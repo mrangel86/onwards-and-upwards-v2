@@ -25,7 +25,6 @@ const BlogPreview = () => {
           return;
         }
         
-        console.log('Fetched blog posts:', data);
         setPosts(data || []);
         setLoading(false);
       } catch (err) {

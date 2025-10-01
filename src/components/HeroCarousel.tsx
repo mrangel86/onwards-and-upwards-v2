@@ -21,7 +21,6 @@ const HeroCarousel = () => {
   useEffect(() => {
     const fetchFeaturedPosts = async () => {
       try {
-        console.log('Fetching featured posts...');
         // First fetch the featured posts
         const { data, error } = await supabase
           .from('posts')

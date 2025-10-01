@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import Footer from "@/components/Footer";
 import LightboxModal from "@/components/LightboxModal";
@@ -25,24 +25,9 @@ const PhotoGallery = () => {
   });
 
   const handleOpenLightbox = (idx: number) => {
-    console.log('PhotoGallery: Opening lightbox at index:', idx);
-    console.log('PhotoGallery: Photos data:', photos.length, 'photos');
-    console.log('PhotoGallery: Photo at index:', photos[idx]);
     setLightboxIdx(idx);
     setLightboxOpen(true);
   };
-
-  // Debug effect for lightbox data
-  useEffect(() => {
-    if (lightboxOpen) {
-      console.log('PhotoGallery: Lightbox opened with data:');
-      console.log('- Index:', lightboxIdx);
-      console.log('- Images:', photos.map(p => p.url));
-      console.log('- Titles:', photos.map(p => p.title));
-      console.log('- Captions:', photos.map(p => p.caption));
-      console.log('- Locations:', photos.map(p => p.location));
-    }
-  }, [lightboxOpen, lightboxIdx, photos]);
 
   const handleLocationChange = (location: string) => {
     setSelectedLocation(location);
