@@ -112,7 +112,7 @@ const HeroCarousel = () => {
                   {post.title}
                 </h1>
                 <div className="w-16 h-px bg-white/60 mx-auto mb-4" />
-                <p className="text-lg lg:text-2xl mb-6 drop-shadow animate-fade-in">
+                <p className="text-lg lg:text-2xl mb-6 drop-shadow animate-fade-in line-clamp-2">
                   {post.excerpt || "Read more about our journey..."}
                 </p>
                 <Link to={`/posts/${post.slug}`} className="inline-block">
