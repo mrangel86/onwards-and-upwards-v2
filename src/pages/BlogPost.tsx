@@ -164,7 +164,7 @@ const BlogPost = () => {
   useEffect(() => {
     if (!post) return;
     
-    const contentElement = document.querySelector('.prose');
+    const contentElement = document.querySelector('.post-content');
     if (!contentElement) return;
     
     // Add click handlers to all images in content
@@ -225,7 +225,7 @@ const BlogPost = () => {
             galleryDescription={post.gallery_description}
           />
         ) : (
-          <section className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
+          <section className="post-content" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
         )}
 
         {/* Section Divider */}

@@ -7,18 +7,27 @@ interface PreviewContentProps {
 }
 
 const PreviewContent: React.FC<PreviewContentProps> = ({ post, buildVersion }) => {
-  // Format content with line breaks
-  const formatContent = (content: string) => {
+  // If content is already HTML, render it. Otherwise fall back to simple paragraphs.
+  const isHtml = (content: string) => /<\/?[a-z][\s\S]*>/i.test(content);
+
+  const renderContent = (content: string) => {
     if (!content) return null;
-    return content.split('\n').map((paragraph, index) => (
-      paragraph.trim() ? (
-        paragraph.startsWith('- ') ? (
-          <li key={index} className="ml-4">{paragraph.substring(2)}</li>
-        ) : (
-          <p key={index} className="mb-4">{paragraph}</p>
-        )
-      ) : null
-    ));
+    if (isHtml(content)) {
+      return <div className="post-content" dangerouslySetInnerHTML={{ __html: content }} />;
+    }
+    return (
+      <div className="post-content">
+        {content.split('\n').map((paragraph, index) => (
+          paragraph.trim() ? (
+            paragraph.startsWith('- ') ? (
+              <li key={index} className="ml-4">{paragraph.substring(2)}</li>
+            ) : (
+              <p key={index}>{paragraph}</p>
+            )
+          ) : null
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -44,9 +53,7 @@ const PreviewContent: React.FC<PreviewContentProps> = ({ post, buildVersion }) =
       </section>
 
       {/* Content */}
-      <section className="prose prose-lg max-w-none">
-        {formatContent(post.content)}
-      </section>
+      {renderContent(post.content)}
 
       {/* Bottom Preview Banner - Pastel Red */}
       <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded text-sm">
