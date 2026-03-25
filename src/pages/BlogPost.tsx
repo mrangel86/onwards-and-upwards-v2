@@ -160,7 +160,7 @@ const BlogPost = () => {
     setLightboxOpen(true);
   };
 
-  // Add click handlers to content images
+  // Add click handlers to content images + center 2-image grids
   useEffect(() => {
     if (!post) return;
     
@@ -172,6 +172,17 @@ const BlogPost = () => {
     images.forEach(img => {
       img.classList.add('cursor-pointer', 'hover:opacity-90', 'transition');
       img.addEventListener('click', () => handleImageClick(img.src));
+    });
+    
+    // Center 2-image grids
+    const imageGrids = contentElement.querySelectorAll('.image-grid');
+    imageGrids.forEach(grid => {
+      const imgCount = grid.querySelectorAll('img').length;
+      if (imgCount === 2) {
+        (grid as HTMLElement).style.maxWidth = '700px';
+        (grid as HTMLElement).style.marginLeft = 'auto';
+        (grid as HTMLElement).style.marginRight = 'auto';
+      }
     });
     
     // Add click handler to hero image
