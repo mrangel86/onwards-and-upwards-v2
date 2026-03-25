@@ -255,52 +255,29 @@
     margin-top: 0.5rem;
   }
 
-  /* Image Grid Layouts */
+  /* Image Grid Layouts - Default 3 columns for all grids */
   .post-content .image-grid {
     display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
     margin: 2rem 0;
     width: 100%;
   }
 
-  /* 2 images: 2 columns */
-  .post-content .image-grid:has(img:nth-child(2):last-child) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* 3 images: 3 columns */
-  .post-content .image-grid:has(img:nth-child(3):last-child) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  /* 4 images: 2x2 grid */
-  .post-content .image-grid:has(img:nth-child(4):last-child) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* 5 images: 3 columns (2 + 3) */
-  .post-content .image-grid:has(img:nth-child(5):last-child) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  /* 6 images: 3x2 grid */
-  .post-content .image-grid:has(img:nth-child(6):last-child) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  /* Image grid images don't need extra margins (grid handles spacing) */
+  /* Image grid images - constrained and uniform */
   .post-content .image-grid img {
-    margin: 0;
+    margin: 0 !important;
     width: 100%;
     height: 100%;
     object-fit: cover;
     aspect-ratio: 4/3;
+    border-radius: 8px;
   }
 
   /* Mobile: stack all grids to single column */
   @media (max-width: 768px) {
     .post-content .image-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr !important;
     }
     
     .post-content .image-grid img {
@@ -308,12 +285,10 @@
     }
   }
 
-  /* Tablet: adjust grids */
+  /* Tablet: 2 columns */
   @media (min-width: 769px) and (max-width: 1024px) {
-    .post-content .image-grid:has(img:nth-child(3):last-child),
-    .post-content .image-grid:has(img:nth-child(5):last-child),
-    .post-content .image-grid:has(img:nth-child(6):last-child) {
-      grid-template-columns: repeat(2, 1fr);
+    .post-content .image-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
     }
   }
 }
