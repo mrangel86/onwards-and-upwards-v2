@@ -117,7 +117,7 @@
   }
 
   /* Body text - Raleway Regular */
-  body, p, .font-sans {
+  body, p, li, .font-sans {
     font-family: 'Raleway', sans-serif !important;
     font-weight: 400 !important;
     letter-spacing: 0em !important;
@@ -267,8 +267,9 @@
     width: 100%;
   }
   
-  /* 2-image grids: centered and narrower */
+  /* 2-image grids: centered, narrower, and 2 columns */
   .post-content .image-grid[data-images="2"] {
+    grid-template-columns: repeat(2, 1fr) !important;
     max-width: 700px !important;
     margin-left: auto !important;
     margin-right: auto !important;
