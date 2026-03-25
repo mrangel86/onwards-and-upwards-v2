@@ -227,8 +227,10 @@
     font-style: italic;
   }
 
+  /* Single images: centered and constrained */
   .post-content img {
-    max-width: 100%;
+    max-width: 800px;
+    width: 100%;
     height: auto;
     border-radius: 12px;
     display: block;
@@ -236,7 +238,7 @@
   }
 
   .post-content img.featured {
-    width: 100%;
+    max-width: 100%;
   }
 
   .post-content img.center {
@@ -260,7 +262,8 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
-    margin: 2rem 0;
+    margin: 2rem auto;
+    max-width: 100%;
     width: 100%;
   }
 
@@ -272,6 +275,14 @@
     object-fit: cover;
     aspect-ratio: 4/3;
     border-radius: 8px;
+    max-width: none; /* Override single image constraint */
+  }
+  
+  /* 2-image grids: centered */
+  .post-content .image-grid:has(img:nth-child(2):last-child) {
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   /* Mobile: stack all grids to single column */
