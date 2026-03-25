@@ -229,7 +229,7 @@
 
   /* Single images: centered and constrained */
   .post-content img {
-    max-width: 800px !important;
+    max-width: 600px !important;
     width: 100% !important;
     height: auto !important;
     border-radius: 12px;

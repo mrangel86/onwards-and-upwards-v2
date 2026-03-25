@@ -164,36 +164,41 @@ const BlogPost = () => {
   useEffect(() => {
     if (!post) return;
     
-    const contentElement = document.querySelector('.post-content');
-    if (!contentElement) return;
-    
-    // Add click handlers to all images in content
-    const images = contentElement.querySelectorAll('img');
-    images.forEach(img => {
-      img.classList.add('cursor-pointer', 'hover:opacity-90', 'transition');
-      img.addEventListener('click', () => handleImageClick(img.src));
-    });
-    
-    // Center 2-image grids
-    const imageGrids = contentElement.querySelectorAll('.image-grid');
-    imageGrids.forEach(grid => {
-      const imgCount = grid.querySelectorAll('img').length;
-      if (imgCount === 2) {
-        (grid as HTMLElement).style.maxWidth = '700px';
-        (grid as HTMLElement).style.marginLeft = 'auto';
-        (grid as HTMLElement).style.marginRight = 'auto';
-      }
-    });
-    
-    // Add click handler to hero image
-    const heroImage = document.querySelector('.hero-image');
-    if (heroImage) {
-      heroImage.classList.add('cursor-pointer');
-      heroImage.addEventListener('click', () => {
-        const img = heroImage as HTMLImageElement;
-        handleImageClick(img.src);
+    // Small delay to ensure content is rendered
+    const timer = setTimeout(() => {
+      const contentElement = document.querySelector('.post-content');
+      if (!contentElement) return;
+      
+      // Add click handlers to all images in content
+      const images = contentElement.querySelectorAll('img');
+      images.forEach(img => {
+        img.classList.add('cursor-pointer', 'hover:opacity-90', 'transition');
+        img.addEventListener('click', () => handleImageClick(img.src));
       });
-    }
+      
+      // Center 2-image grids
+      const imageGrids = contentElement.querySelectorAll('.image-grid');
+      imageGrids.forEach(grid => {
+        const imgCount = grid.querySelectorAll('img').length;
+        if (imgCount === 2) {
+          (grid as HTMLElement).style.maxWidth = '700px';
+          (grid as HTMLElement).style.marginLeft = 'auto';
+          (grid as HTMLElement).style.marginRight = 'auto';
+        }
+      });
+      
+      // Add click handler to hero image
+      const heroImage = document.querySelector('.hero-image');
+      if (heroImage) {
+        heroImage.classList.add('cursor-pointer');
+        heroImage.addEventListener('click', () => {
+          const img = heroImage as HTMLImageElement;
+          handleImageClick(img.src);
+        });
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, [post, slug]);
 
   if (isLoading) {
