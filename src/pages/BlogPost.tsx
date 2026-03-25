@@ -160,7 +160,7 @@ const BlogPost = () => {
     setLightboxOpen(true);
   };
 
-  // Add click handlers to content images + center 2-image grids
+  // Add click handlers to content images + mark 2-image grids
   useEffect(() => {
     if (!post) return;
     
@@ -176,15 +176,11 @@ const BlogPost = () => {
         img.addEventListener('click', () => handleImageClick(img.src));
       });
       
-      // Center 2-image grids
+      // Mark 2-image grids with data attribute for CSS targeting
       const imageGrids = contentElement.querySelectorAll('.image-grid');
       imageGrids.forEach(grid => {
         const imgCount = grid.querySelectorAll('img').length;
-        if (imgCount === 2) {
-          (grid as HTMLElement).style.maxWidth = '700px';
-          (grid as HTMLElement).style.marginLeft = 'auto';
-          (grid as HTMLElement).style.marginRight = 'auto';
-        }
+        (grid as HTMLElement).dataset.images = String(imgCount);
       });
       
       // Add click handler to hero image
