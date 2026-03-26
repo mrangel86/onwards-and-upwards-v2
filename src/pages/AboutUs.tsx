@@ -5,10 +5,10 @@ import { Heart } from "lucide-react";
 import { navbarData } from "@/lib/navbarData";
 
 // Placeholders
-const familyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-header.jpg";
-const michaelImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-michael.jpg";
-const gesyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-gesy.jpg";
-const victoriaImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-victoria.jpg";
+const familyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images/about-us-header.jpg";
+const michaelImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images/about-us-michael.jpg";
+const gesyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images/about-us-gesy.jpg";
+const victoriaImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images/about-us-victoria.jpg";
 
 const AboutUs = () => {
   return (
