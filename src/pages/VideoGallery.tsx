@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
+import { navbarData } from "@/lib/navbarData";
 import Footer from "@/components/Footer";
 import GalleryFilterBar from "@/components/GalleryFilterBar";
 import InfiniteScrollVideos from "@/components/InfiniteScrollVideos";
 import { useVideos } from "@/hooks/useVideos";
-import { AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 const VideoGallery = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
@@ -21,6 +22,10 @@ const VideoGallery = () => {
     pageSize: 30 
   });
 
+  useEffect(() => {
+    if (error) toast.error("Failed to load videos. Please try again.");
+  }, [error]);
+
   const handleLocationChange = (location: string) => {
     setSelectedLocation(location);
   };
@@ -35,40 +40,6 @@ const VideoGallery = () => {
     label: "Filter by location",
     options: filterOptions
   }];
-
-  const navbarData = {
-    logo: {
-      url: "/",
-      src: "/placeholder.svg",
-      alt: "Onwards & Upwards",
-      title: "ONWARDS & UPWARDS",
-    },
-    menu: [
-      { title: "Home", url: "/" },
-      {
-        title: "Gallery",
-        url: "#",
-        items: [
-          {
-            title: "Photography",
-            description: "Glimpses of life, frame by frame",
-            url: "/gallery/photos",
-          },
-          {
-            title: "Videography", 
-            description: "Little films from the road",
-            url: "/gallery/videos",
-          },
-        ],
-      },
-      { title: "Blog", url: "/blog" },
-      { title: "About Us", url: "/about" },
-    ],
-    auth: {
-      login: { text: "Newsletter", url: "/newsletter" },
-      signup: { text: "", url: "#" },
-    },
-  };
 
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
@@ -93,14 +64,6 @@ const VideoGallery = () => {
           />
         )}
 
-        {/* Error State */}
-        {error && (
-          <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 mb-6">
-            <AlertCircle className="w-5 h-5" />
-            <span>Failed to load videos: {error}</span>
-          </div>
-        )}
-
         {/* Loading State for Initial Load */}
         {loading && videos.length === 0 && (
           <div className="flex justify-center py-12">
@@ -119,7 +82,7 @@ const VideoGallery = () => {
         )}
 
         {/* Empty State */}
-        {!loading && videos.length === 0 && !error && (
+        {!loading && videos.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">
               {selectedLocation === 'all' 

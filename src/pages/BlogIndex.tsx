@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
+import { navbarData } from "@/lib/navbarData";
 import Footer from "@/components/Footer";
 import FilterBar from "@/components/FilterBar";
 import BlogCard from "@/components/BlogCard";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { toast } from "sonner";
 
 const PAGE_SIZE = 6;
 
@@ -18,42 +20,8 @@ const BlogIndex = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const loaderRef = useRef<HTMLDivElement>(null);
   
-  const navbarData = {
-    logo: {
-      url: "/",
-      src: "/placeholder.svg",
-      alt: "Onwards & Upwards",
-      title: "ONWARDS & UPWARDS",
-    },
-    menu: [
-      { title: "Home", url: "/" },
-      {
-        title: "Gallery",
-        url: "#",
-        items: [
-          {
-            title: "Photography",
-            description: "Glimpses of life, frame by frame",
-            url: "/gallery/photos",
-          },
-          {
-            title: "Videography", 
-            description: "Little films from the road",
-            url: "/gallery/videos",
-          },
-        ],
-      },
-      { title: "Blog", url: "/blog" },
-      { title: "About Us", url: "/about" },
-    ],
-    auth: {
-      login: { text: "Newsletter", url: "/newsletter" },
-      signup: { text: "", url: "#" },
-    },
-  };
-
   // Fetch all posts
-  const { data: allPosts, isLoading } = useQuery({
+  const { data: allPosts, isLoading, isError } = useQuery({
     queryKey: ['blogPosts'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -66,6 +34,10 @@ const BlogIndex = () => {
       return data || [];
     },
   });
+
+  useEffect(() => {
+    if (isError) toast.error("Failed to load blog posts. Please try again.");
+  }, [isError]);
 
   // Load more posts when needed
   const loadMorePosts = useCallback(() => {

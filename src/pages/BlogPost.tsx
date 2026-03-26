@@ -4,6 +4,7 @@ import { useParams, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
+import { navbarData } from "@/lib/navbarData";
 import Footer from "@/components/Footer";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import OtherPostsGrid from "@/components/OtherPostsGrid";
@@ -25,40 +26,6 @@ const BlogPost = () => {
   const [contentImageCaptions, setContentImageCaptions] = useState<string[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   
-  const navbarData = {
-    logo: {
-      url: "/",
-      src: "/placeholder.svg",
-      alt: "Onwards & Upwards",
-      title: "ONWARDS & UPWARDS",
-    },
-    menu: [
-      { title: "Home", url: "/" },
-      {
-        title: "Gallery",
-        url: "#",
-        items: [
-          {
-            title: "Photography",
-            description: "Glimpses of life, frame by frame",
-            url: "/gallery/photos",
-          },
-          {
-            title: "Videography", 
-            description: "Little films from the road",
-            url: "/gallery/videos",
-          },
-        ],
-      },
-      { title: "Blog", url: "/blog" },
-      { title: "About Us", url: "/about" },
-    ],
-    auth: {
-      login: { text: "Newsletter", url: "/newsletter" },
-      signup: { text: "", url: "#" },
-    },
-  };
-
   const {
     data: post,
     isLoading,
@@ -223,10 +190,11 @@ const BlogPost = () => {
             <span className="text-sm text-accent">by {post.author || "Anonymous"}</span>
             <span className="text-sm text-gray-500">{formatDate(post.created_at)}</span>
           </div>
-          <img 
-            src={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"} 
-            alt={post.title} 
-            className="w-full h-auto object-contain hero-image rounded-xl shadow mb-6 cursor-pointer" 
+          <img
+            src={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"}
+            alt={post.title}
+            className="w-full h-auto object-contain hero-image rounded-xl shadow mb-6 cursor-pointer"
+            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
           />
         </section>
 

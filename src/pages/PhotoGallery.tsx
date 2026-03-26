@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
+import { navbarData } from "@/lib/navbarData";
 import Footer from "@/components/Footer";
 import LightboxModal from "@/components/LightboxModal";
 import GalleryFilterBar from "@/components/GalleryFilterBar";
 import InfiniteScrollPhotos from "@/components/InfiniteScrollPhotos";
 import { usePhotos } from "@/hooks/usePhotos";
-import { AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 const PhotoGallery = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
@@ -23,6 +24,10 @@ const PhotoGallery = () => {
     locationFilter: selectedLocation === 'all' ? undefined : selectedLocation,
     pageSize: 30 
   });
+
+  useEffect(() => {
+    if (error) toast.error("Failed to load photos. Please try again.");
+  }, [error]);
 
   const handleOpenLightbox = (idx: number) => {
     setLightboxIdx(idx);
@@ -43,40 +48,6 @@ const PhotoGallery = () => {
     label: "Filter by location",
     options: filterOptions
   }];
-
-  const navbarData = {
-    logo: {
-      url: "/",
-      src: "/placeholder.svg",
-      alt: "Onwards & Upwards",
-      title: "ONWARDS & UPWARDS",
-    },
-    menu: [
-      { title: "Home", url: "/" },
-      {
-        title: "Gallery",
-        url: "#",
-        items: [
-          {
-            title: "Photography",
-            description: "Glimpses of life, frame by frame",
-            url: "/gallery/photos",
-          },
-          {
-            title: "Videography", 
-            description: "Little films from the road",
-            url: "/gallery/videos",
-          },
-        ],
-      },
-      { title: "Blog", url: "/blog" },
-      { title: "About Us", url: "/about" },
-    ],
-    auth: {
-      login: { text: "Newsletter", url: "/newsletter" },
-      signup: { text: "", url: "#" },
-    },
-  };
 
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
@@ -101,14 +72,6 @@ const PhotoGallery = () => {
           />
         )}
 
-        {/* Error State */}
-        {error && (
-          <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 mb-6">
-            <AlertCircle className="w-5 h-5" />
-            <span>Failed to load photos: {error}</span>
-          </div>
-        )}
-
         {/* Loading State for Initial Load */}
         {loading && photos.length === 0 && (
           <div className="flex justify-center py-12">
@@ -128,7 +91,7 @@ const PhotoGallery = () => {
         )}
 
         {/* Empty State */}
-        {!loading && photos.length === 0 && !error && (
+        {!loading && photos.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">
               {selectedLocation === 'all' 

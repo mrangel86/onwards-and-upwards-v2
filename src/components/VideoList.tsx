@@ -40,6 +40,7 @@ const VideoList: React.FC<VideoListProps> = ({
             alt={video.title}
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
             loading="lazy"
+            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
           />
           <div className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/40 group-active:bg-black/60 transition">
             <div className="bg-white/90 rounded-full p-4 shadow-md">

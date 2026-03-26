@@ -15,6 +15,7 @@ const ImageCollage: React.FC<ImageCollageProps> = ({ images }) => (
         style={{ minWidth: 0 }}
         alt={`Collage image ${i + 1}`}
         loading="lazy"
+        onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
       />
     ))}
   </div>

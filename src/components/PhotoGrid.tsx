@@ -29,6 +29,7 @@ const PhotoGrid: React.FC<{
           alt={photo.title}
           className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200 cursor-pointer"
           loading="lazy"
+          onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
         />
         {/* Overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus:opacity-100 transition bg-black/60">

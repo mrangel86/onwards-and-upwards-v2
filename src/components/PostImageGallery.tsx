@@ -1,10 +1,11 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import LightboxModal from "./LightboxModal";
 import { Separator } from "@/components/ui/separator";
 import { optimizeSupabaseImage, ImagePresets } from "@/lib/imageOptimization";
+import { toast } from "sonner";
 
 type MediaItem = {
   id: string;
@@ -31,7 +32,7 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const { data: mediaItems, isLoading } = useQuery({
+  const { data: mediaItems, isLoading, isError } = useQuery({
     queryKey: ['postMedia', postId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -48,6 +49,10 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
       return data || [];
     }
   });
+
+  useEffect(() => {
+    if (isError) toast.error("Failed to load photo gallery.");
+  }, [isError]);
 
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
@@ -91,6 +96,7 @@ const PostImageGallery: React.FC<PostImageGalleryProps> = ({ postId, galleryDesc
               alt={item.title || 'Gallery image'}
               className="w-full h-auto object-cover"
               loading="lazy"
+              onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
             />
             {/* Hover overlay - only shows on hover */}
             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">

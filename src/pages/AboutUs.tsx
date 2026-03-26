@@ -2,6 +2,7 @@ import React from "react";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import Footer from "@/components/Footer";
 import { Heart } from "lucide-react";
+import { navbarData } from "@/lib/navbarData";
 
 // Placeholders
 const familyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-header.jpg";
@@ -10,40 +11,6 @@ const gesyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/publ
 const victoriaImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images//about-us-victoria.jpg";
 
 const AboutUs = () => {
-  const navbarData = {
-    logo: {
-      url: "/",
-      src: "/placeholder.svg",
-      alt: "Onwards & Upwards",
-      title: "ONWARDS & UPWARDS",
-    },
-    menu: [
-      { title: "Home", url: "/" },
-      {
-        title: "Gallery",
-        url: "#",
-        items: [
-          {
-            title: "Photography",
-            description: "Glimpses of life, frame by frame",
-            url: "/gallery/photos",
-          },
-          {
-            title: "Videography", 
-            description: "Little films from the road",
-            url: "/gallery/videos",
-          },
-        ],
-      },
-      { title: "Blog", url: "/blog" },
-      { title: "About Us", url: "/about" },
-    ],
-    auth: {
-      login: { text: "Newsletter", url: "/newsletter" },
-      signup: { text: "", url: "#" },
-    },
-  };
-
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
       <Navbar1 {...navbarData} />
@@ -64,6 +31,7 @@ const AboutUs = () => {
                 src={familyImg}
                 alt="Our family portrait placeholder"
                 className="w-full h-full object-cover"
+                onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
               />
             </div>
             <p className="text-base md:text-lg text-gray-900 max-w-3xl mx-auto text-center">
@@ -90,6 +58,7 @@ const AboutUs = () => {
                   src={michaelImg}
                   alt="Placeholder for Michael"
                   className="object-cover w-full h-full"
+                  onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
                 />
               </div>
             </div>
@@ -119,6 +88,7 @@ const AboutUs = () => {
                   src={gesyImg}
                   alt="Placeholder for Gesy"
                   className="object-cover w-full h-full"
+                  onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
                 />
               </div>
             </div>
@@ -146,6 +116,7 @@ const AboutUs = () => {
                   src={victoriaImg}
                   alt="Placeholder for Victoria"
                   className="object-cover w-full h-full"
+                  onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
                 />
               </div>
             </div>

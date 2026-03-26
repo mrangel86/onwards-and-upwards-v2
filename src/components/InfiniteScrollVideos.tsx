@@ -69,6 +69,7 @@ const InfiniteScrollVideos: React.FC<InfiniteScrollVideosProps> = ({
                     alt={video.title || 'Video thumbnail'}
                     className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-200"
                     loading="lazy"
+                    onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-200 flex items-center justify-center">

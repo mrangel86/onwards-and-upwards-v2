@@ -40,6 +40,7 @@ const TravelersGlance = () => {
             alt="Meet the travelers"
             className="w-full h-auto object-cover shadow-lg rounded-xl"
             loading="lazy"
+            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
           />
         </div>
       </div>

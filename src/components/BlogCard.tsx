@@ -32,6 +32,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
           alt={title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
           loading="lazy"
+          onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
         />
       </div>
       <div className="flex flex-col gap-1 py-4 px-5 flex-1">
