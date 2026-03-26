@@ -1,6 +1,3 @@
-
-// FORCE DEPLOY: 2025-06-13 Preview System v2 - Clean Supabase Table and Path
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,7 +12,6 @@ import BlogIndex from "./pages/BlogIndex";
 import BlogPost from "./pages/BlogPost";
 import BlogPreview from "./pages/BlogPreview";
 import BookViewer from "./pages/BookViewer";
-import TestPage from "./pages/TestPage";
 
 const queryClient = new QueryClient();
 
@@ -35,7 +31,6 @@ const App = () => (
           <Route path="/preview-posts/:slug" element={<BlogPreview />} />
           <Route path="/book-viewer" element={<BookViewer />} />
           <Route path="/book/:slug" element={<BookViewer />} />
-          <Route path="/test" element={<TestPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
