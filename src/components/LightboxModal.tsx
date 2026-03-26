@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 interface LightboxModalProps {
   open: boolean;
@@ -33,6 +34,8 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   const [currentIdx, setCurrentIdx] = useState(initialIdx);
   const [imageError, setImageError] = useState(false);
   const [linkedPost, setLinkedPost] = useState<LinkedPost | null>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, open);
 
   // Reset to initial index when modal opens and fetch linked post if available
   useEffect(() => {
@@ -40,12 +43,6 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
       setCurrentIdx(initialIdx);
       setImageError(false);
       fetchLinkedPost(postIds[initialIdx]);
-      // Focus the modal for keyboard navigation
-      const timer = setTimeout(() => {
-        const modal = document.querySelector('[role="dialog"]') as HTMLElement;
-        if (modal) modal.focus();
-      }, 100);
-      return () => clearTimeout(timer);
     }
   }, [open, initialIdx]);
 
@@ -101,10 +98,9 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    e.preventDefault();
-    if (e.key === "ArrowLeft") handlePrev(e);
-    if (e.key === "ArrowRight") handleNext(e);
-    if (e.key === "Escape") onClose();
+    if (e.key === "ArrowLeft") { e.preventDefault(); handlePrev(e); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); handleNext(e); }
+    else if (e.key === "Escape") { e.preventDefault(); onClose(); }
   };
 
   const handleImageError = () => {
@@ -116,9 +112,9 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center px-4 md:px-8 py-10 animate-fade-in"
       onClick={onClose}
-      tabIndex={0}
       onKeyDown={handleKeyDown}
       role="dialog"
       aria-modal="true"

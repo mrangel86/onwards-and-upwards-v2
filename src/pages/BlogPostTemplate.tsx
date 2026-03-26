@@ -97,7 +97,7 @@ const BlogBlock = ({ align, text, img }: { align: "left" | "right", text: string
 
 const FullImage = ({ src }: { src: string }) => (
   <div className="w-full my-8">
-    <img src={src} className="w-full object-cover rounded-xl shadow" alt="" loading="lazy" />
+    <img src={src} className="w-full object-cover rounded-xl shadow" alt="Blog post image" loading="lazy" />
   </div>
 );
 

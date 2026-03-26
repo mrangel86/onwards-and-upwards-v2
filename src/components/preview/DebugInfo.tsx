@@ -1,8 +1,24 @@
 
 import React from 'react';
 
+interface PreviewSlug {
+  slug: string;
+}
+
+interface DebugInfoData {
+  slug: string;
+  primaryField?: string;
+  queryAttempted: string;
+  supabaseUrl: string;
+  dataCount?: number;
+  totalCount?: number | string;
+  fallbackAttempted?: boolean;
+  allAvailablePreviews?: PreviewSlug[];
+  error?: unknown;
+}
+
 interface DebugInfoProps {
-  debugInfo: any;
+  debugInfo: DebugInfoData;
   cacheBuster: string;
   buildVersion: string;
 }
@@ -48,7 +64,7 @@ const DebugInfo: React.FC<DebugInfoProps> = ({ debugInfo, cacheBuster, buildVers
           <div>
             <strong>Available Slugs:</strong> {debugInfo.allAvailablePreviews.length} found
             <div className="mt-1 max-h-32 overflow-y-auto text-xs">
-              {debugInfo.allAvailablePreviews.map((preview: any, idx: number) => (
+              {debugInfo.allAvailablePreviews.map((preview: PreviewSlug, idx: number) => (
                 <div key={idx} className="py-1">
                   <code className="bg-gray-100 px-1 rounded">{preview.slug}</code>
                 </div>

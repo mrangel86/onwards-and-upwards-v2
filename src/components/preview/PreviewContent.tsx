@@ -1,8 +1,11 @@
 
 import React from 'react';
+import type { Database } from '@/integrations/supabase/types';
+
+type PreviewPost = Database['public']['Tables']['preview_posts']['Row'];
 
 interface PreviewContentProps {
-  post: any;
+  post: PreviewPost;
   buildVersion: string;
 }
 

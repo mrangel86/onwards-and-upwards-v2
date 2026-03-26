@@ -1,6 +1,7 @@
 
-import React from "react";
+import React, { useRef } from "react";
 import { Play } from "lucide-react";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 interface VideoBlock {
   title: string;
@@ -21,7 +22,11 @@ const VideoList: React.FC<VideoListProps> = ({
   onOpenLightbox,
   modalIdx,
   onCloseLightbox,
-}) => (
+}) => {
+  const videoModalRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(videoModalRef, modalIdx !== null);
+
+  return (
   <div className="flex flex-col gap-7">
     {videos.map((video, idx) => (
       <div
@@ -56,10 +61,12 @@ const VideoList: React.FC<VideoListProps> = ({
         {/* Video modal lightbox */}
         {modalIdx === idx && (
           <div
+            ref={videoModalRef}
             className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-2 animate-fade-in"
             onClick={onCloseLightbox}
             aria-modal="true"
             role="dialog"
+            aria-label={`Playing: ${video.title}`}
           >
             <div
               className="relative w-full max-w-2xl bg-white rounded-xl overflow-hidden shadow-xl"
@@ -85,6 +92,7 @@ const VideoList: React.FC<VideoListProps> = ({
       </div>
     ))}
   </div>
-);
+  );
+};
 
 export default VideoList;

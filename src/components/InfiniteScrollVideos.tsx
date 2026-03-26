@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Loader2, Play } from 'lucide-react';
 import { type Video, getYouTubeId, getYouTubeThumbnail } from '@/hooks/useVideos';
+import { useFocusTrap } from '@/hooks/useFocusTrap';
 
 interface InfiniteScrollVideosProps {
   videos: Video[];
@@ -16,7 +17,9 @@ const InfiniteScrollVideos: React.FC<InfiniteScrollVideosProps> = ({
   onLoadMore
 }) => {
   const observerRef = useRef<HTMLDivElement>(null);
+  const videoModalRef = useRef<HTMLDivElement>(null);
   const [modalIdx, setModalIdx] = useState<number | null>(null);
+  useFocusTrap(videoModalRef, modalIdx !== null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -101,10 +104,12 @@ const InfiniteScrollVideos: React.FC<InfiniteScrollVideosProps> = ({
               {/* Video modal lightbox */}
               {modalIdx === idx && youtubeId && (
                 <div
+                  ref={videoModalRef}
                   className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center px-2 animate-fade-in"
                   onClick={handleCloseLightbox}
                   aria-modal="true"
                   role="dialog"
+                  aria-label={`Playing: ${video.title || 'Video'}`}
                 >
                   <div
                     className="relative w-full max-w-2xl bg-white rounded-xl overflow-hidden shadow-xl"

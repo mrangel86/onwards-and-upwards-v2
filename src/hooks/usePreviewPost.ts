@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type PreviewPost = Database['public']['Tables']['preview_posts']['Row'];
 
 export const usePreviewPost = (slug: string | undefined) => {
   const [loading, setLoading] = useState(true);
-  const [post, setPost] = useState<any>(null);
+  const [post, setPost] = useState<PreviewPost | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -62,8 +65,9 @@ export const usePreviewPost = (slug: string | undefined) => {
         } else {
           setError(`No preview found for: ${actualSlug}`);
         }
-      } catch (err: any) {
-        setError(`Error: ${err.message || 'Unknown error'}`);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        setError(`Error: ${message}`);
       } finally {
         setLoading(false);
       }
