@@ -67,15 +67,12 @@ const AboutUs = () => {
 
         {/* ABOUT GESY */}
         <section className="max-w-5xl mx-auto w-full py-8 md:py-14 px-4 md:px-6">
-          <div
-            className="flex flex-col md:flex-row-reverse items-center md:items-stretch gap-7 md:gap-10 rounded-xl"
-            style={{ background: "#FEF4F0" }}
-          >
+          <div className="flex flex-col md:flex-row-reverse items-center md:items-stretch gap-7 md:gap-10 rounded-xl bg-ivory">
             <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
-              <h2 className="text-xl md:text-2xl font-playfair font-semibold text-primary mb-3" style={{ fontFamily: "Playfair Display, serif" }}>
+              <h2 className="text-xl md:text-2xl font-playfair font-semibold text-primary mb-3">
                 About Gesy
               </h2>
-              <p className="mb-3 text-base text-gray-800 font-serif italic" style={{ fontFamily: "Playfair Display, serif" }}>
+              <p className="mb-3 text-base text-gray-800 font-playfair italic">
                 Always chasing sunshine and singing just to make baby Victoria giggle, Gesy fills every day with warmth and energy. Brazilian at heart and spirit, she's our connector—finding joy in every encounter, laughing in every language, and turning even a simple morning stroll into a miniature adventure.
               </p>
               <p className="text-base text-gray-800">

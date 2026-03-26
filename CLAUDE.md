@@ -12,10 +12,13 @@ Always confirm with the user before merging staging → main.
 - To merge when ready: `git checkout main && git merge staging && git push`
 
 ## After Every Push to Staging
-1. Wait for Vercel preview deployment to complete
-2. Check the preview URL across: homepage, blog listing, one blog post, photo gallery, video gallery
-3. Report any broken layouts, console errors, or missing content
-4. Only tell the user "ready to merge to main" when everything checks out
+1. Use the Vercel MCP tool to find the latest preview deployment URL automatically
+   - list_deployments for project prj_onHzBBjvXlygn9nlBVHEqplBdxv6, team team_ppAAD4NrMHd3vbxWBAgty6rG
+   - Find the most recent non-production deployment marked READY
+2. Use Playwright to visit and screenshot: homepage, /blog, one blog post, /gallery/photos, /gallery/videos
+3. Report findings in plain English — what looks good, what looks broken
+4. Only ask the user to merge to main when everything checks out
+5. Never ask the user to find or paste the preview URL — always look it up yourself
 
 ## Project Context
 - Live site: onwardsandupwards.co
@@ -34,6 +37,12 @@ Always confirm with the user before merging staging → main.
 - Phase 3 — Server-side pagination for BlogIndex, refactor BookViewer,
   convert notionPreview.js to TypeScript, fix inline CSS colors, React.memo on cards
 - Phase 4 — Accessibility audit, TypeScript any cleanup, Supabase RLS policies
+
+## Browser Testing
+- Always use the built-in Playwright MCP tools directly: browser_navigate, browser_take_screenshot, browser_snapshot, etc.
+- NEVER write Node.js or Playwright scripts to /tmp and run them via bash
+- NEVER create playwright_check.js or similar workaround scripts
+- MCP tools require no approval prompts and are faster
 
 ## Rules
 - Never commit .env files (already in .gitignore)

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import { navbarData } from "@/lib/navbarData";
 import Footer from "@/components/Footer";
@@ -12,106 +12,81 @@ import { toast } from "sonner";
 
 const PAGE_SIZE = 6;
 
+type Post = {
+  id: string;
+  slug: string;
+  title: string;
+  author: string | null;
+  created_at: string;
+  excerpt: string | null;
+  hero_image_url: string | null;
+  type: string | null;
+};
+
 const BlogIndex = () => {
   const [filter, setFilter] = useState('all');
-  const [visiblePosts, setVisiblePosts] = useState<any[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const loaderRef = useRef<HTMLDivElement>(null);
-  
-  // Fetch all posts
-  const { data: allPosts, isLoading, isError } = useQuery({
-    queryKey: ['blogPosts'],
-    queryFn: async () => {
-      const { data, error } = await supabase
+
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['blogPosts', filter],
+    queryFn: async ({ pageParam }) => {
+      const from = (pageParam - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
+      let query = supabase
         .from('posts')
-        .select('*')
+        .select('id, slug, title, author, created_at, excerpt, hero_image_url, type')
         .eq('published', true)
-        .order('created_at', { ascending: false });
-      
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      if (filter !== 'all') {
+        query = query.eq('type', filter);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return (data ?? []) as Post[];
     },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length < PAGE_SIZE ? undefined : allPages.length + 1,
   });
 
   useEffect(() => {
     if (isError) toast.error("Failed to load blog posts. Please try again.");
   }, [isError]);
 
-  // Load more posts when needed
-  const loadMorePosts = useCallback(() => {
-    if (!allPosts || isLoadingMore || !hasMore) return;
-
-    setIsLoadingMore(true);
-    
-    setTimeout(() => {
-      const filteredPosts = filter === 'all' 
-        ? allPosts 
-        : allPosts.filter(post => post.type === filter);
-      
-      const startIndex = (page - 1) * PAGE_SIZE;
-      const endIndex = page * PAGE_SIZE;
-      const newPosts = filteredPosts.slice(startIndex, endIndex);
-      
-      if (newPosts.length > 0) {
-        setVisiblePosts(prev => [...prev, ...newPosts]);
-        setPage(prev => prev + 1);
-      }
-      
-      // Check if there are more posts to load
-      setHasMore(endIndex < filteredPosts.length);
-      setIsLoadingMore(false);
-    }, 500);
-  }, [allPosts, filter, page, isLoadingMore, hasMore]);
-
-  // Reset pagination when filter changes
-  useEffect(() => {
-    if (!allPosts) return;
-
-    const filteredPosts = filter === 'all' 
-      ? allPosts 
-      : allPosts.filter(post => post.type === filter);
-    
-    const initialPosts = filteredPosts.slice(0, PAGE_SIZE);
-    setVisiblePosts(initialPosts);
-    setPage(2);
-    setHasMore(filteredPosts.length > PAGE_SIZE);
-  }, [filter, allPosts]);
-
-  // Intersection Observer for infinite scroll
+  // Intersection Observer triggers the next server-side page fetch
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        const target = entries[0];
-        if (target.isIntersecting && hasMore && !isLoadingMore) {
-          loadMorePosts();
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
         }
       },
       { threshold: 0.1 }
     );
-
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-
+    if (loaderRef.current) observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [loadMorePosts, hasMore, isLoadingMore]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Utility to get preview text
-  const getPreviewText = (post: any) => {
-    if (post.excerpt && post.excerpt.trim()) {
-      return post.excerpt;
-    }
-    
-    return "Click to see more about this adventure...";
-  };
+  const visiblePosts = data?.pages.flat() ?? [];
+
+  const getPreviewText = (post: Post) =>
+    post.excerpt?.trim() || "Click to see more about this adventure...";
 
   return (
     <div className="font-inter bg-background min-h-screen flex flex-col">
       <Navbar1 {...navbarData} />
       <main
-        ref={null}
         className="flex-1 max-w-6xl md:max-w-7xl mx-auto w-full px-4 pb-16 pt-10 overflow-y-auto"
         style={{ minHeight: "80vh" }}
         tabIndex={0}
@@ -121,10 +96,9 @@ const BlogIndex = () => {
           <h1 className="font-playfair text-3xl md:text-4xl font-bold mb-2 text-primary">Blog</h1>
           <p className="mb-7 text-gray-700 md:text-lg max-w-2xl">Stories from the road, city corners, rainy afternoons—and all the little moments that make our journey memorable.</p>
         </header>
-        {/* Filter Bar */}
+
         <FilterBar />
 
-        {/* Content */}
         {isLoading ? (
           <div className="text-center py-8">
             <p>Loading posts...</p>
@@ -146,13 +120,10 @@ const BlogIndex = () => {
               ))}
             </div>
 
-            {/* Loading indicator and infinite scroll trigger */}
-            {hasMore && (
-              <div 
-                ref={loaderRef}
-                className="text-center py-8"
-              >
-                {isLoadingMore ? (
+            {/* Infinite scroll trigger */}
+            {hasNextPage && (
+              <div ref={loaderRef} className="text-center py-8">
+                {isFetchingNextPage ? (
                   <p className="text-gray-500">Loading more posts...</p>
                 ) : (
                   <p className="text-gray-400">Scroll down for more posts</p>
@@ -160,14 +131,12 @@ const BlogIndex = () => {
               </div>
             )}
 
-            {/* No more posts message */}
-            {!hasMore && visiblePosts.length > 0 && (
+            {!hasNextPage && visiblePosts.length > 0 && (
               <div className="text-center py-8">
                 <p className="text-gray-500">You've reached the end of our stories</p>
               </div>
             )}
 
-            {/* No posts found */}
             {!isLoading && visiblePosts.length === 0 && (
               <div className="text-center py-8">
                 <p className="text-gray-500">No posts found for this filter</p>
