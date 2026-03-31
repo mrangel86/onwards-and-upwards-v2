@@ -17,6 +17,18 @@ dist-ssr
 .env.local
 .env.production
 
+# Playwright MCP artifacts
+.playwright-mcp/
+
+# Claude Code working files
+COWORK-CONTEXT.md
+
+# Screenshot files
+*.png
+
+# Supabase temp
+supabase/.temp/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
