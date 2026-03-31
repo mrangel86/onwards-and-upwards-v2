@@ -17,6 +17,7 @@ const HeroCarousel = () => {
   const [current, setCurrent] = useState(0);
   const [featuredPosts, setFeaturedPosts] = useState<FeaturedPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paused, setPaused] = useState(false);
 
   // Fetch featured posts from Supabase
   useEffect(() => {
@@ -76,14 +77,14 @@ const HeroCarousel = () => {
 
   // Auto advance slides
   useEffect(() => {
-    if (featuredPosts.length <= 1) return;
-    
+    if (featuredPosts.length <= 1 || paused) return;
+
     const timer = setTimeout(() => {
       next();
     }, 6000);
-    
+
     return () => clearTimeout(timer);
-  }, [current, featuredPosts.length]);
+  }, [current, featuredPosts.length, paused]);
 
   if (loading) {
     return (
@@ -94,7 +95,11 @@ const HeroCarousel = () => {
   }
 
   return (
-    <section className="relative w-full h-[70vh] flex items-center justify-center overflow-hidden">
+    <section
+      className="relative w-full h-[70vh] flex items-center justify-center overflow-hidden"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       {featuredPosts.map((post, i) => (
         <div
           key={i}

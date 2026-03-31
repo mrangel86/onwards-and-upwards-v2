@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import * as pdfjsLib from 'pdfjs-dist';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useBookData } from '@/hooks/useBookData';
@@ -81,6 +81,7 @@ const BookViewer: React.FC = () => {
   const fileParam = searchParams.get('file');
   const bookRef = useRef<HTMLDivElement>(null);
 
+  const navigate = useNavigate();
   const { bookData, pdfUrl, loading: bookLoading, error: bookError } = useBookData(slug, fileParam);
   const { pages, pdfProcessing, processingProgress, error: pdfError } = usePdfPages(pdfUrl);
   const { currentPage, pageFlipInitialized, nextPage, prevPage, goToPage } = usePageFlip(
@@ -117,7 +118,7 @@ const BookViewer: React.FC = () => {
                 Page {currentPage + 1} of {pages.length}
               </span>
               <button
-                onClick={() => window.history.back()}
+                onClick={() => navigate('/')}
                 className="text-gray-500 hover:text-gray-700 text-sm font-medium"
               >
                 ← Back

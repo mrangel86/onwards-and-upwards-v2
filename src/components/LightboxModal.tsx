@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -35,6 +35,7 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
   const [imageError, setImageError] = useState(false);
   const [linkedPost, setLinkedPost] = useState<LinkedPost | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
+  const postCache = useRef<Map<string, LinkedPost>>(new Map());
   useFocusTrap(dialogRef, open);
 
   // Reset to initial index when modal opens and fetch linked post if available
@@ -61,6 +62,11 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
       return;
     }
 
+    if (postCache.current.has(postId)) {
+      setLinkedPost(postCache.current.get(postId)!);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('posts')
@@ -69,14 +75,13 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
         .single();
 
       if (error || !data) {
-        console.error('Error fetching linked post:', error);
         setLinkedPost(null);
         return;
       }
 
+      postCache.current.set(postId, data);
       setLinkedPost(data);
     } catch (err) {
-      console.error('Unexpected error fetching linked post:', err);
       setLinkedPost(null);
     }
   };
@@ -124,6 +129,15 @@ const LightboxModal: React.FC<LightboxModalProps> = ({
         className="relative max-w-7xl max-h-full w-full h-full flex flex-col items-center justify-center"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-0 right-0 z-20 bg-black/40 hover:bg-black/70 text-white rounded-full p-2 transition-colors"
+          aria-label="Close lightbox"
+          type="button"
+        >
+          <X size={22} />
+        </button>
         {/* Image Container */}
         <div className="relative w-full h-[75%] flex items-center justify-center overflow-hidden">
           <img

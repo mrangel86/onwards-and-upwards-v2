@@ -1,7 +1,8 @@
 
 import React, { useState, useEffect } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import DOMPurify from "dompurify";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import { navbarData } from "@/lib/navbarData";
 import Footer from "@/components/Footer";
@@ -21,12 +22,11 @@ const SectionDivider = () => <div className="my-14 flex justify-center">
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxImageUrl, setLightboxImageUrl] = useState("");
   const [contentImages, setContentImages] = useState<string[]>([]);
   const [contentImageTitles, setContentImageTitles] = useState<string[]>([]);
   const [contentImageCaptions, setContentImageCaptions] = useState<string[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  
+
   const {
     data: post,
     isLoading,
@@ -41,7 +41,7 @@ const BlogPost = () => {
       } = await supabase.from('posts').select('*').eq('slug', slug).eq('published', true).single();
       if (error) {
         if (error.code === 'PGRST116') {
-          return null; // No row found
+          return null;
         }
         throw error;
       }
@@ -68,91 +68,69 @@ const BlogPost = () => {
     enabled: !!post
   });
 
-  // Extract all images from post content
+  // Extract all images from post content for lightbox
   useEffect(() => {
     if (!post || !post.content) return;
-    
-    const extractImages = () => {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(post.content, 'text/html');
-      const imageElements = doc.querySelectorAll('img');
-      
-      const images: string[] = [];
-      const titles: string[] = [];
-      const captions: string[] = [];
-      
-      // Extract metadata from content images
-      Array.from(imageElements).forEach(img => {
-        images.push(img.src);
-        titles.push(img.alt || img.title || post.title || '');
-        
-        // Try to find caption from parent figure or nearby text
-        const parent = img.parentElement;
-        let caption = '';
-        if (parent?.tagName === 'FIGURE') {
-          const figcaption = parent.querySelector('figcaption');
-          caption = figcaption?.textContent || '';
-        }
-        captions.push(caption);
-      });
-      
-      // Add hero image if it exists
-      if (post.hero_image_url) {
-        images.unshift(post.hero_image_url);
-        titles.unshift(post.title || '');
-        captions.unshift(post.excerpt || '');
-      }
-      
-      setContentImages(images);
-      setContentImageTitles(titles);
-      setContentImageCaptions(captions);
-    };
-    
-    extractImages();
-  }, [post, slug]);
 
-  // Handle image click to open lightbox
-  const handleImageClick = (imageUrl: string) => {
-    const imageIndex = contentImages.indexOf(imageUrl);
-    setActiveImageIndex(imageIndex >= 0 ? imageIndex : 0);
-    setLightboxImageUrl(imageUrl);
-    setLightboxOpen(true);
-  };
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(post.content, 'text/html');
+    const imageElements = doc.querySelectorAll('img');
+
+    const images: string[] = [];
+    const titles: string[] = [];
+    const captions: string[] = [];
+
+    Array.from(imageElements).forEach(img => {
+      images.push(img.src);
+      titles.push(img.alt || img.title || post.title || '');
+      const parent = img.parentElement;
+      let caption = '';
+      if (parent?.tagName === 'FIGURE') {
+        const figcaption = parent.querySelector('figcaption');
+        caption = figcaption?.textContent || '';
+      }
+      captions.push(caption);
+    });
+
+    if (post.hero_image_url) {
+      images.unshift(post.hero_image_url);
+      titles.unshift(post.title || '');
+      captions.unshift(post.excerpt || '');
+    }
+
+    setContentImages(images);
+    setContentImageTitles(titles);
+    setContentImageCaptions(captions);
+  }, [post, slug]);
 
   // Add click handlers to content images + mark 2-image grids
   useEffect(() => {
     if (!post) return;
-    
-    // Small delay to ensure content is rendered
+
     const timer = setTimeout(() => {
       const contentElement = document.querySelector('.post-content');
       if (!contentElement) return;
-      
-      // Add click handlers to all images in content
+
+      // Use DOM index directly — avoids stale closure over contentImages state
+      const heroOffset = post.hero_image_url ? 1 : 0;
       const images = contentElement.querySelectorAll('img');
-      images.forEach(img => {
+      images.forEach((img, domIndex) => {
         img.classList.add('cursor-pointer', 'hover:opacity-90', 'transition');
-        img.addEventListener('click', () => handleImageClick(img.src));
+        const lightboxIndex = domIndex + heroOffset;
+        img.addEventListener('click', () => {
+          setActiveImageIndex(lightboxIndex);
+          setLightboxOpen(true);
+        });
       });
-      
+
       // Mark 2-image grids with data attribute for CSS targeting
       const imageGrids = contentElement.querySelectorAll('.image-grid');
       imageGrids.forEach(grid => {
         const imgCount = grid.querySelectorAll('img').length;
         (grid as HTMLElement).dataset.images = String(imgCount);
       });
-      
-      // Add click handler to hero image
-      const heroImage = document.querySelector('.hero-image');
-      if (heroImage) {
-        heroImage.classList.add('cursor-pointer');
-        heroImage.addEventListener('click', () => {
-          const img = heroImage as HTMLImageElement;
-          handleImageClick(img.src);
-        });
-      }
     }, 100);
-    
+
     return () => clearTimeout(timer);
   }, [post, slug]);
 
@@ -172,6 +150,11 @@ const BlogPost = () => {
 
   const isGalleryPost = post.type === 'gallery' && post.gallery_description;
 
+  const sanitizedContent = DOMPurify.sanitize(post.content || '', {
+    ADD_TAGS: ['iframe'],
+    ADD_ATTR: ['allowfullscreen', 'frameborder', 'allow', 'src'],
+  });
+
   return <div className="font-inter bg-background min-h-screen flex flex-col">
       <Navbar1 {...navbarData} />
       <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10">
@@ -186,18 +169,19 @@ const BlogPost = () => {
             src={post.hero_image_url ? optimizeSupabaseImage(post.hero_image_url, ImagePresets.featured) : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"}
             alt={post.title}
             className="w-full h-auto object-contain hero-image rounded-xl shadow mb-6 cursor-pointer"
+            onClick={() => { setActiveImageIndex(0); setLightboxOpen(true); }}
             onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
           />
         </section>
 
         {/* Content body */}
         {isGalleryPost ? (
-          <PostImageGallery 
-            postId={post.slug} 
+          <PostImageGallery
+            postId={post.slug}
             galleryDescription={post.gallery_description}
           />
         ) : (
-          <section className="post-content" dangerouslySetInnerHTML={{ __html: post.content || "" }} />
+          <section className="post-content" dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
         )}
 
         {/* Section Divider */}
@@ -208,7 +192,7 @@ const BlogPost = () => {
           <OtherPostsGrid posts={relatedPosts || []} />
         </div>
       </main>
-      
+
       {/* Image Lightbox Modal */}
       {!isGalleryPost && (
         <LightboxModal
@@ -220,7 +204,7 @@ const BlogPost = () => {
           descs={contentImageCaptions}
         />
       )}
-      
+
       <NewsletterSignup />
       <Footer />
     </div>;
