@@ -1,5 +1,6 @@
 
 import React from "react";
+import { optimizeSupabaseImage, ImagePresets } from "@/lib/imageOptimization";
 
 type BlogCardProps = {
   title: string;
@@ -28,7 +29,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
     >
       <div className="w-full h-48 overflow-hidden">
         <img
-          src={image}
+          src={optimizeSupabaseImage(image, ImagePresets.thumbnail)}
           alt={title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
           loading="lazy"

@@ -3,6 +3,7 @@ import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import Footer from "@/components/Footer";
 import { Heart } from "lucide-react";
 import { navbarData } from "@/lib/navbarData";
+import { optimizeSupabaseImage, ImagePresets } from "@/lib/imageOptimization";
 
 // Placeholders
 const familyImg = "https://zrtgkvpbptxueetuqlmb.supabase.co/storage/v1/object/public/website-images/about-us-header.jpg";
@@ -28,7 +29,7 @@ const AboutUs = () => {
           <div className="max-w-5xl mx-auto px-4 md:px-6">
             <div className="w-full aspect-[4/1.7] md:aspect-[3/1.2] overflow-hidden flex items-center justify-center mb-5">
               <img
-                src={familyImg}
+                src={optimizeSupabaseImage(familyImg, ImagePresets.featured)}
                 alt="Our family portrait placeholder"
                 className="w-full h-full object-cover"
                 onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
@@ -41,7 +42,7 @@ const AboutUs = () => {
         </section>
 
         {/* ABOUT MICHAEL */}
-        <section className="max-w-5xl mx-auto w-full py-8 md:py-14 px-4 md:px-6">
+        <section className="max-w-5xl mx-auto w-full py-6 md:py-10 px-4 md:px-6">
           <div className="flex flex-col md:flex-row items-center md:items-stretch gap-7 md:gap-10 bg-[#F5F5F6] rounded-xl border border-gray-200 shadow">
             <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
               <h2 className="text-xl font-semibold text-primary mb-3">About Michael</h2>
@@ -55,7 +56,7 @@ const AboutUs = () => {
             <div className="flex-1 flex items-center justify-center p-6">
               <div className="w-full max-w-xs aspect-[4/5] bg-gray-200 rounded-xl overflow-hidden flex items-center justify-center">
                 <img
-                  src={michaelImg}
+                  src={optimizeSupabaseImage(michaelImg, ImagePresets.gallery)}
                   alt="Placeholder for Michael"
                   className="object-cover w-full h-full"
                   onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
@@ -66,7 +67,7 @@ const AboutUs = () => {
         </section>
 
         {/* ABOUT GESY */}
-        <section className="max-w-5xl mx-auto w-full py-8 md:py-14 px-4 md:px-6">
+        <section className="max-w-5xl mx-auto w-full py-6 md:py-10 px-4 md:px-6">
           <div className="flex flex-col md:flex-row-reverse items-center md:items-stretch gap-7 md:gap-10 rounded-xl bg-ivory">
             <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
               <h2 className="text-xl md:text-2xl font-playfair font-semibold text-primary mb-3">
@@ -82,7 +83,7 @@ const AboutUs = () => {
             <div className="flex-1 flex items-center justify-center p-6">
               <div className="w-full max-w-xs aspect-[4/5] bg-[#FDE1D3] rounded-xl overflow-hidden flex items-center justify-center">
                 <img
-                  src={gesyImg}
+                  src={optimizeSupabaseImage(gesyImg, ImagePresets.gallery)}
                   alt="Placeholder for Gesy"
                   className="object-cover w-full h-full"
                   onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
@@ -93,7 +94,7 @@ const AboutUs = () => {
         </section>
 
         {/* ABOUT VICTORIA */}
-        <section className="max-w-5xl mx-auto w-full py-8 md:py-14 px-4 md:px-6">
+        <section className="max-w-5xl mx-auto w-full py-6 md:py-10 px-4 md:px-6">
           <div className="flex flex-col md:flex-row items-center md:items-stretch gap-7 md:gap-10 bg-[#FFDDDC] rounded-xl border border-gray-200 shadow">
             <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
               <div className="flex items-center gap-2 mb-3">
@@ -110,7 +111,7 @@ const AboutUs = () => {
             <div className="flex-1 flex items-center justify-center p-6">
               <div className="w-full max-w-xs aspect-[4/5] bg-gray-200 rounded-xl overflow-hidden flex items-center justify-center">
                 <img
-                  src={victoriaImg}
+                  src={optimizeSupabaseImage(victoriaImg, ImagePresets.gallery)}
                   alt="Placeholder for Victoria"
                   className="object-cover w-full h-full"
                   onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}

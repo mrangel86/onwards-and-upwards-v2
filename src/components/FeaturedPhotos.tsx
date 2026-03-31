@@ -152,7 +152,7 @@ const FeaturedPhotos = () => {
                 <img
                   src={optimizeSupabaseImage(photo.url, ImagePresets.featured)}
                   alt={photo.title || 'Featured photo'}
-                  className="w-full h-56 object-cover transition duration-300 group-hover:scale-105"
+                  className="w-full h-48 object-cover transition duration-300 group-hover:scale-105"
                   loading="lazy"
                   onError={() => handleImageError(i)}
                 />

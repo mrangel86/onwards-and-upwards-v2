@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { optimizeSupabaseImage, ImagePresets } from "@/lib/imageOptimization";
 
 type FeaturedPost = {
   title: string;
@@ -104,7 +105,7 @@ const HeroCarousel = () => {
         >
           <div 
             className="w-full h-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${post.hero_image_url})` }}
+            style={{ backgroundImage: `url(${optimizeSupabaseImage(post.hero_image_url, ImagePresets.hero)})` }}
           >
             <div className="w-full h-full flex items-center justify-center text-white bg-black/40 bg-blend-multiply">
               <div className="max-w-2xl mx-auto text-center px-4">

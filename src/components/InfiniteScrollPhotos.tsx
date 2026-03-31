@@ -44,7 +44,7 @@ const InfiniteScrollPhotos: React.FC<InfiniteScrollPhotosProps> = ({
         {photos.map((photo, index) => (
           <div
             key={photo.id}
-            className="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300"
+            className="group relative aspect-[4/3] overflow-hidden rounded-lg cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300 bg-gray-100"
             onClick={() => onPhotoClick(index)}
           >
             <img

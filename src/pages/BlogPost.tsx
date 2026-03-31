@@ -10,6 +10,7 @@ import NewsletterSignup from "@/components/NewsletterSignup";
 import OtherPostsGrid from "@/components/OtherPostsGrid";
 import PostImageGallery from "@/components/PostImageGallery";
 import { supabase } from "@/integrations/supabase/client";
+import { optimizeSupabaseImage, ImagePresets } from "@/lib/imageOptimization";
 import NotFound from "./NotFound";
 import LightboxModal from "@/components/LightboxModal";
 
@@ -191,7 +192,7 @@ const BlogPost = () => {
             <span className="text-sm text-gray-500">{formatDate(post.created_at)}</span>
           </div>
           <img
-            src={post.hero_image_url || "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"}
+            src={post.hero_image_url ? optimizeSupabaseImage(post.hero_image_url, ImagePresets.featured) : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80"}
             alt={post.title}
             className="w-full h-auto object-contain hero-image rounded-xl shadow mb-6 cursor-pointer"
             onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
