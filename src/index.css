@@ -123,38 +123,6 @@
     letter-spacing: 0em !important;
   }
 
-  /* Utility classes for new color palette */
-  .bg-ivory {
-    background-color: #FEF4F0;
-  }
-
-  .bg-light-blue {
-    background-color: #0099FF;
-  }
-
-  .bg-white {
-    background-color: #FFFFFF;
-  }
-
-  .bg-black {
-    background-color: #000000;
-  }
-
-  .text-ivory {
-    color: #FEF4F0 !important;
-  }
-
-  .text-light-blue {
-    color: #0099FF !important;
-  }
-
-  .text-white {
-    color: #FFFFFF !important;
-  }
-
-  .text-black {
-    color: #000000 !important;
-  }
 }
 
 @layer components {

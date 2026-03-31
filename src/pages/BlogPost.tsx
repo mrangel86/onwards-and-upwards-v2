@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import { navbarData } from "@/lib/navbarData";
 import Footer from "@/components/Footer";
@@ -11,6 +10,7 @@ import OtherPostsGrid from "@/components/OtherPostsGrid";
 import PostImageGallery from "@/components/PostImageGallery";
 import { supabase } from "@/integrations/supabase/client";
 import { optimizeSupabaseImage, ImagePresets } from "@/lib/imageOptimization";
+import { formatDate } from "@/lib/postUtils";
 import NotFound from "./NotFound";
 import LightboxModal from "@/components/LightboxModal";
 
@@ -67,15 +67,6 @@ const BlogPost = () => {
     },
     enabled: !!post
   });
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '';
-    try {
-      return format(new Date(dateString), 'MMMM d, yyyy');
-    } catch (e) {
-      return '';
-    }
-  };
 
   // Extract all images from post content
   useEffect(() => {

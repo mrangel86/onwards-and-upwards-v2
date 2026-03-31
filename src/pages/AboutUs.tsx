@@ -43,7 +43,7 @@ const AboutUs = () => {
 
         {/* ABOUT MICHAEL */}
         <section className="max-w-5xl mx-auto w-full py-6 md:py-10 px-4 md:px-6">
-          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-7 md:gap-10 bg-[#F5F5F6] rounded-xl border border-gray-200 shadow">
+          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-7 md:gap-10 bg-cardbg rounded-xl border border-gray-200 shadow">
             <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
               <h2 className="text-xl font-semibold text-primary mb-3">About Michael</h2>
               <p className="mb-3 text-base text-gray-800">
@@ -95,7 +95,7 @@ const AboutUs = () => {
 
         {/* ABOUT VICTORIA */}
         <section className="max-w-5xl mx-auto w-full py-6 md:py-10 px-4 md:px-6">
-          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-7 md:gap-10 bg-[#FFDDDC] rounded-xl border border-gray-200 shadow">
+          <div className="flex flex-col md:flex-row items-center md:items-stretch gap-7 md:gap-10 bg-peach rounded-xl border border-gray-200 shadow">
             <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
               <div className="flex items-center gap-2 mb-3">
                 <h2 className="text-xl font-semibold text-primary">About Victoria</h2>

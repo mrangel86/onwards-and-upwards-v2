@@ -26,7 +26,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ title, pdfProcessing, pro
         <div className="mt-4">
           <div className="w-64 bg-gray-200 rounded-full h-2 mx-auto">
             <div
-              className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+              className="bg-accent h-2 rounded-full transition-all duration-300"
               style={{ width: `${processingProgress}%` }}
             />
           </div>
@@ -48,7 +48,7 @@ const ErrorScreen: React.FC<{ message: string }> = ({ message }) => (
       <div className="space-y-2">
         <button
           onClick={() => window.location.reload()}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors mr-2"
+          className="bg-accent hover:bg-accent/90 text-white px-4 py-2 rounded-md transition-colors mr-2"
         >
           Try Again
         </button>
@@ -179,7 +179,7 @@ const BookViewer: React.FC = () => {
                 key={index}
                 onClick={() => goToPage(index)}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentPage ? 'bg-blue-500 w-6' : 'bg-gray-300 hover:bg-gray-400'
+                  index === currentPage ? 'bg-accent w-6' : 'bg-gray-300 hover:bg-gray-400'
                 }`}
                 aria-label={`Go to page ${index + 1}`}
               />
