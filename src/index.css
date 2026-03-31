@@ -286,6 +286,15 @@
     max-width: none !important; /* Override single image constraint */
   }
 
+  /* Video embeds - responsive iframe */
+  .post-content iframe {
+    width: 100%;
+    aspect-ratio: 16/9;
+    border-radius: 8px;
+    margin: 1.5rem auto;
+    display: block;
+  }
+
   /* Mobile: stack all grids to single column */
   @media (max-width: 768px) {
     .post-content .image-grid {

@@ -27,7 +27,7 @@ export const navbarData = {
     { title: "About Us", url: "/about" },
   ],
   auth: {
-    login: { text: "Newsletter", url: "/newsletter" },
+    login: { text: "Newsletter", url: "/#newsletter" },
     signup: { text: "", url: "#" },
   },
 };
