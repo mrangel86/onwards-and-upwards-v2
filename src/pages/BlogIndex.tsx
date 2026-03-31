@@ -4,7 +4,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { Navbar1 } from "@/components/ui/shadcnblocks-com-navbar1";
 import { navbarData } from "@/lib/navbarData";
 import Footer from "@/components/Footer";
-import FilterBar from "@/components/FilterBar";
 import BlogCard from "@/components/BlogCard";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -96,8 +95,6 @@ const BlogIndex = () => {
           <h1 className="font-playfair text-3xl md:text-4xl font-bold mb-2 text-primary">Blog</h1>
           <p className="mb-7 text-gray-700 md:text-lg max-w-2xl">Stories from the road, city corners, rainy afternoons—and all the little moments that make our journey memorable.</p>
         </header>
-
-        <FilterBar />
 
         {isLoading ? (
           <div className="text-center py-8">

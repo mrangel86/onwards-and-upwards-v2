@@ -72,7 +72,7 @@ const AboutUs = () => {
               <h2 className="text-xl md:text-2xl font-playfair font-semibold text-primary mb-3">
                 About Gesy
               </h2>
-              <p className="mb-3 text-base text-gray-800 font-playfair italic">
+              <p className="mb-3 text-base text-gray-800">
                 Always chasing sunshine and singing just to make baby Victoria giggle, Gesy fills every day with warmth and energy. Brazilian at heart and spirit, she's our connector—finding joy in every encounter, laughing in every language, and turning even a simple morning stroll into a miniature adventure.
               </p>
               <p className="text-base text-gray-800">

@@ -54,7 +54,7 @@ const Footer = () => (
       </div>
     </div>
     <div className="text-gray-400 text-xs mt-8 text-center">
-      © 2025 Onwards & Upwards
+      © 2026 Onwards & Upwards
     </div>
   </footer>
 );
