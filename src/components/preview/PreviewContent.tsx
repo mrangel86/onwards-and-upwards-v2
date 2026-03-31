@@ -37,7 +37,7 @@ const PreviewContent: React.FC<PreviewContentProps> = ({ post, buildVersion }) =
     <main className="flex-1 max-w-4xl mx-auto w-full px-4 pb-10">
       {/* Header */}
       <section className="pt-10 pb-6">
-        <h1 className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-2">
+        <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">
           {post.title}
         </h1>
         <div className="flex items-center justify-between mb-6">

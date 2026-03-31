@@ -88,7 +88,7 @@ const InfiniteScrollVideos: React.FC<InfiniteScrollVideosProps> = ({
 
               {/* Right Side - Text */}
               <div className="flex-1 w-full px-4 py-4 md:px-0 md:py-0 text-left">
-                <h3 className="font-playfair text-xl font-bold text-primary mb-1">
+                <h3 className="text-xl font-bold text-primary mb-1">
                   {video.title || 'Untitled Video'}
                 </h3>
                 <p className="text-gray-700 text-base mb-2">

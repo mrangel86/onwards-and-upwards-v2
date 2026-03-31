@@ -11,7 +11,7 @@ const NewsletterModal = ({ email, onClose }: { email: string; onClose: () => voi
         className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-playfair text-xl font-bold mb-4">Thank you for subscribing!</h3>
+        <h3 className="text-xl font-bold mb-4">Thank you for subscribing!</h3>
         <p className="mb-5">
           We've added <strong>{email}</strong> to our newsletter list. You'll receive updates and stories from our adventures soon!
         </p>
@@ -62,7 +62,7 @@ const NewsletterSignup = () => {
       >
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-6">
-            <h2 className="font-playfair text-2xl md:text-3xl font-bold text-primary mb-3">Newsletter</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-primary mb-3">Newsletter</h2>
             <p className="text-gray-700">Notes from the road for those who want to stay close.</p>
           </div>
           <form className="flex flex-col sm:flex-row items-stretch gap-3 w-full max-w-md mx-auto" onSubmit={handleSubmit}>

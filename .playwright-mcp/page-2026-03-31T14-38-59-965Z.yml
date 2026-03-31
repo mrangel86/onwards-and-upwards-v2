@@ -1,0 +1,68 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e3]:
+    - navigation [ref=e6]:
+      - link "ONWARDS & UPWARDS" [ref=e7] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e8]:
+        - navigation "Main" [ref=e10]:
+          - list [ref=e12]:
+            - link "Home" [ref=e13] [cursor=pointer]:
+              - /url: /
+            - listitem [ref=e14]:
+              - button "Gallery" [ref=e15] [cursor=pointer]:
+                - text: Gallery
+                - img [ref=e16]
+            - link "Blog" [ref=e18] [cursor=pointer]:
+              - /url: /blog
+            - link "About Us" [ref=e19] [cursor=pointer]:
+              - /url: /about
+        - link "Newsletter" [ref=e20] [cursor=pointer]:
+          - /url: /newsletter
+    - main [ref=e21]:
+      - paragraph [ref=e23]: Loading featured stories...
+      - generic [ref=e24]:
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - heading "Travelers at a Glance" [level=2] [ref=e28]
+            - paragraph [ref=e29]: Meet Michael, Gesy, and VV—a curious crew of dreamers, wanderers, and snack enthusiasts with a camera (or two) always in hand.
+            - paragraph [ref=e30]: "We're capturing an ongoing family adventure: from forest trails to piazza gelatos. We travel with open hearts, a bit of childlike awe, and a healthy appetite for both nature and good food."
+            - button "Learn More" [ref=e31] [cursor=pointer]
+          - img "Meet the travelers" [ref=e33]
+        - generic [ref=e34]:
+          - heading "Featured // Photos" [level=2] [ref=e35]
+          - paragraph [ref=e37]: Loading featured photos...
+        - paragraph [ref=e40]: Loading featured video...
+        - generic [ref=e41]:
+          - heading "Latest // Blog Posts" [level=2] [ref=e42]
+          - paragraph [ref=e44]: Loading latest posts...
+          - button "See More" [ref=e46] [cursor=pointer]
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - heading "Newsletter" [level=2] [ref=e50]
+            - paragraph [ref=e51]: Notes from the road for those who want to stay close.
+          - generic [ref=e52]:
+            - textbox "Your email" [ref=e53]
+            - button "Subscribe" [ref=e54] [cursor=pointer]
+    - contentinfo [ref=e55]:
+      - generic [ref=e56]:
+        - link "ONWARDS & UPWARDS" [ref=e58] [cursor=pointer]:
+          - /url: /
+        - paragraph [ref=e60]: Onwards & Upwards is a family journal chronicling our journey through Europe—written for ourselves, our daughter, and anyone who wants to follow along.
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - link "Home" [ref=e63] [cursor=pointer]:
+              - /url: /
+            - link "Blog" [ref=e64] [cursor=pointer]:
+              - /url: /blog
+            - link "About Us" [ref=e65] [cursor=pointer]:
+              - /url: /about
+          - generic [ref=e66]:
+            - generic [ref=e67]: Gallery
+            - link "Photography" [ref=e68] [cursor=pointer]:
+              - /url: /gallery/photos
+            - link "Videography" [ref=e69] [cursor=pointer]:
+              - /url: /gallery/videos
+          - button "Newsletter" [ref=e71] [cursor=pointer]
+      - generic [ref=e72]: © 2025 Onwards & Upwards

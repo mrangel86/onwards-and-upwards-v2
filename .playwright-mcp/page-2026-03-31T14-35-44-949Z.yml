@@ -1,0 +1,57 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e3]:
+    - generic [ref=e7]:
+      - link "ONWARDS & UPWARDS" [ref=e8] [cursor=pointer]:
+        - /url: /
+      - button [ref=e9] [cursor=pointer]:
+        - img
+    - main [ref=e10]:
+      - generic [ref=e11]:
+        - heading "About Us" [level=1] [ref=e12]
+        - generic [ref=e13]: A family of three exploring Europe one adventure at a time
+      - generic [ref=e15]:
+        - img "Our family portrait placeholder" [ref=e17]
+        - paragraph [ref=e18]: We're Michael, Gesy, and little Victoria—three travelers on a slow journey across Europe, seeking deeper connection, fresh perspectives, and a world of new experiences together. Leaving the familiar behind, we hope to savor the little moments, discover beauty in the everyday, and write a family story of adventure, resilience, and joy. Thanks for joining us as we wander onwards & upwards.
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - heading "About Michael" [level=2] [ref=e22]
+          - paragraph [ref=e23]: Michael is the steady anchor of our family—a curious, coffee-fueled explorer, tech enthusiast, and lifelong daydreamer. He's happiest with a camera in hand, seeking out scenic overlooks and surprising stories in everyday places.
+          - paragraph [ref=e24]: With a knack for finding cozy bookshops and memorably good bakeries (and making every train connection... almost), Michael brings calm, humor, and a spirit of discovery to our travels.
+        - img "Placeholder for Michael" [ref=e27]
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - heading "About Gesy" [level=2] [ref=e31]
+          - paragraph [ref=e32]: Always chasing sunshine and singing just to make baby Victoria giggle, Gesy fills every day with warmth and energy. Brazilian at heart and spirit, she's our connector—finding joy in every encounter, laughing in every language, and turning even a simple morning stroll into a miniature adventure.
+          - paragraph [ref=e33]: She brings a touch of poetry and spontaneity to our family explorations, teaching us how to savor beauty and connection wherever we go.
+        - img "Placeholder for Gesy" [ref=e36]
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - heading "About Victoria" [level=2] [ref=e41]
+            - img [ref=e42]
+          - paragraph [ref=e44]: The heart and smile of our travels, Victoria brings pure delight everywhere we go. Whether giggling from her carrier or dozing through adventures, she reminds us to slow down, look closer, and enjoy the magic in every new place (and every bakery).
+          - paragraph [ref=e45]: We're endlessly grateful for each day exploring the world through her bright, wonder-filled eyes.
+        - img "Placeholder for Victoria" [ref=e48]
+    - contentinfo [ref=e49]:
+      - generic [ref=e50]:
+        - link "ONWARDS & UPWARDS" [ref=e52] [cursor=pointer]:
+          - /url: /
+        - paragraph [ref=e54]: Onwards & Upwards is a family journal chronicling our journey through Europe—written for ourselves, our daughter, and anyone who wants to follow along.
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - link "Home" [ref=e57] [cursor=pointer]:
+              - /url: /
+            - link "Blog" [ref=e58] [cursor=pointer]:
+              - /url: /blog
+            - link "About Us" [ref=e59] [cursor=pointer]:
+              - /url: /about
+          - generic [ref=e60]:
+            - generic [ref=e61]: Gallery
+            - link "Photography" [ref=e62] [cursor=pointer]:
+              - /url: /gallery/photos
+            - link "Videography" [ref=e63] [cursor=pointer]:
+              - /url: /gallery/videos
+          - button "Newsletter" [ref=e65] [cursor=pointer]
+      - generic [ref=e66]: © 2025 Onwards & Upwards

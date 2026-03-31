@@ -1,0 +1,39 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e3]:
+    - generic [ref=e7]:
+      - link "ONWARDS & UPWARDS" [ref=e8] [cursor=pointer]:
+        - /url: /
+      - button [ref=e9] [cursor=pointer]:
+        - img
+    - main [ref=e10]:
+      - generic [ref=e11]:
+        - heading "Blog" [level=1] [ref=e12]
+        - paragraph [ref=e13]: Stories from the road, city corners, rainy afternoons—and all the little moments that make our journey memorable.
+      - generic [ref=e14]:
+        - button "Filter by location" [disabled]:
+          - img
+          - text: Filter by location
+      - paragraph [ref=e16]: Loading posts...
+    - contentinfo [ref=e17]:
+      - generic [ref=e18]:
+        - link "ONWARDS & UPWARDS" [ref=e20] [cursor=pointer]:
+          - /url: /
+        - paragraph [ref=e22]: Onwards & Upwards is a family journal chronicling our journey through Europe—written for ourselves, our daughter, and anyone who wants to follow along.
+        - generic [ref=e23]:
+          - generic [ref=e24]:
+            - link "Home" [ref=e25] [cursor=pointer]:
+              - /url: /
+            - link "Blog" [ref=e26] [cursor=pointer]:
+              - /url: /blog
+            - link "About Us" [ref=e27] [cursor=pointer]:
+              - /url: /about
+          - generic [ref=e28]:
+            - generic [ref=e29]: Gallery
+            - link "Photography" [ref=e30] [cursor=pointer]:
+              - /url: /gallery/photos
+            - link "Videography" [ref=e31] [cursor=pointer]:
+              - /url: /gallery/videos
+          - button "Newsletter" [ref=e33] [cursor=pointer]
+      - generic [ref=e34]: © 2025 Onwards & Upwards

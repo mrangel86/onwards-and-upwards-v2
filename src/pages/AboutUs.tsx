@@ -18,7 +18,7 @@ const AboutUs = () => {
       <main className="flex-1 w-full">
         {/* HERO SECTION */}
         <section className="max-w-5xl mx-auto pt-14 md:pt-20 pb-10 px-4 md:px-6">
-          <h1 className="text-3xl md:text-5xl font-playfair font-bold text-primary text-center mb-3">About Us</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-primary text-center mb-3">About Us</h1>
           <div className="text-lg text-muted-foreground text-center mb-8 font-medium">
             A family of three exploring Europe one adventure at a time
           </div>
@@ -70,7 +70,7 @@ const AboutUs = () => {
         <section className="max-w-5xl mx-auto w-full py-6 md:py-10 px-4 md:px-6">
           <div className="flex flex-col md:flex-row-reverse items-center md:items-stretch gap-7 md:gap-10 rounded-xl bg-ivory">
             <div className="flex-1 flex flex-col justify-center py-7 px-4 md:px-8">
-              <h2 className="text-xl md:text-2xl font-playfair font-semibold text-primary mb-3">
+              <h2 className="text-xl md:text-2xl font-semibold text-primary mb-3">
                 About Gesy
               </h2>
               <p className="mb-3 text-base text-gray-800">

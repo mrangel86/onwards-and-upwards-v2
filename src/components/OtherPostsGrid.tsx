@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import BlogCard from "./BlogCard";
-import { format } from "date-fns";
+import { formatDate, createExcerpt } from "@/lib/postUtils";
 
 type Post = {
   id: string;
@@ -21,36 +21,13 @@ type OtherPostsGridProps = {
 };
 
 const OtherPostsGrid: React.FC<OtherPostsGridProps> = ({ posts = [] }) => {
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), 'MMMM d, yyyy');
-    } catch (e) {
-      return '';
-    }
-  };
-
-  // Function to create excerpt from post content
-  const createExcerpt = (post: Post) => {
-    if (post.excerpt) return post.excerpt;
-    
-    if (post.content) {
-      // Strip HTML tags and limit to ~120 chars
-      const strippedContent = post.content.replace(/<[^>]*>/g, '');
-      return strippedContent.length > 120 
-        ? `${strippedContent.substring(0, 120)}...` 
-        : strippedContent;
-    }
-    
-    return "Click to see more about this adventure...";
-  };
-
   if (posts.length === 0) {
     return null;
   }
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-10">
-      <h2 className="font-playfair text-2xl font-bold mb-8 text-primary">Other Posts</h2>
+      <h2 className="text-2xl font-bold mb-8 text-primary">Other Posts</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {posts.map((post) => (
           <Link to={`/posts/${post.slug}`} key={post.id} className="no-underline">

@@ -21,7 +21,7 @@ const NewsletterModal: React.FC<NewsletterModalProps> = ({ open, onOpenChange })
           {/* Form Section */}
           <div className="p-6 sm:p-8">
             <DialogHeader>
-              <DialogTitle className="font-playfair text-2xl sm:text-3xl font-bold mb-3">
+              <DialogTitle className="text-2xl sm:text-3xl font-bold mb-3">
                 Sign up to follow our travels
               </DialogTitle>
               <DialogDescription className="text-base">

@@ -109,7 +109,7 @@ const HeroCarousel = () => {
           >
             <div className="w-full h-full flex items-center justify-center text-white bg-black/40 bg-blend-multiply">
               <div className="max-w-2xl mx-auto text-center px-4">
-                <h1 className="font-playfair text-3xl lg:text-5xl font-bold mb-4 drop-shadow-lg animate-fade-in">
+                <h1 className="text-3xl lg:text-5xl font-bold mb-4 drop-shadow-lg animate-fade-in">
                   {post.title}
                 </h1>
                 <div className="w-16 h-px bg-white/60 mx-auto mb-4" />

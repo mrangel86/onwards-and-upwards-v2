@@ -38,7 +38,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
       </div>
       <div className="flex flex-col gap-1 py-4 px-5 flex-1">
         <h3 
-          className="font-playfair font-bold text-lg text-primary mb-1 truncate"
+          className="font-bold text-lg text-primary mb-1 truncate"
           title={title}
         >
           {title}

@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
 import BlogCard from "./BlogCard";
+import { formatDate, createExcerpt } from "@/lib/postUtils";
 
 const BlogPreview = () => {
   const [posts, setPosts] = useState([]);
@@ -36,30 +36,6 @@ const BlogPreview = () => {
     fetchPosts();
   }, []);
 
-  // Format date function
-  const formatDate = (dateString) => {
-    try {
-      return format(new Date(dateString), 'MMMM d, yyyy');
-    } catch (e) {
-      return '';
-    }
-  };
-
-  // Create excerpt from content if not provided
-  const createExcerpt = (post) => {
-    if (post.excerpt) return post.excerpt;
-    
-    if (post.content) {
-      // Strip HTML tags and limit to ~120 chars
-      const strippedContent = post.content.replace(/<[^>]*>/g, '');
-      return strippedContent.length > 120 
-        ? `${strippedContent.substring(0, 120)}...` 
-        : strippedContent;
-    }
-    
-    return "Click to see more about this adventure...";
-  };
-  
   // Navigate to blog page and scroll to top
   const handleSeeMoreClick = () => {
     navigate('/blog');
@@ -68,7 +44,7 @@ const BlogPreview = () => {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-14 lg:py-16">
-      <h2 className="font-playfair text-2xl md:text-3xl font-bold text-primary mb-8">
+      <h2 className="text-2xl md:text-3xl font-bold text-primary mb-8">
         Latest <span className="text-accent">// Blog Posts</span>
       </h2>
       

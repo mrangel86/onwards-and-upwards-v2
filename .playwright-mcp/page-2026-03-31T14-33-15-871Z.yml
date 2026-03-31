@@ -1,0 +1,173 @@
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e109]:
+    - navigation [ref=e112]:
+      - link "ONWARDS & UPWARDS" [ref=e113] [cursor=pointer]:
+        - /url: /
+      - generic [ref=e114]:
+        - navigation "Main" [ref=e116]:
+          - list [ref=e118]:
+            - link "Home" [ref=e119] [cursor=pointer]:
+              - /url: /
+            - listitem [ref=e120]:
+              - button "Gallery" [ref=e121] [cursor=pointer]:
+                - text: Gallery
+                - img [ref=e122]
+            - link "Blog" [ref=e124] [cursor=pointer]:
+              - /url: /blog
+            - link "About Us" [ref=e125] [cursor=pointer]:
+              - /url: /about
+        - link "Newsletter" [ref=e126] [cursor=pointer]:
+          - /url: /newsletter
+    - main [ref=e127]:
+      - generic [ref=e128]:
+        - 'heading "Victoria''s 1st Birthday: \"God Bless that Joy!\"" [level=1] [ref=e129]'
+        - generic [ref=e130]:
+          - generic [ref=e131]: by Michael
+          - generic [ref=e132]: October 17, 2025
+        - 'img "Victoria''s 1st Birthday: \"God Bless that Joy!\"" [ref=e133] [cursor=pointer]'
+      - generic [ref=e134]:
+        - emphasis [ref=e136]: "\"The real voyage of discovery consists not in seeking new landscapes, but in having new eyes.\" — Marcel Proust"
+        - emphasis [ref=e138]: October 17, 2025 – Monte Carlo, Monaco
+        - generic [ref=e139]: It was a beautiful day at Fauchon, Place de la Madeleine. We were tucked outside at a little table, the three of us, lost in our own world the way we always are when we're together. You started laughing first—tiny sparklers that turned into a full firework show. We laughed back, louder, and you doubled down like it was a game only we knew how to play. We got so carried away that the manager came all the way out to shush us. He paused, smiled, and said, "but, God bless that Joy!" We are holding onto that line for the rest of our lives. Your laugh is the clearest signal we've ever heard. It's how we know we're exactly where we're supposed to be.
+        - generic [ref=e140]: That's the headline of your first year—joy as the soundtrack, curiosity as the compass.
+        - heading "The Staircase at Eden" [level=2] [ref=e141]
+        - generic [ref=e142]: For Papai's 39th birthday, we took a journey aboard a Celebrity cruise through the Nordic fjords and the Arctic Circle. The ship set sail from Southampton, United Kingdom, on August 25, 2025. A few nights in, we found ourselves at Eden, the bar and performance space at the back of the ship, where a solo guitarist was working through his set. Low lights, soft clink of glasses, a little sea-hum under everything—when you spotted a staircase.
+        - generic [ref=e143]: You had never seen stairs like that up close. Most babies would pat the first step and pivot away. You locked in—calm, deliberate, almost clinical. Hands, then a knee, then a foot. One step. Another. You didn't look back to see if we approved. You didn't look at us to ask for help. You just…went.
+        - generic [ref=e144]: "Papai moved with you, one step behind, hands ready but not needed. We kept thinking: this is the first time you're testing elevation, balance, friction, risk—and you're choosing \"up\" without fanfare. Halfway up, you paused, glanced toward the guitarist, and smiled as if to say, I like this song. Then you kept climbing."
+        - generic [ref=e145]: "At the top, you sat back on your heels—just like your Mamãe used to sit when she was a baby—caught your breath, and gave that satisfied little exhale you do when you've solved something new. Awe hit us—pride, and a quiet prayer of thanks that we get to witness you figuring out the world. We were already trading looks, eager to say out loud what just happened: our daughter just climbed an entire flight of stairs by herself. It wasn't a victory lap; it was a simple report from the front lines of your becoming."
+        - generic [ref=e146]: "There were other moments on that ship that stitched the picture tighter. On the dance floor with Mamãe, the two of you found a groove. Music lit you from the inside out. You moved toward sound the same way you moved toward those stairs: directly, with intent, fully awake. Later, in the photo studio, the camera turned on and you turned toward it like it was an old friend. You loved the lens the way Mamãe always has—open, playful, unafraid. We stood there, a little stunned and very grateful, realizing how much of her we already see in you."
+        - generic [ref=e147]: "That staircase is a small thing and it isn't. You didn't conquer it; you met it. You treated it like a conversation: What are you? What happens if I try? Can I do the next thing without losing my balance? That's curiosity made visible. And if we're honest, it taught us something about how we want to move too—steady, present, and always choosing \"up.\""
+        - heading "Disneyland Paris — The Moment You Lit Up" [level=2] [ref=e148]
+        - generic [ref=e149]: "Papai will admit it: he was skeptical. He thought you might not be ready for Disneyland yet. Mamãe was committed. It's like she already knows everything about you—what you're ready for and what you'll love. And, like everything else, Mamãe was right. From the moment we walked in, you were zoned in—tracking colors, music, faces—as if someone flipped your curiosity switch to max."
+        - generic [ref=e150]:
+          - text: Dinner sealed it. We were lucky enough to get reservations at La Table de Lumière in the Disneyland Paris Hotel, and it was spectacular. The food was delicious, and a parade of characters and princesses visited the tables. You took most of them in calmly—Rapunzel, Minnie and Mickey, Donald Duck, Aladdin and Jasmine, Tiana and Prince Naveen—but then Belle from
+          - emphasis [ref=e151]: Beauty and the Beast
+          - text: arrived and your whole face lit up. You popped from your chair, arms reaching, like you knew exactly who she was and what to do next. No hesitation, no stranger-shy pause—just pure recognition and joy.
+        - generic [ref=e152]: Later in the gift shop, you found Daisy, and for reasons only you know, you wouldn't let go. It was funny and honest and perfectly you.
+        - generic [ref=e153]: "And then the cake. Mickey on a plate, with chocolate ears. Your first taste of chocolate—clean, decisive, immediate. You went right for an ear and the verdict was final: life had a new category of delight. We watched you watch the parades, the shows, the princesses—utterly present. What we thought might overwhelm you instead became proof of who you already are: curious, attuned, brave in crowds, joyful on cue, and always ready for a snack (just like your Mamãe)."
+        - heading "What We Saw in You" [level=2] [ref=e154]
+        - generic [ref=e155]:
+          - text: •
+          - emphasis [ref=e156]: Curiosity as your superpower.
+          - text: You meet the world like a conversation you're eager to keep going—stairs, music, faces, flavors. You test, watch, and try again.
+        - generic [ref=e157]:
+          - text: •
+          - emphasis [ref=e158]: Agency early and often.
+          - text: "At eleven months you reached for the fork and started feeding yourself. Not defiance—an announcement:"
+          - emphasis [ref=e159]: I can try this.
+        - generic [ref=e160]:
+          - text: •
+          - emphasis [ref=e161]: Calm in motion.
+          - text: New places and things don't rattle you; they wake you up. Planes, trains, and a cruise ship—your body settles, your eyes scan, your mind gets busy.
+        - generic [ref=e162]:
+          - text: •
+          - emphasis [ref=e163]: A lens you love.
+          - text: Whenever Papai has his camera out, you show up and lean into it—not performative, just open. You have your Mamãe's comfort with being seen—playful and at ease.
+        - generic [ref=e164]:
+          - text: •
+          - emphasis [ref=e165]: Music-shaped focus.
+          - text: Live strings, a guitarist in the corner, the energy of a parade—sound gathers your attention and turns it into movement. You don't wait for permission; you enjoy it in a way that feels natural, as if you've seen it all before.
+        - heading "What We Laughed About" [level=2] [ref=e166]
+        - generic [ref=e167]:
+          - text: •
+          - emphasis [ref=e168]: Becoming a 'Celebrity'.
+          - text: Two days into the Celebrity cruise, everyone knew you and would address you by name. Crew and passengers would stop to say hello, and we'd grin at how quickly the cruise had become your stage.
+        - generic [ref=e169]:
+          - text: •
+          - emphasis [ref=e170]: Music with Mamãe.
+          - text: You two always find a groove whenever music is playing—whether we're on a cruise ship or at the Waldorf Astoria outside Versailles. The room rearranges itself around you. It's impossible not to laugh at the sheer joy of it, including your little giggles as you dance in her arms.
+        - generic [ref=e171]:
+          - text: •
+          - emphasis [ref=e172]: Strolling through foreign places.
+          - text: No matter where we are, it's as if we become a traveling orchestra of fanfare—our little family language, half words and half sound effects, all meaning—just to see you giggle.
+        - generic [ref=e173]:
+          - text: •
+          - emphasis [ref=e174]: Daisy's grip test.
+          - text: That stuffed duck met its match. Your hands said "mine," your eyes said "obviously," leaving your Vovó with no choice but to add it to the list of birthday presents.
+        - heading "What We Are Becoming" [level=2] [ref=e175]
+        - generic [ref=e176]:
+          - text: •
+          - emphasis [ref=e177]: Leaning into the unknown.
+          - text: We left home and chose a moving life—new beds, new towns, new routines. You met it with bright eyes and steady breath. You've helped Papai in more ways than he can count.
+        - generic [ref=e178]:
+          - text: •
+          - emphasis [ref=e179]: Travel rhythm.
+          - text: Planes, trains, and ships became normal. We learned to pack lighter, pivot faster, and trust each other more—while experiencing things like never before.
+        - generic [ref=e180]:
+          - text: •
+          - emphasis [ref=e181]: Always ready.
+          - text: Whether it was a missed turn or a late check-in, you showed us how to reset quickly and keep it playful.
+        - heading "Miles of Wonder" [level=2] [ref=e182]
+        - generic [ref=e183]: "Before you were one year old, you had already been to: France, Norway, Belgium, the United Kingdom, Monaco, Italy—and even the Arctic Circle."
+        - generic [ref=e184]: On our French countryside road trip—over 1,100 miles—you rode from Dijon, Beaune, Burgundy, Chagny, Lyon, Tain-l'Hermitage & Tournon, Aix-en-Provence, Marseille, La Motte, Cassis, Saint-Rémy, Saint-Tropez, Sainte-Maxime, Château La Coste, Annecy, and Menthon-Saint-Bernard back to Paris. You were a trooper—curious, patient, and along for the whole conversation. As long as you had your Mamãe holding your hand next to you, it didn't matter how long you were in the car.
+        - generic [ref=e185]: We write this letter on the road because we decided to take a birthday road trip—and a going-away present for Vovó and Tia Pati. We took the train from Paris to Nice, then drove Monte Carlo → Portofino → Tuscany → Florence → Venice → Lake Como, before returning to Paris. Our car is packed to the brim with no room to spare—and we wouldn't have it any other way.
+        - heading "What We're Praying For" [level=2] [ref=e186]
+        - generic [ref=e187]: That we never lose this sense of adventure. Wherever we are, whatever we're doing, we do it together—with joy loud enough to be noticed and a calm strong enough to carry us through whatever crosses our path.
+        - heading "Our Promise" [level=2] [ref=e188]
+        - generic [ref=e189]: "We couldn't be happier to have front-row seats to the greatest show of all time—the Victoria Show. We promise to keep showing up: to listen, to laugh, to learn with you, and to always choose \"up\" together."
+        - generic [ref=e190]:
+          - text: With Love,
+          - text: Papai and Mamãe
+      - generic [ref=e194]:
+        - heading "Other Posts" [level=2] [ref=e195]
+        - generic [ref=e196]:
+          - link "The Need for a New Adventure The Need for a New Adventure by Michael August 15, 2025 Eleven bags, a blown tire, and a baby on the way to Paris—our second Onwards and Upwards journey begins in chaos. A decade after Asia, this one is about slowing down, raising our daughter, and rediscovering what it means to live with intention as a family." [ref=e197] [cursor=pointer]:
+            - /url: /posts/the-need-for-a-new-adventure
+            - generic [ref=e198]:
+              - img "The Need for a New Adventure" [ref=e200]
+              - generic [ref=e201]:
+                - heading "The Need for a New Adventure" [level=3] [ref=e202]
+                - generic [ref=e203]:
+                  - generic [ref=e204]: by Michael
+                  - generic [ref=e205]: August 15, 2025
+                - paragraph [ref=e206]: Eleven bags, a blown tire, and a baby on the way to Paris—our second Onwards and Upwards journey begins in chaos. A decade after Asia, this one is about slowing down, raising our daughter, and rediscovering what it means to live with intention as a family.
+          - link "Gearing up for the Next Chapter Gearing up for the Next Chapter by Michael July 25, 2025 Gearing up for the next Chapter There’s a strange limbo that happens before a big departure. You’re still home, but your mind’s already gone — running packing l..." [ref=e207] [cursor=pointer]:
+            - /url: /posts/gearing-up-for-the-next-chapter
+            - generic [ref=e208]:
+              - img "Gearing up for the Next Chapter" [ref=e210]
+              - generic [ref=e211]:
+                - heading "Gearing up for the Next Chapter" [level=3] [ref=e212]
+                - generic [ref=e213]:
+                  - generic [ref=e214]: by Michael
+                  - generic [ref=e215]: July 25, 2025
+                - paragraph [ref=e216]: Gearing up for the next Chapter There’s a strange limbo that happens before a big departure. You’re still home, but your mind’s already gone — running packing l...
+          - link "Moving Onwards Moving Onwards by Michael November 20, 2015" [ref=e217] [cursor=pointer]:
+            - /url: /posts/moving-onwards
+            - generic [ref=e218]:
+              - img "Moving Onwards" [ref=e220]
+              - generic [ref=e221]:
+                - heading "Moving Onwards" [level=3] [ref=e222]
+                - generic [ref=e223]:
+                  - generic [ref=e224]: by Michael
+                  - generic [ref=e225]: November 20, 2015
+                - paragraph
+    - generic [ref=e227]:
+      - generic [ref=e228]:
+        - heading "Newsletter" [level=2] [ref=e229]
+        - paragraph [ref=e230]: Notes from the road for those who want to stay close.
+      - generic [ref=e231]:
+        - textbox "Your email" [ref=e232]
+        - button "Subscribe" [ref=e233] [cursor=pointer]
+    - contentinfo [ref=e234]:
+      - generic [ref=e235]:
+        - link "ONWARDS & UPWARDS" [ref=e237] [cursor=pointer]:
+          - /url: /
+        - paragraph [ref=e239]: Onwards & Upwards is a family journal chronicling our journey through Europe—written for ourselves, our daughter, and anyone who wants to follow along.
+        - generic [ref=e240]:
+          - generic [ref=e241]:
+            - link "Home" [ref=e242] [cursor=pointer]:
+              - /url: /
+            - link "Blog" [ref=e243] [cursor=pointer]:
+              - /url: /blog
+            - link "About Us" [ref=e244] [cursor=pointer]:
+              - /url: /about
+          - generic [ref=e245]:
+            - generic [ref=e246]: Gallery
+            - link "Photography" [ref=e247] [cursor=pointer]:
+              - /url: /gallery/photos
+            - link "Videography" [ref=e248] [cursor=pointer]:
+              - /url: /gallery/videos
+          - button "Newsletter" [ref=e250] [cursor=pointer]
+      - generic [ref=e251]: © 2025 Onwards & Upwards

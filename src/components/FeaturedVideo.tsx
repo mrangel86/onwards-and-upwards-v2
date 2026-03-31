@@ -85,7 +85,7 @@ const FeaturedVideo = () => {
       <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
         {/* Text Content - Left Side */}
         <div className="flex-1 md:flex-[0.4] order-2 md:order-1">
-          <h2 className="font-playfair text-2xl md:text-3xl font-bold text-primary mb-3 animate-fade-in">
+          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-3 animate-fade-in">
             Featured <span className="text-accent">// Video</span>
           </h2>
           

@@ -130,7 +130,7 @@ const FeaturedPhotos = () => {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-12">
-      <h2 className="font-playfair text-2xl md:text-3xl font-bold mb-8 text-primary animate-slide-in">
+      <h2 className="text-2xl md:text-3xl font-bold mb-8 text-primary animate-slide-in">
         Featured <span className="text-accent">// Photos</span>
       </h2>
 

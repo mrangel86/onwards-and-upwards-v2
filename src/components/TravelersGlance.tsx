@@ -17,7 +17,7 @@ const TravelersGlance = () => {
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center">
         {/* Text Content - Left Side */}
         <div className="w-full md:w-[40%] pr-0 md:pr-10 lg:pr-16 mb-10 md:mb-0 order-2 md:order-1">
-          <h2 className="font-playfair text-2xl md:text-3xl font-bold text-primary mb-4 animate-fade-in">
+          <h2 className="text-2xl md:text-3xl font-bold text-primary mb-4 animate-fade-in">
             Travelers at a Glance
           </h2>
           <p className="text-lg text-gray-700 mb-4 animate-fade-in">

@@ -177,7 +177,7 @@ const BlogPost = () => {
       <main className="flex-1 max-w-4xl md:max-w-6xl mx-auto w-full px-4 pb-10">
         {/* Header */}
         <section className="pt-10 pb-6">
-          <h1 className="font-playfair text-3xl md:text-4xl font-bold text-primary mb-2">{post.title}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-primary mb-2">{post.title}</h1>
           <div className="flex items-center justify-between mb-6">
             <span className="text-sm text-accent">by {post.author || "Anonymous"}</span>
             <span className="text-sm text-gray-500">{formatDate(post.created_at)}</span>
